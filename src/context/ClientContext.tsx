@@ -153,7 +153,7 @@ interface ClientContextType {
   deleteClient: (id: string) => void;
   getClientById: (id: string) => Client | undefined;
   updateClientStatus: (id: string, status: ClientStatus) => void;
-  updateLastContactDate: (id: string) => void; // New function
+  updateLastContactDate: (id: string, date?: Date) => void; // Updated to accept a date parameter
 }
 
 const ClientContext = createContext<ClientContextType | undefined>(undefined);
@@ -213,12 +213,14 @@ export const ClientProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     toast.success(statusMessages[status]);
   };
 
-  const updateLastContactDate = (id: string) => {
-    const today = new Date().toISOString().split('T')[0]; // Format as YYYY-MM-DD
+  const updateLastContactDate = (id: string, date?: Date) => {
+    const formattedDate = date 
+      ? date.toISOString().split('T')[0] 
+      : new Date().toISOString().split('T')[0]; // Format as YYYY-MM-DD
     
     setClients((prevClients) =>
       prevClients.map((client) =>
-        client.id === id ? { ...client, lastContactDate: today } : client
+        client.id === id ? { ...client, lastContactDate: formattedDate } : client
       )
     );
     

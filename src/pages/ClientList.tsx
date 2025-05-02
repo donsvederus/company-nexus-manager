@@ -21,8 +21,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, User, Calendar } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Search, User, Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export default function ClientList() {
   const { clients, updateLastContactDate } = useClients();
@@ -71,8 +78,8 @@ export default function ClientList() {
     return format(new Date(dateString), "MMM d, yyyy");
   };
 
-  const handleLastContactUpdate = (clientId: string) => {
-    updateLastContactDate(clientId);
+  const handleLastContactUpdate = (clientId: string, date?: Date) => {
+    updateLastContactDate(clientId, date);
   };
 
   return (
@@ -146,14 +153,26 @@ export default function ClientList() {
                     <TableCell>{client.email}</TableCell>
                     <TableCell className="whitespace-nowrap">{client.phone}</TableCell>
                     <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        className="flex items-center gap-2 text-brand-600 hover:text-brand-700 p-0 h-auto"
-                        onClick={() => handleLastContactUpdate(client.id)}
-                      >
-                        <Calendar className="h-4 w-4" />
-                        {formatDate(client.lastContactDate)}
-                      </Button>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            className="flex items-center gap-2 text-brand-600 hover:text-brand-700 p-0 h-auto"
+                          >
+                            <CalendarIcon className="h-4 w-4" />
+                            {formatDate(client.lastContactDate)}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={client.lastContactDate ? new Date(client.lastContactDate) : undefined}
+                            onSelect={(date) => handleLastContactUpdate(client.id, date)}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={client.status as ClientStatus} />
