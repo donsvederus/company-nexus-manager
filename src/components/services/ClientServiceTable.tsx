@@ -29,30 +29,35 @@ export const ClientServiceTable = ({
   onDelete,
   onToggleStatus
 }: ClientServiceTableProps) => {
-  const [editingService, setEditingService] = useState<string | null>(null);
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const [customCost, setCustomCost] = useState<number | ''>('');
   const [serviceNotes, setServiceNotes] = useState<string>('');
   const [serviceDomain, setServiceDomain] = useState<string>('');
 
-  const startEditing = (serviceId: string) => {
-    const clientService = clientServices.find(cs => cs.serviceId === serviceId);
-    setEditingService(serviceId);
-    setCustomCost(clientService?.customCost ?? '');
-    setServiceNotes(clientService?.notes ?? '');
-    setServiceDomain(clientService?.domain || client?.website || '');
+  const startEditing = (clientServiceId: string) => {
+    const clientService = clientServices.find(cs => cs.id === clientServiceId);
+    if (clientService) {
+      setEditingServiceId(clientServiceId);
+      setCustomCost(clientService.customCost !== undefined ? clientService.customCost : '');
+      setServiceNotes(clientService.notes || '');
+      setServiceDomain(clientService.domain || client?.website || '');
+    }
   };
 
   const handleSaveCustomCost = () => {
-    if (editingService) {
-      onSaveCustomCost(
-        editingService, 
-        customCost === '' ? undefined : Number(customCost),
-        serviceNotes,
-        serviceDomain
-      );
+    if (editingServiceId) {
+      const clientService = clientServices.find(cs => cs.id === editingServiceId);
+      if (clientService) {
+        onSaveCustomCost(
+          clientService.serviceId, 
+          customCost === '' ? undefined : Number(customCost),
+          serviceNotes,
+          serviceDomain
+        );
+      }
       
       // Reset editing state
-      setEditingService(null);
+      setEditingServiceId(null);
       setCustomCost('');
       setServiceNotes('');
       setServiceDomain('');
@@ -77,7 +82,7 @@ export const ClientServiceTable = ({
           const service = getServiceDetails(clientService.serviceId);
           if (!service) return null;
           
-          const isEditing = editingService === clientService.serviceId;
+          const isEditing = editingServiceId === clientService.id;
           
           return (
             <TableRow key={clientService.id} className={!clientService.isActive ? "opacity-60" : ""}>
@@ -151,7 +156,7 @@ export const ClientServiceTable = ({
                   </Button>
                 ) : (
                   <ServiceActionButtons
-                    serviceId={clientService.serviceId}
+                    serviceId={clientService.id}
                     clientServiceId={clientService.id}
                     isActive={clientService.isActive}
                     onEdit={startEditing}

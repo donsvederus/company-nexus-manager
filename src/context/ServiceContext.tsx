@@ -555,9 +555,14 @@ export const ServiceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const serviceToDuplicate = clientServices.find(cs => cs.id === clientServiceId);
     
     if (serviceToDuplicate) {
+      // Create a completely new service with a deep copy of values
       const newService: Omit<ClientService, "id"> = {
-        ...serviceToDuplicate,
+        clientId: serviceToDuplicate.clientId,
+        serviceId: serviceToDuplicate.serviceId,
+        customCost: serviceToDuplicate.customCost,
         notes: serviceToDuplicate.notes ? `${serviceToDuplicate.notes} (Copy)` : '(Copy)',
+        domain: serviceToDuplicate.domain,
+        isActive: serviceToDuplicate.isActive
       };
       
       addClientService(newService);

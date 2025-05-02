@@ -17,7 +17,7 @@ interface ServiceActionButtonsProps {
   serviceId: string;
   clientServiceId: string;
   isActive: boolean;
-  onEdit: (serviceId: string) => void;
+  onEdit: (clientServiceId: string) => void;
   onDuplicate: (clientServiceId: string) => void;
   onToggleStatus: (clientServiceId: string, isActive: boolean) => void;
   onDelete: (clientServiceId: string) => void;
@@ -37,7 +37,7 @@ export const ServiceActionButtons = ({
       <Button 
         size="sm" 
         variant="ghost" 
-        onClick={() => onEdit(serviceId)}
+        onClick={() => onEdit(clientServiceId)}
       >
         Edit
       </Button>

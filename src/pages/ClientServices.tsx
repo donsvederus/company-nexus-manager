@@ -62,7 +62,8 @@ export default function ClientServices() {
   ) => {
     if (!client) return;
     
-    const existingService = clientServices.find(cs => cs.serviceId === serviceId);
+    // Find the client service by ID (not serviceId) to update it
+    const existingService = clientServices.find(cs => cs.id === serviceId);
     
     if (existingService) {
       // Update existing client service
@@ -79,7 +80,8 @@ export default function ClientServices() {
         prev.map(cs => cs.id === existingService.id ? updatedService : cs)
       );
     } else {
-      // Add new client service
+      // This code path shouldn't be reached since we're using client service IDs,
+      // but kept for safety
       const newClientService: Omit<ClientService, "id"> = {
         clientId: client.id,
         serviceId: serviceId,
