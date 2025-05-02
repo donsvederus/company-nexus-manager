@@ -78,7 +78,7 @@ export default function ClientForm({
     user => user.role === "admin" || user.role === "manager"
   ) : [];
   
-  // Add debug log to track the users data
+  // Debug logs to track the users data
   console.log("Users data:", users);
   console.log("Account managers:", accountManagers);
   
@@ -189,39 +189,41 @@ export default function ClientForm({
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-full p-0">
-                        <Command>
-                          <CommandInput placeholder="Search account manager..." />
-                          <CommandEmpty>No account manager found.</CommandEmpty>
-                          <CommandGroup>
-                            {accountManagers && accountManagers.length > 0 ? (
-                              accountManagers.map((manager) => (
-                                <CommandItem
-                                  key={manager.id}
-                                  value={manager.name}
-                                  onSelect={() => {
-                                    form.setValue("accountManager", manager.name);
-                                    setOpen(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      manager.name === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {manager.name}
-                                  <span className="ml-2 text-xs text-muted-foreground">
-                                    ({manager.role})
-                                  </span>
-                                </CommandItem>
-                              ))
-                            ) : (
-                              <CommandItem disabled>No managers available</CommandItem>
-                            )}
-                          </CommandGroup>
-                        </Command>
+                        {accountManagers && (
+                          <Command>
+                            <CommandInput placeholder="Search account manager..." />
+                            <CommandEmpty>No account manager found.</CommandEmpty>
+                            <CommandGroup>
+                              {accountManagers.length > 0 ? (
+                                accountManagers.map((manager) => (
+                                  <CommandItem
+                                    key={manager.id}
+                                    value={manager.name}
+                                    onSelect={() => {
+                                      form.setValue("accountManager", manager.name);
+                                      setOpen(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        manager.name === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {manager.name}
+                                    <span className="ml-2 text-xs text-muted-foreground">
+                                      ({manager.role})
+                                    </span>
+                                  </CommandItem>
+                                ))
+                              ) : (
+                                <CommandItem disabled>No managers available</CommandItem>
+                              )}
+                            </CommandGroup>
+                          </Command>
+                        )}
                       </PopoverContent>
                     </Popover>
                     <FormMessage />
