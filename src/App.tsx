@@ -22,6 +22,7 @@ import ServiceEditor from "@/pages/ServiceEditor";
 import Reports from "@/pages/Reports";
 import SettingsPage from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +46,14 @@ const App = () => (
                 <Route path="/services" element={<Layout><ServiceList /></Layout>} />
                 <Route path="/services/new" element={<Layout><AddService /></Layout>} />
                 <Route path="/services/:id/edit" element={<Layout><ServiceEditor /></Layout>} />
-                <Route path="/reports" element={<Layout><Reports /></Layout>} />
+                <Route 
+                  path="/reports" 
+                  element={
+                    <ProtectedRoute requiredRole="admin">
+                      <Layout><Reports /></Layout>
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

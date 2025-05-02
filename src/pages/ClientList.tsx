@@ -1,5 +1,7 @@
+
 import { useState, useEffect } from "react";
 import { useClients } from "@/context/ClientContext";
+import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import StatusBadge from "@/components/StatusBadge";
@@ -19,12 +21,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search } from "lucide-react";
+import { Search, Filter, User } from "lucide-react";
 
 export default function ClientList() {
   const { clients } = useClients();
+  const { user, hasRole } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [showOnlyMyClients, setShowOnlyMyClients] = useState(false);
   const [filteredClients, setFilteredClients] = useState(clients);
   
   // Apply filters whenever search term, status filter, or clients change
@@ -47,6 +51,11 @@ export default function ClientList() {
     if (statusFilter !== "all") {
       filtered = filtered.filter((client) => client.status === statusFilter);
     }
+    
+    // Apply account manager filter
+    if (showOnlyMyClients && user) {
+      filtered = filtered.filter((client) => client.accountManager === user.name);
+    }
 
     // Sort by company name
     filtered = filtered.sort((a, b) => 
@@ -54,11 +63,12 @@ export default function ClientList() {
     );
 
     setFilteredClients(filtered);
-  }, [searchTerm, statusFilter, clients]);
+  }, [searchTerm, statusFilter, showOnlyMyClients, clients, user]);
 
   const handleResetFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
+    setShowOnlyMyClients(false);
   };
 
   return (
@@ -93,8 +103,19 @@ export default function ClientList() {
               </SelectContent>
             </Select>
           </div>
-          {(searchTerm || statusFilter !== "all") && (
+          {!hasRole("admin") && (
+            <Button
+              variant={showOnlyMyClients ? "default" : "outline"}
+              onClick={() => setShowOnlyMyClients(!showOnlyMyClients)}
+              className="flex items-center gap-2"
+            >
+              <User className="h-4 w-4" />
+              {showOnlyMyClients ? "All Clients" : "My Clients"}
+            </Button>
+          )}
+          {(searchTerm || statusFilter !== "all" || showOnlyMyClients) && (
             <Button variant="outline" onClick={handleResetFilters}>
+              <Filter className="h-4 w-4 mr-2" />
               Reset Filters
             </Button>
           )}

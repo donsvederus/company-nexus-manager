@@ -1,6 +1,7 @@
 
-import { Building, Home, List, PlusSquare } from "lucide-react";
+import { Building, Home, List, PlusSquare, BarChart } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +19,7 @@ import { cn } from "@/lib/utils";
 
 export function AppSidebar() {
   const location = useLocation();
+  const { user, hasRole } = useAuth();
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -67,6 +69,18 @@ export function AppSidebar() {
                   </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              {hasRole("admin") && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild className={cn(
+                    isActive("/reports") && "bg-brand-50 text-brand-700 font-medium"
+                  )}>
+                    <a href="/reports">
+                      <BarChart className="h-5 w-5" />
+                      <span>Reports</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
