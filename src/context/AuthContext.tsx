@@ -82,6 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Check if the user exists and the password matches
     const foundUser = users.find(u => 
+      u.username && username && 
       u.username.toLowerCase() === username.toLowerCase() && 
       u.password === password
     );
