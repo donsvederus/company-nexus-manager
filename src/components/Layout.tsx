@@ -129,7 +129,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 {user?.name.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <Button variant="ghost" size="icon" onClick={handleLogout}>
+            <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
               <LogOut className="h-4 w-4" />
               <span className="sr-only">Logout</span>
             </Button>
@@ -140,6 +140,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
           <aside className="-mx-4 lg:w-1/5">
             <SidebarNav items={sidebarNavItems} />
+            <div className="px-3 py-2 mt-4">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start text-sm font-medium text-red-500 hover:text-red-600 hover:bg-red-50"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </aside>
           <div className="flex-1 lg:max-w-5xl">{children}</div>
         </div>

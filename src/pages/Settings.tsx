@@ -42,6 +42,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { UserRole } from "@/types/auth";
 
 // Company Settings Schema
 const companyFormSchema = z.object({
@@ -56,7 +57,10 @@ const companyFormSchema = z.object({
 const accountManagerSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
-  phone: z.string().min(1, "Phone number is required")
+  phone: z.string().min(1, "Phone number is required"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.enum(["admin", "manager"])
 });
 
 type CompanyFormValues = z.infer<typeof companyFormSchema>;
@@ -67,6 +71,9 @@ interface AccountManager {
   name: string;
   email: string;
   phone: string;
+  username: string;
+  password: string;
+  role: UserRole;
 }
 
 // Our mock data for initial settings
@@ -85,24 +92,42 @@ const initialAccountManagers: AccountManager[] = [
     id: "1",
     name: "Jane Smith",
     email: "jane.smith@clientnexus.com",
-    phone: "(555) 111-2222"
+    phone: "(555) 111-2222",
+    username: "janesmith",
+    password: "password123",
+    role: "manager"
   },
   {
     id: "2",
     name: "Michael Johnson",
     email: "michael.johnson@clientnexus.com",
-    phone: "(555) 222-3333"
+    phone: "(555) 222-3333",
+    username: "michaelj",
+    password: "password123",
+    role: "manager"
   },
   {
     id: "3",
     name: "Bruce Wayne",
     email: "bruce.wayne@clientnexus.com",
-    phone: "(555) 333-4444"
+    phone: "(555) 333-4444",
+    username: "brucewayne",
+    password: "password123",
+    role: "manager"
+  },
+  {
+    id: "4",
+    name: "Admin User",
+    email: "admin@clientnexus.com",
+    phone: "(555) 000-0000",
+    username: "admin",
+    password: "admin123",
+    role: "admin"
   }
 ];
 
 const SettingsPage = () => {
-  const { hasRole } = useAuth();
+  const { hasRole, user } = useAuth();
   const { clients, updateClient } = useClients();
   const [companySettings, setCompanySettings] = useState(defaultSettings);
   const [accountManagers, setAccountManagers] = useState<AccountManager[]>(initialAccountManagers);
@@ -130,7 +155,10 @@ const SettingsPage = () => {
     defaultValues: {
       name: "",
       email: "",
-      phone: ""
+      phone: "",
+      username: "",
+      password: "",
+      role: "manager"
     }
   });
 
@@ -167,7 +195,7 @@ const SettingsPage = () => {
       setAccountManagers(prevManagers => 
         prevManagers.map(manager => 
           manager.id === editingManager.id 
-            ? { ...manager, name: data.name, email: data.email, phone: data.phone } 
+            ? { ...manager, name: data.name, email: data.email, phone: data.phone, username: data.username, password: data.password, role: data.role } 
             : manager
         )
       );
@@ -179,7 +207,10 @@ const SettingsPage = () => {
         id: Date.now().toString(),
         name: data.name,
         email: data.email,
-        phone: data.phone
+        phone: data.phone,
+        username: data.username,
+        password: data.password,
+        role: data.role
       };
       setAccountManagers([...accountManagers, newManager]);
       toast.success("Account manager added successfully");
@@ -187,7 +218,10 @@ const SettingsPage = () => {
     managerForm.reset({
       name: "",
       email: "",
-      phone: ""
+      phone: "",
+      username: "",
+      password: "",
+      role: "manager"
     });
   };
 
@@ -236,7 +270,10 @@ const SettingsPage = () => {
     managerForm.reset({
       name: manager.name,
       email: manager.email,
-      phone: manager.phone
+      phone: manager.phone,
+      username: manager.username,
+      password: manager.password,
+      role: manager.role
     });
   };
 
@@ -246,7 +283,10 @@ const SettingsPage = () => {
     managerForm.reset({
       name: "",
       email: "",
-      phone: ""
+      phone: "",
+      username: "",
+      password: "",
+      role: "manager"
     });
   };
 
@@ -407,7 +447,7 @@ const SettingsPage = () => {
               {/* Account Manager Form */}
               <Form {...managerForm}>
                 <form onSubmit={managerForm.handleSubmit(onSaveAccountManager)} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={managerForm.control}
                       name="name"
@@ -435,7 +475,9 @@ const SettingsPage = () => {
                         </FormItem>
                       )}
                     />
-                    
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={managerForm.control}
                       name="phone"
@@ -445,6 +487,62 @@ const SettingsPage = () => {
                           <FormControl>
                             <Input placeholder="(555) 123-4567" {...field} />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={managerForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Username</FormLabel>
+                          <FormControl>
+                            <Input placeholder="username" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={managerForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="••••••" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={managerForm.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Role</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a role" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="manager">Manager</SelectItem>
+                              <SelectItem value="admin">Admin</SelectItem>
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -479,14 +577,15 @@ const SettingsPage = () => {
                     <TableRow>
                       <TableHead>Manager</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>Phone</TableHead>
+                      <TableHead>Username</TableHead>
+                      <TableHead>Role</TableHead>
                       <TableHead className="w-[100px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {accountManagers.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+                        <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
                           No account managers found
                         </TableCell>
                       </TableRow>
@@ -504,7 +603,12 @@ const SettingsPage = () => {
                             </div>
                           </TableCell>
                           <TableCell>{manager.email}</TableCell>
-                          <TableCell>{manager.phone}</TableCell>
+                          <TableCell>{manager.username}</TableCell>
+                          <TableCell>
+                            <span className={manager.role === "admin" ? "text-blue-600 font-medium" : ""}>
+                              {manager.role.charAt(0).toUpperCase() + manager.role.slice(1)}
+                            </span>
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Button 

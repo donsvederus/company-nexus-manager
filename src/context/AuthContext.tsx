@@ -9,24 +9,32 @@ const initialUsers: User[] = [
     id: "1",
     name: "Admin User",
     email: "admin@clientnexus.com",
+    username: "admin",
+    password: "admin123",
     role: "admin"
   },
   {
     id: "2",
     name: "Jane Smith",
     email: "jane.smith@clientnexus.com",
+    username: "janesmith",
+    password: "password123",
     role: "manager"
   },
   {
     id: "3",
     name: "Michael Johnson",
     email: "michael.johnson@clientnexus.com",
+    username: "michaelj",
+    password: "password123",
     role: "manager"
   },
   {
     id: "4",
     name: "Bruce Wayne",
     email: "bruce.wayne@clientnexus.com",
+    username: "brucewayne",
+    password: "password123",
     role: "manager"
   }
 ];
@@ -35,7 +43,7 @@ interface AuthContextType {
   user: User | null;
   users: User[];
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   hasRole: (role: UserRole) => boolean;
 }
@@ -43,7 +51,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [users] = useState<User[]>(() => {
+  const [users, setUsers] = useState<User[]>(() => {
     const savedUsers = localStorage.getItem("users");
     return savedUsers ? JSON.parse(savedUsers) : initialUsers;
   });
@@ -65,11 +73,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user]);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // For simplicity, we're not checking passwords in this demo
-    // In a real app, you'd want to hash passwords and compare them properly
-    
-    const foundUser = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  const login = async (username: string, password: string): Promise<boolean> => {
+    // Check if the user exists and the password matches
+    const foundUser = users.find(u => 
+      u.username.toLowerCase() === username.toLowerCase() && 
+      u.password === password
+    );
     
     if (foundUser) {
       setUser(foundUser);
@@ -77,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return true;
     }
     
-    toast.error("Invalid email or password");
+    toast.error("Invalid username or password");
     return false;
   };
 

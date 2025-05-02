@@ -1,65 +1,70 @@
 
 import React from "react";
-import { useNavigate, Navigate } from "react-router-dom";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import { useAuth } from "@/context/AuthContext";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock } from "lucide-react";
 
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required")
+const formSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type FormValues = z.infer<typeof formSchema>;
 
 const Login = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: ""
+  // If already authenticated, redirect to dashboard
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
     }
+  }, [isAuthenticated, navigate]);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    const success = await login(data.email, data.password);
+  const onSubmit = async (values: FormValues) => {
+    const success = await login(values.username, values.password);
     if (success) {
       navigate("/");
     }
   };
-  
-  // If already authenticated, redirect to dashboard
-  if (isAuthenticated) {
-    return <Navigate to="/" />;
-  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold">ClientNexus</h1>
-          <p className="text-muted-foreground">Client Management Portal</p>
-        </div>
-        
+    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md px-4">
         <Card>
           <CardHeader className="space-y-1">
-            <div className="flex justify-center mb-2">
-              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-primary/10">
-                <Lock className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <CardTitle className="text-2xl text-center">Sign In</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">Client Manager</CardTitle>
             <CardDescription className="text-center">
-              Enter your email and password to access your account
+              Enter your username and password to sign in
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -67,18 +72,22 @@ const Login = () => {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>Username</FormLabel>
                       <FormControl>
-                        <Input placeholder="email@example.com" {...field} />
+                        <Input
+                          type="text"
+                          placeholder="Enter your username"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="password"
@@ -86,26 +95,31 @@ const Login = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <Button type="submit" className="w-full">
-                  Sign In
+                  Sign in
                 </Button>
               </form>
             </Form>
           </CardContent>
           <CardFooter className="flex flex-col">
-            <p className="text-xs text-center text-muted-foreground mt-2">
-              For demo purposes:<br/>
-              Admin: admin@clientnexus.com<br/>
-              Manager: jane.smith@clientnexus.com<br/>
-              (any password will work)
+            <p className="text-sm text-center text-muted-foreground">
+              Demo credentials:
             </p>
+            <div className="text-xs text-center text-muted-foreground mt-1">
+              <p>Admin: username: <strong>admin</strong>, password: <strong>admin123</strong></p>
+              <p>Manager: username: <strong>janesmith</strong>, password: <strong>password123</strong></p>
+            </div>
           </CardFooter>
         </Card>
       </div>
