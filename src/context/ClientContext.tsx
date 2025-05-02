@@ -1,8 +1,9 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Client, ClientStatus } from "@/types/client";
 import { toast } from "sonner";
 
-// Sample initial data
+// Sample initial data with more active clients
 const initialClients: Client[] = [
   {
     id: "1",
@@ -37,6 +38,50 @@ const initialClients: Client[] = [
     startDate: "2020-03-30",
     status: "active",
   },
+  {
+    id: "4",
+    companyName: "Stark Industries",
+    address: "200 Park Avenue, New York, USA",
+    accountManager: "Pepper Potts",
+    mainContact: "Tony Stark",
+    email: "tony@stark.com",
+    phone: "(555) 462-7865",
+    startDate: "2019-11-12",
+    status: "active",
+  },
+  {
+    id: "5",
+    companyName: "Oscorp",
+    address: "888 Broadway, New York, USA",
+    accountManager: "Harry Osborn",
+    mainContact: "Norman Osborn",
+    email: "norman@oscorp.com",
+    phone: "(555) 672-9090",
+    startDate: "2021-02-18",
+    status: "active",
+  },
+  {
+    id: "6",
+    companyName: "Umbrella Corporation",
+    address: "765 Research Pkwy, Raccoon City, USA",
+    accountManager: "Albert Wesker",
+    mainContact: "William Birkin",
+    email: "birkin@umbrella.com",
+    phone: "(555) 333-2211",
+    startDate: "2018-07-23",
+    status: "active",
+  },
+  {
+    id: "7",
+    companyName: "Cyberdyne Systems",
+    address: "18144 El Camino Real, Sunnyvale, USA",
+    accountManager: "Miles Dyson",
+    mainContact: "Miles Bennett Dyson",
+    email: "dyson@cyberdyne.com",
+    phone: "(555) 789-4561",
+    startDate: "2020-08-29",
+    status: "active",
+  }
 ];
 
 interface ClientContextType {

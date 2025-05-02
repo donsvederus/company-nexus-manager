@@ -83,7 +83,7 @@ const initialServices: Service[] = [
   }
 ];
 
-// Sample client services with updated structure
+// Sample client services with updated structure and more entries
 const initialClientServices: ClientService[] = [
   {
     id: "1",
@@ -118,6 +118,148 @@ const initialClientServices: ClientService[] = [
     customCost: 399.99,
     notes: "Premium SEO package",
     domain: "wayneenterprises.com",
+    isActive: true
+  },
+  // New services for existing clients
+  {
+    id: "5",
+    clientId: "3",
+    serviceId: "1",
+    customCost: 29.99,
+    notes: "Enterprise hosting",
+    domain: "wayneenterprises.com",
+    isActive: true
+  },
+  {
+    id: "6",
+    clientId: "3",
+    serviceId: "6",
+    customCost: 250.00,
+    notes: "Premium maintenance",
+    domain: "wayneenterprises.com",
+    isActive: true
+  },
+  // Services for new clients
+  {
+    id: "7",
+    clientId: "4",
+    serviceId: "1",
+    customCost: 19.99,
+    notes: "Custom hosting solution",
+    domain: "stark.com",
+    isActive: true
+  },
+  {
+    id: "8",
+    clientId: "4",
+    serviceId: "4",
+    notes: "Complete website redesign",
+    domain: "stark.com",
+    isActive: true
+  },
+  {
+    id: "9",
+    clientId: "4",
+    serviceId: "7",
+    customCost: 499.99,
+    notes: "Premium SEO package",
+    domain: "stark.com",
+    isActive: true
+  },
+  {
+    id: "10",
+    clientId: "4",
+    serviceId: "8",
+    customCost: 799.99,
+    notes: "Advanced PPC campaign",
+    domain: "stark.com",
+    isActive: true
+  },
+  {
+    id: "11",
+    clientId: "5",
+    serviceId: "1",
+    notes: "Standard hosting",
+    domain: "oscorp.com",
+    isActive: true
+  },
+  {
+    id: "12",
+    clientId: "5",
+    serviceId: "6",
+    customCost: 89.99,
+    notes: "Basic maintenance",
+    domain: "oscorp.com",
+    isActive: true
+  },
+  {
+    id: "13",
+    clientId: "5",
+    serviceId: "9",
+    customCost: 399.99,
+    notes: "Social media management",
+    domain: "oscorp.com",
+    isActive: true
+  },
+  {
+    id: "14",
+    clientId: "6",
+    serviceId: "1",
+    customCost: 24.99,
+    notes: "Enhanced hosting",
+    domain: "umbrella.com",
+    isActive: true
+  },
+  {
+    id: "15",
+    clientId: "6",
+    serviceId: "2",
+    notes: "Domain registration",
+    domain: "umbrella.com",
+    isActive: true
+  },
+  {
+    id: "16",
+    clientId: "6",
+    serviceId: "4",
+    customCost: 1299.99,
+    notes: "Custom website design",
+    domain: "umbrella.com",
+    isActive: true
+  },
+  {
+    id: "17",
+    clientId: "6",
+    serviceId: "10",
+    customCost: 200.00,
+    notes: "Monthly consulting",
+    domain: "umbrella.com",
+    isActive: true
+  },
+  {
+    id: "18",
+    clientId: "7",
+    serviceId: "1",
+    notes: "Standard hosting",
+    domain: "cyberdyne.com",
+    isActive: true
+  },
+  {
+    id: "19",
+    clientId: "7",
+    serviceId: "3",
+    customCost: 9.99,
+    notes: "Corporate email hosting",
+    domain: "cyberdyne.com",
+    isActive: true
+  },
+  {
+    id: "20",
+    clientId: "7",
+    serviceId: "6",
+    customCost: 125.00,
+    notes: "Enhanced maintenance",
+    domain: "cyberdyne.com",
     isActive: true
   }
 ];
