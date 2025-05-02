@@ -306,11 +306,13 @@ export default function ClientDetails() {
                         <span className="text-sm font-medium">Account Manager:</span>
                         {accountManagers && accountManagers.length > 0 ? (
                           <Select 
-                            value={editedClient.accountManager || ''}
+                            defaultValue={editedClient.accountManager || client.accountManager}
                             onValueChange={(value) => handleInputChange('accountManager', value)}
                           >
                             <SelectTrigger className="w-2/3 h-8 text-sm">
-                              <SelectValue placeholder="Select account manager" />
+                              <SelectValue placeholder="Select account manager">
+                                {editedClient.accountManager || client.accountManager}
+                              </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
                               {accountManagers.map((manager) => (
