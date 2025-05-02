@@ -1,5 +1,6 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
+
+import React, { useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
@@ -7,18 +8,24 @@ import {
   Settings,
   Package,
   LayoutDashboard,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: {
     href: string;
     title: string;
     icon: React.ReactNode;
+    requiredRole?: "admin" | "manager";
   }[];
 }
 
 export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
   const location = useLocation();
+  const { hasRole } = useAuth();
 
   return (
     <nav
@@ -28,26 +35,46 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
       )}
       {...props}
     >
-      {items.map((item) => (
-        <Link
-          key={item.href}
-          to={item.href}
-          className={cn(
-            "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
-            location.pathname === item.href
-              ? "bg-accent text-accent-foreground"
-              : "transparent"
-          )}
-        >
-          {item.icon}
-          {item.title}
-        </Link>
-      ))}
+      {items.map((item) => {
+        // If item requires a role and user doesn't have it, don't show the item
+        if (item.requiredRole && !hasRole(item.requiredRole)) {
+          return null;
+        }
+        
+        return (
+          <Link
+            key={item.href}
+            to={item.href}
+            className={cn(
+              "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
+              location.pathname === item.href
+                ? "bg-accent text-accent-foreground"
+                : "transparent"
+            )}
+          >
+            {item.icon}
+            {item.title}
+          </Link>
+        );
+      })}
     </nav>
   );
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
+  
+  if (!isAuthenticated) {
+    return null;
+  }
+  
   const sidebarNavItems = [
     {
       title: "Dashboard",
@@ -73,15 +100,33 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       title: "Settings",
       href: "/settings",
       icon: <Settings className="h-4 w-4" />,
+      requiredRole: "admin",
     },
   ];
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
       <div className="border-b">
-        <div className="flex h-16 items-center px-4">
-          <div className="ml-auto flex items-center space-x-4">
-            <div className="font-medium">Client Manager</div>
+        <div className="flex h-16 items-center px-4 justify-between">
+          <div className="font-medium">Client Manager</div>
+          <div className="flex items-center space-x-4">
+            <div className="text-sm font-medium">
+              {user?.name} ({user?.role})
+            </div>
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-primary/10 text-primary">
+                {user?.name.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <Button variant="ghost" size="icon" onClick={handleLogout}>
+              <LogOut className="h-4 w-4" />
+              <span className="sr-only">Logout</span>
+            </Button>
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useAuth } from "@/context/AuthContext";
 import { useClients } from "@/context/ClientContext";
 import { 
   Tabs,
@@ -25,6 +26,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { SettingsIcon, Upload, Plus, Trash, Edit } from "lucide-react";
+import { Navigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Company Settings Schema
 const companyFormSchema = z.object({
@@ -85,11 +102,21 @@ const initialAccountManagers: AccountManager[] = [
 ];
 
 const SettingsPage = () => {
+  const { hasRole } = useAuth();
+  const { clients, updateClient } = useClients();
   const [companySettings, setCompanySettings] = useState(defaultSettings);
   const [accountManagers, setAccountManagers] = useState<AccountManager[]>(initialAccountManagers);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [editingManager, setEditingManager] = useState<AccountManager | null>(null);
+  const [managerToDelete, setManagerToDelete] = useState<AccountManager | null>(null);
+  const [replacementManagerId, setReplacementManagerId] = useState<string>("");
+  const [isReassignDialogOpen, setIsReassignDialogOpen] = useState(false);
+
+  // If the user doesn't have admin role, redirect to dashboard
+  if (!hasRole("admin")) {
+    return <Navigate to="/" />;
+  }
   
   // Setup company form
   const companyForm = useForm<CompanyFormValues>({
@@ -165,9 +192,42 @@ const SettingsPage = () => {
   };
 
   // Delete account manager
-  const deleteManager = (id: string) => {
-    setAccountManagers(accountManagers.filter(manager => manager.id !== id));
-    toast.success("Account manager deleted successfully");
+  const confirmDeleteManager = (manager: AccountManager) => {
+    setManagerToDelete(manager);
+    setReplacementManagerId("");
+    setIsReassignDialogOpen(true);
+  };
+
+  // Execute delete with reassignment
+  const executeDelete = () => {
+    if (!managerToDelete || !replacementManagerId) {
+      toast.error("Please select a replacement manager");
+      return;
+    }
+
+    // Get the replacement manager
+    const replacement = accountManagers.find(m => m.id === replacementManagerId);
+    if (!replacement) {
+      toast.error("Invalid replacement manager");
+      return;
+    }
+
+    // Update all clients with the deleted manager to use the new one
+    clients.forEach(client => {
+      if (client.accountManager === managerToDelete.name) {
+        updateClient({
+          ...client,
+          accountManager: replacement.name
+        });
+      }
+    });
+    
+    // Remove the manager from the list
+    setAccountManagers(accountManagers.filter(manager => manager.id !== managerToDelete.id));
+    
+    toast.success(`Manager ${managerToDelete.name} deleted and clients reassigned to ${replacement.name}`);
+    setIsReassignDialogOpen(false);
+    setManagerToDelete(null);
   };
 
   // Edit account manager
@@ -458,7 +518,7 @@ const SettingsPage = () => {
                               <Button 
                                 variant="ghost" 
                                 size="icon"
-                                onClick={() => deleteManager(manager.id)}
+                                onClick={() => confirmDeleteManager(manager)}
                               >
                                 <Trash className="h-4 w-4" />
                                 <span className="sr-only">Delete</span>
@@ -475,6 +535,67 @@ const SettingsPage = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* Reassign Manager Dialog */}
+      <Dialog open={isReassignDialogOpen} onOpenChange={setIsReassignDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Reassign Clients</DialogTitle>
+            <DialogDescription>
+              Before deleting this manager, please select a new manager to handle their clients.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Deleting:</p>
+              <div className="flex items-center gap-2 p-2 border rounded-md">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-destructive/10 text-destructive">
+                    {managerToDelete?.name.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium">{managerToDelete?.name}</p>
+                  <p className="text-xs text-muted-foreground">{managerToDelete?.email}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Assign clients to:</p>
+              <Select value={replacementManagerId} onValueChange={setReplacementManagerId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a manager" />
+                </SelectTrigger>
+                <SelectContent>
+                  {accountManagers
+                    .filter(m => m.id !== managerToDelete?.id)
+                    .map(manager => (
+                      <SelectItem key={manager.id} value={manager.id}>
+                        {manager.name}
+                      </SelectItem>
+                    ))
+                  }
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsReassignDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={executeDelete} 
+              disabled={!replacementManagerId}
+            >
+              Delete & Reassign
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
