@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -37,7 +37,7 @@ const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // If already authenticated, redirect to dashboard
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       navigate("/");
     }
@@ -53,11 +53,13 @@ const Login = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
+      console.log("Form submitted with:", values);
       setIsSubmitting(true);
       const success = await login(values.username, values.password);
+      console.log("Login result:", success);
       if (success) {
         navigate("/");
-      }
+      } 
     } catch (error) {
       console.error("Login error:", error);
     } finally {

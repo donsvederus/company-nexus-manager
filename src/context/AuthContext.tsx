@@ -80,12 +80,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     }
     
-    // Check if the user exists and the password matches
+    // Logging for debugging
+    console.log("Login attempt:", { username, password });
+    console.log("Available users:", users);
+    
+    // Find user with case-insensitive username match and exact password match
     const foundUser = users.find(u => 
-      u.username && username && 
+      u.username && 
       u.username.toLowerCase() === username.toLowerCase() && 
       u.password === password
     );
+    
+    console.log("Found user:", foundUser);
     
     if (foundUser) {
       setUser(foundUser);
