@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { useClients } from "@/context/ClientContext";
 import { useServices } from "@/context/ServiceContext";
@@ -47,7 +46,7 @@ export default function Reports() {
       const totalCost = clientServiceItems.reduce((acc, cs) => {
         const service = getServiceDetails(cs.serviceId);
         if (!service) return acc;
-        const cost = getFinalCost(service, cs);
+        const cost = getFinalCost(service.defaultCost, cs.customCost);
         return acc + cost;
       }, 0);
       
@@ -69,7 +68,7 @@ export default function Reports() {
       const service = getServiceDetails(cs.serviceId);
       if (!service) return;
       
-      const cost = getFinalCost(service, cs);
+      const cost = getFinalCost(service.defaultCost, cs.customCost);
       const category = service.category;
       
       if (!categories[category]) {
