@@ -73,10 +73,14 @@ export default function ClientForm({
   const { users } = useAuth();
   const [open, setOpen] = useState(false);
   
-  // Filter managers from the users list
-  const accountManagers = users.filter(
+  // Filter managers from the users list and ensure users is never undefined
+  const accountManagers = users ? users.filter(
     user => user.role === "admin" || user.role === "manager"
-  );
+  ) : [];
+  
+  // Add debug log to track the users data
+  console.log("Users data:", users);
+  console.log("Account managers:", accountManagers);
   
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(formSchema),
@@ -189,29 +193,33 @@ export default function ClientForm({
                           <CommandInput placeholder="Search account manager..." />
                           <CommandEmpty>No account manager found.</CommandEmpty>
                           <CommandGroup>
-                            {accountManagers.map((manager) => (
-                              <CommandItem
-                                key={manager.id}
-                                value={manager.name}
-                                onSelect={() => {
-                                  form.setValue("accountManager", manager.name);
-                                  setOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    manager.name === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {manager.name}
-                                <span className="ml-2 text-xs text-muted-foreground">
-                                  ({manager.role})
-                                </span>
-                              </CommandItem>
-                            ))}
+                            {accountManagers && accountManagers.length > 0 ? (
+                              accountManagers.map((manager) => (
+                                <CommandItem
+                                  key={manager.id}
+                                  value={manager.name}
+                                  onSelect={() => {
+                                    form.setValue("accountManager", manager.name);
+                                    setOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      manager.name === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {manager.name}
+                                  <span className="ml-2 text-xs text-muted-foreground">
+                                    ({manager.role})
+                                  </span>
+                                </CommandItem>
+                              ))
+                            ) : (
+                              <CommandItem disabled>No managers available</CommandItem>
+                            )}
                           </CommandGroup>
                         </Command>
                       </PopoverContent>
