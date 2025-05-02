@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useClients } from "@/context/ClientContext";
 import { useAuth } from "@/context/AuthContext";
@@ -20,10 +21,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, User } from "lucide-react";
+import { Search, User, Calendar } from "lucide-react";
+import { format } from "date-fns";
 
 export default function ClientList() {
-  const { clients } = useClients();
+  const { clients, updateLastContactDate } = useClients();
   const { user, hasRole } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("active");
@@ -63,6 +65,15 @@ export default function ClientList() {
 
     setFilteredClients(filtered);
   }, [searchTerm, statusFilter, showOnlyMyClients, clients, user]);
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Not set";
+    return format(new Date(dateString), "MMM d, yyyy");
+  };
+
+  const handleLastContactUpdate = (clientId: string) => {
+    updateLastContactDate(clientId);
+  };
 
   return (
     <div className="space-y-6">
@@ -117,7 +128,7 @@ export default function ClientList() {
                 <TableHead>Main Contact</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead className="whitespace-nowrap">Phone</TableHead>
-                <TableHead>Start Date</TableHead>
+                <TableHead>Last Contact</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -134,7 +145,16 @@ export default function ClientList() {
                     <TableCell>{client.mainContact}</TableCell>
                     <TableCell>{client.email}</TableCell>
                     <TableCell className="whitespace-nowrap">{client.phone}</TableCell>
-                    <TableCell>{new Date(client.startDate).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="ghost" 
+                        className="flex items-center gap-2 text-brand-600 hover:text-brand-700 p-0 h-auto"
+                        onClick={() => handleLastContactUpdate(client.id)}
+                      >
+                        <Calendar className="h-4 w-4" />
+                        {formatDate(client.lastContactDate)}
+                      </Button>
+                    </TableCell>
                     <TableCell>
                       <StatusBadge status={client.status as ClientStatus} />
                     </TableCell>

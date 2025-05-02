@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Client, ClientStatus } from "@/types/client";
 import { toast } from "sonner";
@@ -15,6 +14,7 @@ const initialClients: Client[] = [
     phone: "(555) 123-4567",
     startDate: "2022-01-15",
     status: "active",
+    lastContactDate: "2023-08-15"
   },
   {
     id: "2",
@@ -26,6 +26,7 @@ const initialClients: Client[] = [
     phone: "(555) 987-6543",
     startDate: "2021-06-22",
     status: "inactive",
+    lastContactDate: "2023-05-22"
   },
   {
     id: "3",
@@ -152,6 +153,7 @@ interface ClientContextType {
   deleteClient: (id: string) => void;
   getClientById: (id: string) => Client | undefined;
   updateClientStatus: (id: string, status: ClientStatus) => void;
+  updateLastContactDate: (id: string) => void; // New function
 }
 
 const ClientContext = createContext<ClientContextType | undefined>(undefined);
@@ -211,6 +213,18 @@ export const ClientProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     toast.success(statusMessages[status]);
   };
 
+  const updateLastContactDate = (id: string) => {
+    const today = new Date().toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    
+    setClients((prevClients) =>
+      prevClients.map((client) =>
+        client.id === id ? { ...client, lastContactDate: today } : client
+      )
+    );
+    
+    toast.success("Last contact date updated successfully");
+  };
+
   const value = {
     clients,
     addClient,
@@ -218,6 +232,7 @@ export const ClientProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     deleteClient,
     getClientById,
     updateClientStatus,
+    updateLastContactDate,
   };
 
   return <ClientContext.Provider value={value}>{children}</ClientContext.Provider>;
