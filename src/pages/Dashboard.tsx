@@ -11,7 +11,6 @@ export default function Dashboard() {
     total: 0,
     active: 0,
     inactive: 0,
-    reactivated: 0,
     recentClients: [],
   });
 
@@ -19,7 +18,6 @@ export default function Dashboard() {
     const total = clients.length;
     const active = clients.filter((client) => client.status === "active").length;
     const inactive = clients.filter((client) => client.status === "inactive").length;
-    const reactivated = clients.filter((client) => client.status === "reactivated").length;
     
     // Get 5 most recent clients
     const recentClients = [...clients]
@@ -30,7 +28,6 @@ export default function Dashboard() {
       total,
       active,
       inactive,
-      reactivated,
       recentClients,
     });
   }, [clients]);
@@ -39,18 +36,16 @@ export default function Dashboard() {
     total: "bg-brand-50 text-brand-700",
     active: "bg-green-50 text-green-700",
     inactive: "bg-red-50 text-red-700",
-    reactivated: "bg-amber-50 text-amber-700",
   };
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatsCard title="Total Clients" value={stats.total} colorClass={statusColors.total} />
         <StatsCard title="Active Clients" value={stats.active} colorClass={statusColors.active} />
         <StatsCard title="Inactive Clients" value={stats.inactive} colorClass={statusColors.inactive} />
-        <StatsCard title="Reactivated Clients" value={stats.reactivated} colorClass={statusColors.reactivated} />
       </div>
 
       <Card>
