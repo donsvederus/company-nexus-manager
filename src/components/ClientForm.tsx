@@ -1,9 +1,10 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 import { Client, ClientFormData, ClientStatus, ClientFormValues } from "@/types/client";
 import { Button } from "@/components/ui/button";
@@ -31,14 +32,6 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
-import { useState } from "react";
 import { UserRole } from "@/types/auth";
 import { useAuth } from "@/context/AuthContext";
 
@@ -70,7 +63,6 @@ export default function ClientForm({
 }: ClientFormProps) {
   const navigate = useNavigate();
   const { users } = useAuth();
-  const [open, setOpen] = useState(false);
   
   // Make sure accountManagers is always an array, even if users is undefined
   const accountManagers = Array.isArray(users) 
@@ -108,88 +100,6 @@ export default function ClientForm({
       startDate: data.startDate.toISOString().split("T")[0],
     };
     onSubmit(formattedData);
-  };
-
-  // Function to safely render account manager select UI
-  const renderAccountManagerUI = () => {
-    // If no account managers are available, render a simple input
-    if (!accountManagers || accountManagers.length === 0) {
-      return (
-        <Input 
-          {...form.register("accountManager")} 
-          placeholder="Enter account manager name"
-        />
-      );
-    }
-
-    // Otherwise, render the dropdown
-    return (
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <FormControl>
-            <Button
-              variant="outline"
-              role="combobox"
-              className={cn(
-                "w-full h-10 justify-between",
-                !form.getValues("accountManager") && "text-muted-foreground"
-              )}
-            >
-              {form.getValues("accountManager")
-                ? form.getValues("accountManager")
-                : "Select account manager"}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </FormControl>
-        </PopoverTrigger>
-        <PopoverContent className="w-full p-0">
-          {renderAccountManagerContent()}
-        </PopoverContent>
-      </Popover>
-    );
-  };
-
-  // Function to render account manager selection content safely
-  const renderAccountManagerContent = () => {
-    if (!accountManagers || accountManagers.length === 0) {
-      return (
-        <div className="p-4 text-center text-sm text-muted-foreground">
-          No account managers available
-        </div>
-      );
-    }
-
-    return (
-      <Command>
-        <CommandInput placeholder="Search account manager..." />
-        <CommandEmpty>No account manager found.</CommandEmpty>
-        <CommandGroup>
-          {accountManagers.map((manager) => (
-            <CommandItem
-              key={manager.id}
-              value={manager.name}
-              onSelect={() => {
-                form.setValue("accountManager", manager.name);
-                setOpen(false);
-              }}
-            >
-              <Check
-                className={cn(
-                  "mr-2 h-4 w-4",
-                  manager.name === form.watch("accountManager")
-                    ? "opacity-100"
-                    : "opacity-0"
-                )}
-              />
-              {manager.name}
-              <span className="ml-2 text-xs text-muted-foreground">
-                ({manager.role})
-              </span>
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </Command>
-    );
   };
 
   return (
@@ -250,7 +160,28 @@ export default function ClientForm({
                   <FormItem className="flex flex-col">
                     <FormLabel>Account Manager</FormLabel>
                     <FormControl>
-                      {renderAccountManagerUI()}
+                      {accountManagers && accountManagers.length > 0 ? (
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue placeholder="Select account manager" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {accountManagers.map((manager) => (
+                              <SelectItem key={manager.id} value={manager.name}>
+                                {manager.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input 
+                          placeholder="Enter account manager name" 
+                          {...field}
+                        />
+                      )}
                     </FormControl>
                     <FormMessage />
                   </FormItem>
