@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Client, ClientStatus } from "@/types/client";
 import { toast } from "sonner";
@@ -36,7 +35,7 @@ const initialClients: Client[] = [
     email: "lucius.fox@wayne.com",
     phone: "(555) 228-6283",
     startDate: "2020-03-30",
-    status: "reactivated",
+    status: "active",
   },
 ];
 
@@ -99,8 +98,7 @@ export const ClientProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     
     const statusMessages = {
       active: "Client activated successfully",
-      inactive: "Client deactivated successfully",
-      reactivated: "Client reactivated successfully"
+      inactive: "Client deactivated successfully"
     };
     
     toast.success(statusMessages[status]);

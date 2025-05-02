@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -44,7 +43,7 @@ const formSchema = z.object({
   startDate: z.date({
     required_error: "Start date is required",
   }),
-  status: z.enum(["active", "inactive", "reactivated"] as const),
+  status: z.enum(["active", "inactive"] as const),
 });
 
 interface ClientFormProps {
@@ -242,7 +241,6 @@ export default function ClientForm({
                       <SelectContent>
                         <SelectItem value="active">Active</SelectItem>
                         <SelectItem value="inactive">Inactive</SelectItem>
-                        <SelectItem value="reactivated">Reactivated</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

@@ -1,5 +1,5 @@
 
-export type ClientStatus = "active" | "inactive" | "reactivated";
+export type ClientStatus = "active" | "inactive";
 
 export interface Client {
   id: string;

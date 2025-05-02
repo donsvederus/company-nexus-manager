@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useClients } from "@/context/ClientContext";
 import { Input } from "@/components/ui/input";
@@ -91,7 +90,6 @@ export default function ClientList() {
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="reactivated">Reactivated</SelectItem>
               </SelectContent>
             </Select>
           </div>

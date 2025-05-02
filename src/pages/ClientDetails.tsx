@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useClients } from "@/context/ClientContext";
@@ -175,23 +174,6 @@ export default function ClientDetails() {
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Mark this client as inactive. Limited functionality will be available.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        className="w-full bg-amber-600 hover:bg-amber-700" 
-                        onClick={() => handleStatusChange("reactivated")}
-                        disabled={client.status === "reactivated"}
-                      >
-                        Reactivate Client
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Reactivate a previously inactive client</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
