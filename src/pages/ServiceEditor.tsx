@@ -19,7 +19,18 @@ import {
 } from "@/components/ui/select";
 import { formatCurrency } from "@/utils/formatUtils";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const categoryOptions: ServiceCategory[] = [
   "hosting",
@@ -33,7 +44,7 @@ const categoryOptions: ServiceCategory[] = [
 export default function ServiceEditor() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getServiceById, updateService } = useServices();
+  const { getServiceById, updateService, services } = useServices();
   
   const [service, setService] = useState<Service | null>(null);
   const [name, setName] = useState("");
@@ -44,8 +55,18 @@ export default function ServiceEditor() {
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [allCategories, setAllCategories] = useState<ServiceCategory[]>(categoryOptions);
+  const [categoryToRemove, setCategoryToRemove] = useState<ServiceCategory | null>(null);
 
   useEffect(() => {
+    // Collect all unique categories used across all services
+    const uniqueCategories = new Set(categoryOptions);
+    services.forEach(service => {
+      if (!categoryOptions.includes(service.category)) {
+        uniqueCategories.add(service.category);
+      }
+    });
+    setAllCategories(Array.from(uniqueCategories));
+
     if (id) {
       const serviceData = getServiceById(id);
       if (serviceData) {
@@ -56,7 +77,7 @@ export default function ServiceEditor() {
         setDescription(serviceData.description || "");
         
         // Check if the service has a custom category that's not in our default options
-        if (!categoryOptions.includes(serviceData.category)) {
+        if (!uniqueCategories.has(serviceData.category)) {
           setAllCategories(prev => [...prev, serviceData.category]);
         }
       } else {
@@ -64,7 +85,7 @@ export default function ServiceEditor() {
         navigate("/services");
       }
     }
-  }, [id, getServiceById, navigate]);
+  }, [id, getServiceById, navigate, services]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,8 +135,41 @@ export default function ServiceEditor() {
     
     // Hide the input field
     setShowNewCategoryInput(false);
+    setNewCategory("");
     
     toast.success("New category added");
+  };
+
+  const handleRemoveCategory = (categoryToRemove: ServiceCategory) => {
+    // Check if any services are using this category
+    const servicesUsingCategory = services.filter(s => s.category === categoryToRemove);
+    
+    if (servicesUsingCategory.length > 1 || 
+        (servicesUsingCategory.length === 1 && servicesUsingCategory[0].id !== id)) {
+      toast.error(`Cannot remove category. It's used by ${servicesUsingCategory.length} ${servicesUsingCategory.length === 1 ? 'service' : 'services'}.`);
+      return;
+    }
+    
+    // Remove the category
+    setAllCategories(prev => prev.filter(cat => cat !== categoryToRemove));
+    
+    // If the current service was using this category, change it to "other"
+    if (category === categoryToRemove) {
+      setCategory("other");
+    }
+    
+    toast.success("Category removed successfully");
+    setCategoryToRemove(null);
+  };
+
+  const isCategoryRemovable = (cat: ServiceCategory) => {
+    // Default categories cannot be removed
+    if (categoryOptions.includes(cat)) {
+      return false;
+    }
+    
+    // Check if any other services use this category except the current one
+    return !services.some(s => s.category === cat && s.id !== id);
   };
 
   if (!service) {
@@ -184,7 +238,11 @@ export default function ServiceEditor() {
                             {allCategories
                               .filter(cat => !categoryOptions.includes(cat))
                               .map((cat) => (
-                                <SelectItem key={cat} value={cat} className="capitalize">
+                                <SelectItem 
+                                  key={cat} 
+                                  value={cat}
+                                  className="capitalize flex justify-between items-center"
+                                >
                                   {cat}
                                 </SelectItem>
                               ))}
@@ -202,6 +260,35 @@ export default function ServiceEditor() {
                     <Plus className="h-4 w-4" />
                     New
                   </Button>
+                  
+                  {category && !categoryOptions.includes(category) && isCategoryRemovable(category) && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex items-center gap-1 text-destructive"
+                          onClick={() => setCategoryToRemove(category)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Remove
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Remove category</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to remove the "{category}" category?
+                            This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel onClick={() => setCategoryToRemove(null)}>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleRemoveCategory(category)}>Remove</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
                 </div>
               ) : (
                 <div className="flex gap-2">
