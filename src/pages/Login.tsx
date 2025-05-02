@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +34,7 @@ type FormValues = z.infer<typeof formSchema>;
 const Login = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [isSubmitting, useState] = useState(false);
   
   // If already authenticated, redirect to dashboard
   React.useEffect(() => {
@@ -51,9 +52,16 @@ const Login = () => {
   });
 
   const onSubmit = async (values: FormValues) => {
-    const success = await login(values.username, values.password);
-    if (success) {
-      navigate("/");
+    try {
+      setIsSubmitting(true);
+      const success = await login(values.username, values.password);
+      if (success) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -106,8 +114,8 @@ const Login = () => {
                   )}
                 />
 
-                <Button type="submit" className="w-full">
-                  Sign in
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? "Signing in..." : "Sign in"}
                 </Button>
               </form>
             </Form>

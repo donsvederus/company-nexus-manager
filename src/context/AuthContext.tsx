@@ -74,6 +74,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user]);
 
   const login = async (username: string, password: string): Promise<boolean> => {
+    // Add null checks to handle undefined values
+    if (!username || !password) {
+      toast.error("Username and password are required");
+      return false;
+    }
+    
     // Check if the user exists and the password matches
     const foundUser = users.find(u => 
       u.username.toLowerCase() === username.toLowerCase() && 
