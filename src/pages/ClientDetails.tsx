@@ -56,7 +56,7 @@ export default function ClientDetails() {
       const foundClient = getClientById(id);
       if (foundClient) {
         setClient(foundClient);
-        setEditedClient(foundClient);
+        setEditedClient(foundClient); // Set the editedClient with the found client
       } else {
         toast.error("Client not found");
         navigate("/clients");
@@ -125,6 +125,36 @@ export default function ClientDetails() {
     }
   };
 
+  // Function to set editing state and ensure editedClient has current values
+  const startContactEditing = () => {
+    if (client) {
+      // Ensure the editedClient has the current client values before entering edit mode
+      setEditedClient(current => ({
+        ...current,
+        accountManager: client.accountManager,
+        mainContact: client.mainContact,
+        email: client.email,
+        phone: client.phone
+      }));
+    }
+    setIsContactEditing(true);
+  };
+
+  // Function to set basic editing state and ensure editedClient has current values
+  const startBasicEditing = () => {
+    if (client) {
+      // Ensure the editedClient has the current client values before entering edit mode
+      setEditedClient(current => ({
+        ...current,
+        companyName: client.companyName,
+        address: client.address,
+        startDate: client.startDate,
+        website: client.website
+      }));
+    }
+    setIsBasicEditing(true);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -173,7 +203,7 @@ export default function ClientDetails() {
                       <Save className="h-4 w-4" /> Save
                     </Button>
                   ) : (
-                    <Button size="sm" variant="ghost" onClick={() => setIsBasicEditing(true)} className="flex items-center gap-1">
+                    <Button size="sm" variant="ghost" onClick={startBasicEditing} className="flex items-center gap-1">
                       <Edit className="h-4 w-4" /> Edit
                     </Button>
                   )}
@@ -264,7 +294,7 @@ export default function ClientDetails() {
                       <Save className="h-4 w-4" /> Save
                     </Button>
                   ) : (
-                    <Button size="sm" variant="ghost" onClick={() => setIsContactEditing(true)} className="flex items-center gap-1">
+                    <Button size="sm" variant="ghost" onClick={startContactEditing} className="flex items-center gap-1">
                       <Edit className="h-4 w-4" /> Edit
                     </Button>
                   )}
