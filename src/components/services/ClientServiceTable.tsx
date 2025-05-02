@@ -14,7 +14,7 @@ interface ClientServiceTableProps {
   clientServices: ClientService[];
   getServiceDetails: (serviceId: string) => Service | undefined;
   client: Client;
-  onSaveCustomCost: (serviceId: string, cost: number | undefined, notes: string, domain: string) => void;
+  onSaveCustomCost: (clientServiceId: string, cost: number | undefined, notes: string, domain: string) => void;
   onDuplicate: (clientServiceId: string) => void;
   onDelete: (clientServiceId: string) => void;
   onToggleStatus: (clientServiceId: string, isActive: boolean) => void;
@@ -46,15 +46,12 @@ export const ClientServiceTable = ({
 
   const handleSaveCustomCost = () => {
     if (editingServiceId) {
-      const clientService = clientServices.find(cs => cs.id === editingServiceId);
-      if (clientService) {
-        onSaveCustomCost(
-          clientService.serviceId, 
-          customCost === '' ? undefined : Number(customCost),
-          serviceNotes,
-          serviceDomain
-        );
-      }
+      onSaveCustomCost(
+        editingServiceId,
+        customCost === '' ? undefined : Number(customCost),
+        serviceNotes,
+        serviceDomain
+      );
       
       // Reset editing state
       setEditingServiceId(null);
@@ -156,7 +153,7 @@ export const ClientServiceTable = ({
                   </Button>
                 ) : (
                   <ServiceActionButtons
-                    serviceId={clientService.id}
+                    serviceId={clientService.serviceId}
                     clientServiceId={clientService.id}
                     isActive={clientService.isActive}
                     onEdit={startEditing}

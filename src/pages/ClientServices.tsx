@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useClients } from "@/context/ClientContext";
@@ -55,15 +54,15 @@ export default function ClientServices() {
   }, [id, getClientById, getClientServices, navigate]);
   
   const handleSaveCustomCost = (
-    serviceId: string, 
+    clientServiceId: string, 
     customCostValue: number | undefined, 
     notes: string, 
     domain: string
   ) => {
     if (!client) return;
     
-    // Find the client service by ID (not serviceId) to update it
-    const existingService = clientServices.find(cs => cs.id === serviceId);
+    // Find the client service by ID to update it
+    const existingService = clientServices.find(cs => cs.id === clientServiceId);
     
     if (existingService) {
       // Update existing client service
@@ -73,28 +72,13 @@ export default function ClientServices() {
         notes: notes || undefined,
         domain: domain || undefined
       };
+      
       updateClientService(updatedService);
       
       // Update local state
       setClientServices(prev => 
-        prev.map(cs => cs.id === existingService.id ? updatedService : cs)
+        prev.map(cs => cs.id === clientServiceId ? updatedService : cs)
       );
-    } else {
-      // This code path shouldn't be reached since we're using client service IDs,
-      // but kept for safety
-      const newClientService: Omit<ClientService, "id"> = {
-        clientId: client.id,
-        serviceId: serviceId,
-        customCost: customCostValue,
-        notes: notes || undefined,
-        domain: domain || undefined,
-        isActive: true
-      };
-      
-      addClientService(newClientService);
-      
-      // Refresh client services
-      setClientServices(getClientServices(client.id));
     }
   };
   

@@ -14,8 +14,8 @@ import {
 import { Copy, Trash2, EyeOff, Eye } from "lucide-react";
 
 interface ServiceActionButtonsProps {
-  serviceId: string;
-  clientServiceId: string;
+  serviceId: string; // This is actually the ID of the service in the services array
+  clientServiceId: string; // This is the ID of the client service entry
   isActive: boolean;
   onEdit: (clientServiceId: string) => void;
   onDuplicate: (clientServiceId: string) => void;
