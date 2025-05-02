@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useClients } from "@/context/ClientContext";
@@ -391,7 +390,8 @@ export default function ClientServices() {
                             )}
                           </TableCell>
                           <TableCell>
-                            <Badge variant={clientService.isActive ? "success" : "secondary"}>
+                            <Badge variant={clientService.isActive ? "default" : "secondary"} 
+                              className={clientService.isActive ? "bg-green-500 hover:bg-green-600" : ""}>
                               {clientService.isActive ? "Active" : "Inactive"}
                             </Badge>
                           </TableCell>
