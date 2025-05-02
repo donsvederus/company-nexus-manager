@@ -39,7 +39,7 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { UserRole } from "@/types/auth";
 import { useAuth } from "@/context/AuthContext";
 
@@ -74,9 +74,9 @@ export default function ClientForm({
   const [open, setOpen] = useState(false);
   
   // Filter managers from the users list and ensure users is never undefined
-  const accountManagers = users ? users.filter(
-    user => user.role === "admin" || user.role === "manager"
-  ) : [];
+  const accountManagers = Array.isArray(users) 
+    ? users.filter(user => user.role === "admin" || user.role === "manager") 
+    : [];
   
   // Debug logs to track the users data
   console.log("Users data:", users);
@@ -189,40 +189,40 @@ export default function ClientForm({
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-full p-0">
-                        {accountManagers && (
+                        {Array.isArray(accountManagers) && accountManagers.length > 0 ? (
                           <Command>
                             <CommandInput placeholder="Search account manager..." />
                             <CommandEmpty>No account manager found.</CommandEmpty>
                             <CommandGroup>
-                              {accountManagers.length > 0 ? (
-                                accountManagers.map((manager) => (
-                                  <CommandItem
-                                    key={manager.id}
-                                    value={manager.name}
-                                    onSelect={() => {
-                                      form.setValue("accountManager", manager.name);
-                                      setOpen(false);
-                                    }}
-                                  >
-                                    <Check
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        manager.name === field.value
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                    />
-                                    {manager.name}
-                                    <span className="ml-2 text-xs text-muted-foreground">
-                                      ({manager.role})
-                                    </span>
-                                  </CommandItem>
-                                ))
-                              ) : (
-                                <CommandItem disabled>No managers available</CommandItem>
-                              )}
+                              {accountManagers.map((manager) => (
+                                <CommandItem
+                                  key={manager.id}
+                                  value={manager.name}
+                                  onSelect={() => {
+                                    form.setValue("accountManager", manager.name);
+                                    setOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      manager.name === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {manager.name}
+                                  <span className="ml-2 text-xs text-muted-foreground">
+                                    ({manager.role})
+                                  </span>
+                                </CommandItem>
+                              ))}
                             </CommandGroup>
                           </Command>
+                        ) : (
+                          <div className="p-4 text-center text-sm text-muted-foreground">
+                            No account managers available
+                          </div>
                         )}
                       </PopoverContent>
                     </Popover>
