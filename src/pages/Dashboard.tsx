@@ -43,9 +43,9 @@ export default function Dashboard() {
       <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <StatsCard title="Total Clients" value={stats.total} colorClass={statusColors.total} />
         <StatsCard title="Active Clients" value={stats.active} colorClass={statusColors.active} />
         <StatsCard title="Inactive Clients" value={stats.inactive} colorClass={statusColors.inactive} />
+        <StatsCard title="Total Clients" value={stats.total} colorClass={statusColors.total} />
       </div>
 
       <Card>
