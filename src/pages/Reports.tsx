@@ -47,7 +47,8 @@ export default function Reports() {
       const totalCost = clientServiceItems.reduce((acc, cs) => {
         const service = getServiceDetails(cs.serviceId);
         if (!service) return acc;
-        return acc + getFinalCost(service, cs);
+        const cost = getFinalCost(service, cs);
+        return acc + cost;
       }, 0);
       
       return {
@@ -91,7 +92,7 @@ export default function Reports() {
     
     // Generate simulated monthly data
     return months.map((month, i) => {
-      const monthData: { [key: string]: number } = { name: month };
+      const monthData: { [key: string]: number | string } = { name: month };
       let totalMonthly = 0;
       
       categories.forEach(category => {
@@ -123,13 +124,13 @@ export default function Reports() {
   const pieColors = ["#8B5CF6", "#D946EF", "#F97316", "#0EA5E9", "#10B981", "#6B7280", "#EC4899"];
   
   const chartConfig = {
-    hosting: { color: "#8B5CF6", theme: { light: "#8B5CF6", dark: "#A78BFA" } },
-    design: { color: "#D946EF", theme: { light: "#D946EF", dark: "#E879F9" } },
-    maintenance: { color: "#F97316", theme: { light: "#F97316", dark: "#FB923C" } },
-    marketing: { color: "#0EA5E9", theme: { light: "#0EA5E9", dark: "#38BDF8" } },
-    consulting: { color: "#10B981", theme: { light: "#10B981", dark: "#34D399" } },
-    other: { color: "#6B7280", theme: { light: "#6B7280", dark: "#9CA3AF" } },
-    total: { color: "#EC4899", theme: { light: "#EC4899", dark: "#F472B6" } },
+    hosting: { theme: { light: "#8B5CF6", dark: "#A78BFA" } },
+    design: { theme: { light: "#D946EF", dark: "#E879F9" } },
+    maintenance: { theme: { light: "#F97316", dark: "#FB923C" } },
+    marketing: { theme: { light: "#0EA5E9", dark: "#38BDF8" } },
+    consulting: { theme: { light: "#10B981", dark: "#34D399" } },
+    other: { theme: { light: "#6B7280", dark: "#9CA3AF" } },
+    total: { theme: { light: "#EC4899", dark: "#F472B6" } },
   };
 
   return (
