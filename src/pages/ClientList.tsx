@@ -27,7 +27,7 @@ export default function ClientList() {
   const { clients } = useClients();
   const { user, hasRole } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("active");
   const [showOnlyMyClients, setShowOnlyMyClients] = useState(false);
   const [filteredClients, setFilteredClients] = useState(clients);
   
@@ -167,3 +167,4 @@ export default function ClientList() {
     </div>
   );
 }
+
