@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -111,6 +110,45 @@ export default function ClientForm({
     onSubmit(formattedData);
   };
 
+  // Function to safely render account manager select UI
+  const renderAccountManagerUI = () => {
+    // If no account managers are available, render a simple input
+    if (!accountManagers || accountManagers.length === 0) {
+      return (
+        <Input 
+          {...form.register("accountManager")} 
+          placeholder="Enter account manager name"
+        />
+      );
+    }
+
+    // Otherwise, render the dropdown
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <FormControl>
+            <Button
+              variant="outline"
+              role="combobox"
+              className={cn(
+                "w-full h-10 justify-between",
+                !form.getValues("accountManager") && "text-muted-foreground"
+              )}
+            >
+              {form.getValues("accountManager")
+                ? form.getValues("accountManager")
+                : "Select account manager"}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </FormControl>
+        </PopoverTrigger>
+        <PopoverContent className="w-full p-0">
+          {renderAccountManagerContent()}
+        </PopoverContent>
+      </Popover>
+    );
+  };
+
   // Function to render account manager selection content safely
   const renderAccountManagerContent = () => {
     if (!accountManagers || accountManagers.length === 0) {
@@ -211,30 +249,9 @@ export default function ClientForm({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Account Manager</FormLabel>
-                    <Popover open={open} onOpenChange={setOpen}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className={cn(
-                              "w-full h-10 justify-between",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value
-                              ? accountManagers.find(
-                                  (manager) => manager.name === field.value
-                                )?.name || field.value
-                              : "Select account manager"}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0">
-                        {renderAccountManagerContent()}
-                      </PopoverContent>
-                    </Popover>
+                    <FormControl>
+                      {renderAccountManagerUI()}
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
