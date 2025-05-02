@@ -13,6 +13,7 @@ export interface Client {
   status: ClientStatus;
   website?: string; // Added website domain field
   lastContactDate?: string; // Added last contact date field
+  endDate?: string; // Added end date field
 }
 
 // Add a form-specific type that uses Date object for the form

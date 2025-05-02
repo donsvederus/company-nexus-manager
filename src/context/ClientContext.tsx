@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Client, ClientStatus } from "@/types/client";
 import { toast } from "sonner";
@@ -200,9 +201,23 @@ export const ClientProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const updateClientStatus = (id: string, status: ClientStatus) => {
     setClients((prevClients) =>
-      prevClients.map((client) =>
-        client.id === id ? { ...client, status } : client
-      )
+      prevClients.map((client) => {
+        if (client.id === id) {
+          // If setting to inactive, add end date; if active, remove end date
+          if (status === 'inactive') {
+            return { 
+              ...client, 
+              status,
+              endDate: new Date().toISOString().split('T')[0] // Format as YYYY-MM-DD
+            };
+          } else {
+            // Remove endDate when setting to active
+            const { endDate, ...clientWithoutEndDate } = client;
+            return { ...clientWithoutEndDate, status };
+          }
+        }
+        return client;
+      })
     );
     
     const statusMessages = {

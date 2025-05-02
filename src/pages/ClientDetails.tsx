@@ -229,6 +229,12 @@ export default function ClientDetails() {
                         label="Start Date" 
                         value={client ? new Date(client.startDate).toLocaleDateString() : ''}
                       />
+                      {client?.endDate && client.status === "inactive" && (
+                        <InfoItem 
+                          label="End Date" 
+                          value={new Date(client.endDate).toLocaleDateString()}
+                        />
+                      )}
                     </>
                   )}
                   <div className="flex items-center justify-between">
