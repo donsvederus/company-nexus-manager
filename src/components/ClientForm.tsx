@@ -41,47 +41,7 @@ import {
 } from "@/components/ui/command";
 import { useState, useEffect } from "react";
 import { UserRole } from "@/types/auth";
-
-// Sample account managers data
-// In a real app, this would come from an API or context
-const initialAccountManagers = [
-  {
-    id: "1",
-    name: "Jane Smith",
-    email: "jane.smith@clientnexus.com",
-    phone: "(555) 111-2222",
-    username: "janesmith",
-    password: "password123",
-    role: "manager" as UserRole
-  },
-  {
-    id: "2",
-    name: "Michael Johnson",
-    email: "michael.johnson@clientnexus.com",
-    phone: "(555) 222-3333",
-    username: "michaelj",
-    password: "password123",
-    role: "manager" as UserRole
-  },
-  {
-    id: "3",
-    name: "Bruce Wayne",
-    email: "bruce.wayne@clientnexus.com",
-    phone: "(555) 333-4444",
-    username: "brucewayne",
-    password: "password123",
-    role: "manager" as UserRole
-  },
-  {
-    id: "4",
-    name: "Admin User",
-    email: "admin@clientnexus.com",
-    phone: "(555) 000-0000",
-    username: "admin",
-    password: "admin123",
-    role: "admin" as UserRole
-  }
-];
+import { useAuth } from "@/context/AuthContext";
 
 // Update the form schema to include website
 const formSchema = z.object({
@@ -110,8 +70,13 @@ export default function ClientForm({
   isEditing = false
 }: ClientFormProps) {
   const navigate = useNavigate();
-  const [accountManagers, setAccountManagers] = useState(initialAccountManagers);
+  const { users } = useAuth();
   const [open, setOpen] = useState(false);
+  
+  // Filter managers from the users list
+  const accountManagers = users.filter(
+    user => user.role === "admin" || user.role === "manager"
+  );
   
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(formSchema),
@@ -312,7 +277,7 @@ export default function ClientForm({
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
-                            variant={"outline"}
+                            variant="outline"
                             className={cn(
                               "w-full pl-3 text-left font-normal h-10",
                               !field.value && "text-muted-foreground"
