@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Globe, Save } from "lucide-react";
+import { Globe, Save, DollarSign } from "lucide-react";
 import { ServiceActionButtons } from "./ServiceActionButtons";
 import { Service, ClientService } from "@/types/service";
 import { formatCurrency, getFinalCost } from "@/utils/formatUtils";
@@ -30,7 +30,7 @@ export const ClientServiceTable = ({
   onToggleStatus
 }: ClientServiceTableProps) => {
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
-  const [customCost, setCustomCost] = useState<number | ''>('');
+  const [customCost, setCustomCost] = useState<string>('');
   const [serviceNotes, setServiceNotes] = useState<string>('');
   const [serviceDomain, setServiceDomain] = useState<string>('');
 
@@ -38,7 +38,7 @@ export const ClientServiceTable = ({
     const clientService = clientServices.find(cs => cs.id === clientServiceId);
     if (clientService) {
       setEditingServiceId(clientServiceId);
-      setCustomCost(clientService.customCost !== undefined ? clientService.customCost : '');
+      setCustomCost(clientService.customCost !== undefined ? clientService.customCost.toString() : '');
       setServiceNotes(clientService.notes || '');
       setServiceDomain(clientService.domain || client?.website || '');
     }
@@ -46,9 +46,12 @@ export const ClientServiceTable = ({
 
   const handleSaveCustomCost = () => {
     if (editingServiceId) {
+      // Convert customCost string to number or undefined
+      const costValue = customCost === '' ? undefined : parseFloat(customCost);
+      
       onSaveCustomCost(
         editingServiceId,
-        customCost === '' ? undefined : Number(customCost),
+        costValue,
         serviceNotes,
         serviceDomain
       );
@@ -59,6 +62,24 @@ export const ClientServiceTable = ({
       setServiceNotes('');
       setServiceDomain('');
     }
+  };
+  
+  const handleCostChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Remove any non-numeric characters except decimal point
+    const value = e.target.value.replace(/[^\d.]/g, '');
+    
+    // Ensure only one decimal point
+    const parts = value.split('.');
+    if (parts.length > 2) {
+      return; // Don't update if multiple decimal points
+    }
+
+    // Ensure only 2 decimal places max
+    if (parts.length > 1 && parts[1].length > 2) {
+      return; // Don't update if more than 2 decimal places
+    }
+    
+    setCustomCost(value);
   };
 
   return (
@@ -106,15 +127,16 @@ export const ClientServiceTable = ({
               </TableCell>
               <TableCell>
                 {isEditing ? (
-                  <div className="flex flex-col gap-2">
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="Custom cost (optional)"
-                      value={customCost}
-                      onChange={(e) => setCustomCost(e.target.value === '' ? '' : Number(e.target.value))}
-                      className="w-32"
-                    />
+                  <div className="flex items-center gap-2">
+                    <div className="relative w-32">
+                      <DollarSign className="h-4 w-4 absolute left-2 top-[11px] text-muted-foreground" />
+                      <Input
+                        placeholder="Custom cost"
+                        value={customCost}
+                        onChange={handleCostChange}
+                        className="pl-8"
+                      />
+                    </div>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
