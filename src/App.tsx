@@ -18,6 +18,7 @@ import ServiceList from "@/pages/ServiceList";
 import AddService from "@/pages/AddService";
 import ServiceEditor from "@/pages/ServiceEditor";
 import Reports from "@/pages/Reports";
+import Settings from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/services/new" element={<Layout><AddService /></Layout>} />
               <Route path="/services/:id/edit" element={<Layout><ServiceEditor /></Layout>} />
               <Route path="/reports" element={<Layout><Reports /></Layout>} />
+              <Route path="/settings" element={<Layout><Settings /></Layout>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

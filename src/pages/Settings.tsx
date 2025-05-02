@@ -1,0 +1,480 @@
+
+import React, { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { useClients } from "@/context/ClientContext";
+import { 
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from "@/components/ui/tabs";
+import { 
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage 
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { toast } from "sonner";
+import { Settings, Upload, Plus, Trash, Edit } from "lucide-react";
+
+// Company Settings Schema
+const companyFormSchema = z.object({
+  companyName: z.string().min(1, "Company name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(1, "Phone number is required"),
+  website: z.string().optional(),
+  address: z.string().min(1, "Address is required")
+});
+
+// Account Manager Schema
+const accountManagerSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(1, "Phone number is required")
+});
+
+type CompanyFormValues = z.infer<typeof companyFormSchema>;
+type AccountManagerFormValues = z.infer<typeof accountManagerSchema>;
+
+interface AccountManager {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+// Our mock data for initial settings
+const defaultSettings = {
+  companyName: "ClientNexus Solutions",
+  email: "info@clientnexus.com",
+  phone: "(555) 123-4567",
+  website: "www.clientnexus.com",
+  address: "123 Business Way, Enterprise City, CA 90210",
+  logo: ""
+};
+
+// Sample account managers
+const initialAccountManagers: AccountManager[] = [
+  {
+    id: "1",
+    name: "Jane Smith",
+    email: "jane.smith@clientnexus.com",
+    phone: "(555) 111-2222"
+  },
+  {
+    id: "2",
+    name: "Michael Johnson",
+    email: "michael.johnson@clientnexus.com",
+    phone: "(555) 222-3333"
+  },
+  {
+    id: "3",
+    name: "Bruce Wayne",
+    email: "bruce.wayne@clientnexus.com",
+    phone: "(555) 333-4444"
+  }
+];
+
+const Settings = () => {
+  const [companySettings, setCompanySettings] = useState(defaultSettings);
+  const [accountManagers, setAccountManagers] = useState<AccountManager[]>(initialAccountManagers);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [editingManager, setEditingManager] = useState<AccountManager | null>(null);
+  
+  // Setup company form
+  const companyForm = useForm<CompanyFormValues>({
+    resolver: zodResolver(companyFormSchema),
+    defaultValues: companySettings
+  });
+
+  // Setup account manager form
+  const managerForm = useForm<AccountManagerFormValues>({
+    resolver: zodResolver(accountManagerSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: ""
+    }
+  });
+
+  // Handle logo upload
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setLogoFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      
+      toast.success("Logo uploaded successfully");
+    }
+  };
+
+  // Save company settings
+  const onSaveCompanySettings = (data: CompanyFormValues) => {
+    setCompanySettings({
+      ...companySettings,
+      ...data
+    });
+    toast.success("Company settings updated successfully");
+  };
+
+  // Add or update account manager
+  const onSaveAccountManager = (data: AccountManagerFormValues) => {
+    if (editingManager) {
+      // Update existing manager
+      setAccountManagers(prevManagers => 
+        prevManagers.map(manager => 
+          manager.id === editingManager.id 
+            ? { ...manager, ...data } 
+            : manager
+        )
+      );
+      setEditingManager(null);
+      toast.success("Account manager updated successfully");
+    } else {
+      // Add new manager
+      const newManager: AccountManager = {
+        id: Date.now().toString(),
+        ...data
+      };
+      setAccountManagers([...accountManagers, newManager]);
+      toast.success("Account manager added successfully");
+    }
+    managerForm.reset({
+      name: "",
+      email: "",
+      phone: ""
+    });
+  };
+
+  // Delete account manager
+  const deleteManager = (id: string) => {
+    setAccountManagers(accountManagers.filter(manager => manager.id !== id));
+    toast.success("Account manager deleted successfully");
+  };
+
+  // Edit account manager
+  const editManager = (manager: AccountManager) => {
+    setEditingManager(manager);
+    managerForm.reset({
+      name: manager.name,
+      email: manager.email,
+      phone: manager.phone
+    });
+  };
+
+  // Cancel editing
+  const cancelEditing = () => {
+    setEditingManager(null);
+    managerForm.reset({
+      name: "",
+      email: "",
+      phone: ""
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+          <p className="text-muted-foreground">
+            Manage your application settings and preferences.
+          </p>
+        </div>
+      </div>
+      
+      <Tabs defaultValue="company" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="company">Company Settings</TabsTrigger>
+          <TabsTrigger value="managers">Account Managers</TabsTrigger>
+        </TabsList>
+        
+        {/* Company Settings Tab */}
+        <TabsContent value="company">
+          <Card>
+            <CardHeader>
+              <CardTitle>Company Information</CardTitle>
+              <CardDescription>
+                Update your company details and branding
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Logo Upload Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Company Logo</h3>
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center justify-center w-24 h-24 rounded-md border overflow-hidden bg-muted">
+                    {logoPreview ? (
+                      <img 
+                        src={logoPreview} 
+                        alt="Company logo preview" 
+                        className="w-full h-full object-cover" 
+                      />
+                    ) : (
+                      <Settings className="h-10 w-10 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <Button variant="outline" className="w-full" asChild>
+                      <label>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload Logo
+                        <input 
+                          type="file" 
+                          className="sr-only" 
+                          accept="image/*" 
+                          onChange={handleLogoChange}
+                        />
+                      </label>
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      Recommended: Square image, at least 128×128px
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Company Information Form */}
+              <Form {...companyForm}>
+                <form onSubmit={companyForm.handleSubmit(onSaveCompanySettings)} className="space-y-4">
+                  <FormField
+                    control={companyForm.control}
+                    name="companyName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter company name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={companyForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email Address</FormLabel>
+                          <FormControl>
+                            <Input placeholder="company@example.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={companyForm.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number</FormLabel>
+                          <FormControl>
+                            <Input placeholder="(555) 123-4567" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={companyForm.control}
+                    name="website"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Website</FormLabel>
+                        <FormControl>
+                          <Input placeholder="www.example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={companyForm.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address</FormLabel>
+                        <FormControl>
+                          <Input placeholder="123 Business St, City, State" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button type="submit">Save Changes</Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Account Managers Tab */}
+        <TabsContent value="managers">
+          <Card>
+            <CardHeader>
+              <CardTitle>Account Managers</CardTitle>
+              <CardDescription>
+                Add and manage account managers who handle client relationships
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Account Manager Form */}
+              <Form {...managerForm}>
+                <form onSubmit={managerForm.handleSubmit(onSaveAccountManager)} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                      control={managerForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Full Name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={managerForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input placeholder="email@example.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={managerForm.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone</FormLabel>
+                          <FormControl>
+                            <Input placeholder="(555) 123-4567" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button type="submit">
+                      {editingManager ? (
+                        <>Update Manager</>
+                      ) : (
+                        <>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Manager
+                        </>
+                      )}
+                    </Button>
+                    
+                    {editingManager && (
+                      <Button type="button" variant="outline" onClick={cancelEditing}>
+                        Cancel
+                      </Button>
+                    )}
+                  </div>
+                </form>
+              </Form>
+              
+              {/* Account Managers List */}
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Manager</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead className="w-[100px]">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {accountManagers.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+                          No account managers found
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      accountManagers.map((manager) => (
+                        <TableRow key={manager.id}>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-8 w-8">
+                                <AvatarFallback className="bg-primary/10 text-primary">
+                                  {manager.name.substring(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              {manager.name}
+                            </div>
+                          </TableCell>
+                          <TableCell>{manager.email}</TableCell>
+                          <TableCell>{manager.phone}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => editManager(manager)}
+                              >
+                                <Edit className="h-4 w-4" />
+                                <span className="sr-only">Edit</span>
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => deleteManager(manager.id)}
+                              >
+                                <Trash className="h-4 w-4" />
+                                <span className="sr-only">Delete</span>
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default Settings;

@@ -157,10 +157,11 @@ interface ClientContextType {
 const ClientContext = createContext<ClientContextType | undefined>(undefined);
 
 export const ClientProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Ensure we always initialize with initialClients on first load, and then check localStorage
   const [clients, setClients] = useState<Client[]>(() => {
-    // Try to load clients from localStorage on initial render
-    const savedClients = localStorage.getItem("clients");
-    return savedClients ? JSON.parse(savedClients) : initialClients;
+    // Force initialClients to take precedence for this session
+    localStorage.setItem("clients", JSON.stringify(initialClients));
+    return initialClients;
   });
 
   // Save clients to localStorage whenever it changes
