@@ -5,3 +5,7 @@ export const formatCurrency = (amount: number) => {
     currency: 'USD',
   }).format(amount);
 };
+
+export const getFinalCost = (defaultCost: number, customCost?: number) => {
+  return customCost !== undefined ? customCost : defaultCost;
+};

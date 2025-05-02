@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, Globe, PlusSquare } from "lucide-react";
+import { formatCurrency, getFinalCost } from "@/utils/formatUtils";
 
 interface ClientServiceListProps {
   client: Client;
@@ -23,18 +24,11 @@ export default function ClientServiceList({ client }: ClientServiceListProps) {
     return clientServices.reduce((total, cs) => {
       const service = getServiceDetails(cs.serviceId);
       if (service) {
-        const cost = cs.customCost !== undefined ? cs.customCost : service.defaultCost;
+        const cost = getFinalCost(service.defaultCost, cs.customCost);
         return total + cost;
       }
       return total;
     }, 0);
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
   };
 
   const defaultDomain = client.website || "";
@@ -71,8 +65,7 @@ export default function ClientServiceList({ client }: ClientServiceListProps) {
                 <TableRow>
                   <TableHead>Service</TableHead>
                   <TableHead>Domain</TableHead>
-                  <TableHead>Default Cost</TableHead>
-                  <TableHead>Client Cost</TableHead>
+                  <TableHead>Cost</TableHead>
                   <TableHead>Notes</TableHead>
                 </TableRow>
               </TableHeader>
@@ -80,6 +73,8 @@ export default function ClientServiceList({ client }: ClientServiceListProps) {
                 {clientServices.map((cs) => {
                   const service = getServiceDetails(cs.serviceId);
                   if (!service) return null;
+                  
+                  const finalCost = getFinalCost(service.defaultCost, cs.customCost);
                   
                   return (
                     <TableRow key={cs.id}>
@@ -90,18 +85,15 @@ export default function ClientServiceList({ client }: ClientServiceListProps) {
                           {cs.domain || defaultDomain || "-"}
                         </div>
                       </TableCell>
-                      <TableCell>{formatCurrency(service.defaultCost)}</TableCell>
                       <TableCell>
-                        {cs.customCost !== undefined ? (
-                          <div className="flex items-center gap-2">
-                            {formatCurrency(cs.customCost)}
-                            {cs.customCost !== service.defaultCost && (
-                              <Badge variant="outline" className="text-xs">
-                                Custom
-                              </Badge>
-                            )}
-                          </div>
-                        ) : formatCurrency(service.defaultCost)}
+                        <div className="flex items-center gap-2">
+                          {formatCurrency(finalCost)}
+                          {cs.customCost !== undefined && (
+                            <Badge variant="outline" className="text-xs">
+                              Custom
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-muted-foreground">{cs.notes || '-'}</TableCell>
                     </TableRow>

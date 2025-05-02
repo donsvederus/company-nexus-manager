@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Globe, Save } from "lucide-react";
 import { ServiceActionButtons } from "./ServiceActionButtons";
 import { Service, ClientService } from "@/types/service";
-import { formatCurrency } from "@/utils/formatUtils";
+import { formatCurrency, getFinalCost } from "@/utils/formatUtils";
 import { Client } from "@/types/client";
 
 interface ClientServiceTableProps {
@@ -66,8 +66,8 @@ export const ClientServiceTable = ({
           <TableHead>Service</TableHead>
           <TableHead>Category</TableHead>
           <TableHead>Domain</TableHead>
-          <TableHead>Default Cost</TableHead>
-          <TableHead>Custom Cost</TableHead>
+          <TableHead>Cost</TableHead>
+          <TableHead>Notes</TableHead>
           <TableHead>Status</TableHead>
           <TableHead className="w-40">Actions</TableHead>
         </TableRow>
@@ -102,7 +102,6 @@ export const ClientServiceTable = ({
                   </div>
                 )}
               </TableCell>
-              <TableCell>{formatCurrency(service.defaultCost)}</TableCell>
               <TableCell>
                 {isEditing ? (
                   <div className="flex flex-col gap-2">
@@ -114,28 +113,27 @@ export const ClientServiceTable = ({
                       onChange={(e) => setCustomCost(e.target.value === '' ? '' : Number(e.target.value))}
                       className="w-32"
                     />
-                    <Input
-                      placeholder="Notes (optional)"
-                      value={serviceNotes}
-                      onChange={(e) => setServiceNotes(e.target.value)}
-                    />
                   </div>
                 ) : (
-                  <>
-                    {clientService.customCost !== undefined ? (
-                      <div className="flex items-center gap-2">
-                        {formatCurrency(clientService.customCost)}
-                        {clientService.customCost !== service.defaultCost && (
-                          <Badge variant="outline" className="text-xs">Custom</Badge>
-                        )}
-                      </div>
-                    ) : formatCurrency(service.defaultCost)}
-                    {clientService.notes && (
-                      <div className="text-xs text-muted-foreground mt-1">
-                        Note: {clientService.notes}
-                      </div>
+                  <div className="flex items-center gap-2">
+                    {formatCurrency(getFinalCost(service.defaultCost, clientService.customCost))}
+                    {clientService.customCost !== undefined && (
+                      <Badge variant="outline" className="text-xs">Custom</Badge>
                     )}
-                  </>
+                  </div>
+                )}
+              </TableCell>
+              <TableCell>
+                {isEditing ? (
+                  <Input
+                    placeholder="Notes (optional)"
+                    value={serviceNotes}
+                    onChange={(e) => setServiceNotes(e.target.value)}
+                  />
+                ) : (
+                  <div className="text-sm text-muted-foreground">
+                    {clientService.notes || "-"}
+                  </div>
                 )}
               </TableCell>
               <TableCell>
