@@ -53,7 +53,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [users, setUsers] = useState<User[]>(() => {
     const savedUsers = localStorage.getItem("users");
-    return savedUsers ? JSON.parse(savedUsers) : initialUsers;
+    // If no users in localStorage or they're incomplete (missing password), use initialUsers
+    if (!savedUsers) {
+      localStorage.setItem("users", JSON.stringify(initialUsers));
+      return initialUsers;
+    }
+    
+    try {
+      const parsedUsers = JSON.parse(savedUsers);
+      // Check if users have password field - if not, use initialUsers
+      if (parsedUsers.length > 0 && !parsedUsers[0].password) {
+        localStorage.setItem("users", JSON.stringify(initialUsers));
+        return initialUsers;
+      }
+      return parsedUsers;
+    } catch (e) {
+      localStorage.setItem("users", JSON.stringify(initialUsers));
+      return initialUsers;
+    }
   });
 
   const [user, setUser] = useState<User | null>(() => {
