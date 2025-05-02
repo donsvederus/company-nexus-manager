@@ -446,7 +446,7 @@ const SettingsPage = () => {
               {/* Account Manager Form */}
               <Form {...managerForm}>
                 <form onSubmit={managerForm.handleSubmit(onSaveAccountManager)} className="space-y-4">
-                  {/* Rearranged Name and Email fields to be side by side */}
+                  {/* First row: Name and Email */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={managerForm.control}
@@ -477,6 +477,7 @@ const SettingsPage = () => {
                     />
                   </div>
                   
+                  {/* Second row: Phone and Role */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={managerForm.control}
@@ -486,36 +487,6 @@ const SettingsPage = () => {
                           <FormLabel>Phone</FormLabel>
                           <FormControl>
                             <Input placeholder="(555) 123-4567" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={managerForm.control}
-                      name="username"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Username</FormLabel>
-                          <FormControl>
-                            <Input placeholder="username" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={managerForm.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <Input type="password" placeholder="••••••" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -543,6 +514,37 @@ const SettingsPage = () => {
                               <SelectItem value="admin">Admin</SelectItem>
                             </SelectContent>
                           </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  {/* Third row: Username and Password */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={managerForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Username</FormLabel>
+                          <FormControl>
+                            <Input placeholder="username" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  
+                    <FormField
+                      control={managerForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="••••••" {...field} />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
