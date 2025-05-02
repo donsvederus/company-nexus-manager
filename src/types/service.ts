@@ -23,7 +23,8 @@ export type ServiceCategory =
   | "marketing"
   | "maintenance"
   | "consulting"
-  | "other";
+  | "other"
+  | string;  // Allow for custom categories
 
 export interface Service {
   id: string;

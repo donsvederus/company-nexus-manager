@@ -11,12 +11,15 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { formatCurrency } from "@/utils/formatUtils";
 import { toast } from "sonner";
+import { Plus } from "lucide-react";
 
 const categoryOptions: ServiceCategory[] = [
   "hosting",
@@ -38,6 +41,9 @@ export default function ServiceEditor() {
   const [category, setCategory] = useState<ServiceCategory>("other");
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [allCategories, setAllCategories] = useState<ServiceCategory[]>(categoryOptions);
 
   useEffect(() => {
     if (id) {
@@ -48,6 +54,11 @@ export default function ServiceEditor() {
         setDefaultCost(serviceData.defaultCost.toString());
         setCategory(serviceData.category);
         setDescription(serviceData.description || "");
+        
+        // Check if the service has a custom category that's not in our default options
+        if (!categoryOptions.includes(serviceData.category)) {
+          setAllCategories(prev => [...prev, serviceData.category]);
+        }
       } else {
         toast.error("Service not found");
         navigate("/services");
@@ -87,6 +98,24 @@ export default function ServiceEditor() {
       setIsLoading(false);
       navigate(-1);
     }, 500);
+  };
+
+  const handleAddNewCategory = () => {
+    if (!newCategory.trim()) {
+      toast.error("Please enter a category name");
+      return;
+    }
+    
+    // Add the new category to our list
+    setAllCategories(prev => [...prev, newCategory]);
+    
+    // Select the new category
+    setCategory(newCategory);
+    
+    // Hide the input field
+    setShowNewCategoryInput(false);
+    
+    toast.success("New category added");
   };
 
   if (!service) {
@@ -130,21 +159,77 @@ export default function ServiceEditor() {
             
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <Select
-                value={category}
-                onValueChange={(value) => setCategory(value as ServiceCategory)}
-              >
-                <SelectTrigger id="category">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categoryOptions.map((cat) => (
-                    <SelectItem key={cat} value={cat} className="capitalize">
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {!showNewCategoryInput ? (
+                <div className="flex gap-2">
+                  <Select
+                    value={category}
+                    onValueChange={(value) => setCategory(value as ServiceCategory)}
+                  >
+                    <SelectTrigger id="category" className="w-full">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Default Categories</SelectLabel>
+                        {categoryOptions.map((cat) => (
+                          <SelectItem key={cat} value={cat} className="capitalize">
+                            {cat}
+                          </SelectItem>
+                        ))}
+                        
+                        {/* Show custom categories if any */}
+                        {allCategories.filter(cat => !categoryOptions.includes(cat)).length > 0 && (
+                          <>
+                            <SelectLabel>Custom Categories</SelectLabel>
+                            {allCategories
+                              .filter(cat => !categoryOptions.includes(cat))
+                              .map((cat) => (
+                                <SelectItem key={cat} value={cat} className="capitalize">
+                                  {cat}
+                                </SelectItem>
+                              ))}
+                          </>
+                        )}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowNewCategoryInput(true)}
+                    className="flex items-center gap-1"
+                  >
+                    <Plus className="h-4 w-4" />
+                    New
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter new category name"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    autoFocus
+                  />
+                  <Button 
+                    type="button"
+                    onClick={handleAddNewCategory}
+                    className="whitespace-nowrap"
+                  >
+                    Add
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      setShowNewCategoryInput(false);
+                      setNewCategory("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
             </div>
             
             <div className="space-y-2">
