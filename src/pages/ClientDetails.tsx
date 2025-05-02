@@ -1,10 +1,13 @@
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useClients } from "@/context/ClientContext";
-import { Client, ClientStatus } from "@/types/client";
+import { Client, ClientStatus, ClientFormData } from "@/types/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import StatusBadge from "@/components/StatusBadge";
+import { Edit, Save } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,15 +30,19 @@ import { toast } from "sonner";
 export default function ClientDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getClientById, updateClientStatus, deleteClient } = useClients();
+  const { getClientById, updateClientStatus, deleteClient, updateClient } = useClients();
   const [client, setClient] = useState<Client | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isBasicEditing, setIsBasicEditing] = useState(false);
+  const [isContactEditing, setIsContactEditing] = useState(false);
+  const [editedClient, setEditedClient] = useState<Partial<Client>>({});
 
   useEffect(() => {
     if (id) {
       const foundClient = getClientById(id);
       if (foundClient) {
         setClient(foundClient);
+        setEditedClient(foundClient);
       } else {
         toast.error("Client not found");
         navigate("/clients");
@@ -65,6 +72,41 @@ export default function ClientDetails() {
       deleteClient(client.id);
       toast.success("Client deleted successfully");
       navigate("/clients");
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setEditedClient(prev => ({ ...prev, [field]: value }));
+  };
+
+  const saveBasicInfo = () => {
+    if (client && editedClient) {
+      const updatedClient = {
+        ...client,
+        companyName: editedClient.companyName || client.companyName,
+        address: editedClient.address || client.address,
+        startDate: editedClient.startDate || client.startDate
+      };
+      updateClient(updatedClient);
+      setClient(updatedClient);
+      setIsBasicEditing(false);
+      toast.success("Basic information updated successfully");
+    }
+  };
+
+  const saveContactInfo = () => {
+    if (client && editedClient) {
+      const updatedClient = {
+        ...client,
+        accountManager: editedClient.accountManager || client.accountManager,
+        mainContact: editedClient.mainContact || client.mainContact,
+        email: editedClient.email || client.email,
+        phone: editedClient.phone || client.phone
+      };
+      updateClient(updatedClient);
+      setClient(updatedClient);
+      setIsContactEditing(false);
+      toast.success("Contact information updated successfully");
     }
   };
 
@@ -109,11 +151,54 @@ export default function ClientDetails() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="font-medium text-muted-foreground mb-2">Basic Information</h3>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-medium text-muted-foreground">Basic Information</h3>
+                  {isBasicEditing ? (
+                    <Button size="sm" variant="ghost" onClick={saveBasicInfo} className="flex items-center gap-1">
+                      <Save className="h-4 w-4" /> Save
+                    </Button>
+                  ) : (
+                    <Button size="sm" variant="ghost" onClick={() => setIsBasicEditing(true)} className="flex items-center gap-1">
+                      <Edit className="h-4 w-4" /> Edit
+                    </Button>
+                  )}
+                </div>
                 <div className="space-y-2">
-                  <InfoItem label="Company Name" value={client.companyName} />
-                  <InfoItem label="Address" value={client.address} />
-                  <InfoItem label="Start Date" value={new Date(client.startDate).toLocaleDateString()} />
+                  {isBasicEditing ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Company Name:</span>
+                        <Input 
+                          value={editedClient.companyName || ''} 
+                          onChange={(e) => handleInputChange('companyName', e.target.value)}
+                          className="w-2/3 h-8 text-sm"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Address:</span>
+                        <Input 
+                          value={editedClient.address || ''} 
+                          onChange={(e) => handleInputChange('address', e.target.value)}
+                          className="w-2/3 h-8 text-sm"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Start Date:</span>
+                        <Input 
+                          type="date"
+                          value={new Date(editedClient.startDate || '').toISOString().split('T')[0]} 
+                          onChange={(e) => handleInputChange('startDate', e.target.value)}
+                          className="w-2/3 h-8 text-sm"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <InfoItem label="Company Name" value={client.companyName} />
+                      <InfoItem label="Address" value={client.address} />
+                      <InfoItem label="Start Date" value={new Date(client.startDate).toLocaleDateString()} />
+                    </>
+                  )}
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Status:</span>
                     <StatusBadge status={client.status as ClientStatus} />
@@ -121,12 +206,63 @@ export default function ClientDetails() {
                 </div>
               </div>
               <div>
-                <h3 className="font-medium text-muted-foreground mb-2">Contact Information</h3>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-medium text-muted-foreground">Contact Information</h3>
+                  {isContactEditing ? (
+                    <Button size="sm" variant="ghost" onClick={saveContactInfo} className="flex items-center gap-1">
+                      <Save className="h-4 w-4" /> Save
+                    </Button>
+                  ) : (
+                    <Button size="sm" variant="ghost" onClick={() => setIsContactEditing(true)} className="flex items-center gap-1">
+                      <Edit className="h-4 w-4" /> Edit
+                    </Button>
+                  )}
+                </div>
                 <div className="space-y-2">
-                  <InfoItem label="Account Manager" value={client.accountManager} />
-                  <InfoItem label="Main Contact" value={client.mainContact} />
-                  <InfoItem label="Email" value={client.email} />
-                  <InfoItem label="Phone" value={client.phone} />
+                  {isContactEditing ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Account Manager:</span>
+                        <Input 
+                          value={editedClient.accountManager || ''} 
+                          onChange={(e) => handleInputChange('accountManager', e.target.value)}
+                          className="w-2/3 h-8 text-sm"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Main Contact:</span>
+                        <Input 
+                          value={editedClient.mainContact || ''} 
+                          onChange={(e) => handleInputChange('mainContact', e.target.value)}
+                          className="w-2/3 h-8 text-sm"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Email:</span>
+                        <Input 
+                          value={editedClient.email || ''} 
+                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          className="w-2/3 h-8 text-sm"
+                          type="email"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Phone:</span>
+                        <Input 
+                          value={editedClient.phone || ''} 
+                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          className="w-2/3 h-8 text-sm"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <InfoItem label="Account Manager" value={client.accountManager} />
+                      <InfoItem label="Main Contact" value={client.mainContact} />
+                      <InfoItem label="Email" value={client.email} />
+                      <InfoItem label="Phone" value={client.phone} />
+                    </>
+                  )}
                 </div>
               </div>
             </div>
