@@ -101,6 +101,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       title: "Reports",
       href: "/reports",
       icon: <BarChart3 className="h-4 w-4" />,
+      requiredRole: "admin"
     },
     {
       title: "Settings",
