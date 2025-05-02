@@ -1,9 +1,10 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 
 import { Client, ClientFormData, ClientStatus, ClientFormValues } from "@/types/client";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,56 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import { useState, useEffect } from "react";
+import { UserRole } from "@/types/auth";
+
+// Sample account managers data
+// In a real app, this would come from an API or context
+const initialAccountManagers = [
+  {
+    id: "1",
+    name: "Jane Smith",
+    email: "jane.smith@clientnexus.com",
+    phone: "(555) 111-2222",
+    username: "janesmith",
+    password: "password123",
+    role: "manager" as UserRole
+  },
+  {
+    id: "2",
+    name: "Michael Johnson",
+    email: "michael.johnson@clientnexus.com",
+    phone: "(555) 222-3333",
+    username: "michaelj",
+    password: "password123",
+    role: "manager" as UserRole
+  },
+  {
+    id: "3",
+    name: "Bruce Wayne",
+    email: "bruce.wayne@clientnexus.com",
+    phone: "(555) 333-4444",
+    username: "brucewayne",
+    password: "password123",
+    role: "manager" as UserRole
+  },
+  {
+    id: "4",
+    name: "Admin User",
+    email: "admin@clientnexus.com",
+    phone: "(555) 000-0000",
+    username: "admin",
+    password: "admin123",
+    role: "admin" as UserRole
+  }
+];
 
 // Update the form schema to include website
 const formSchema = z.object({
@@ -59,6 +110,8 @@ export default function ClientForm({
   isEditing = false
 }: ClientFormProps) {
   const navigate = useNavigate();
+  const [accountManagers, setAccountManagers] = useState(initialAccountManagers);
+  const [open, setOpen] = useState(false);
   
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(formSchema),
@@ -144,11 +197,60 @@ export default function ClientForm({
                 control={form.control}
                 name="accountManager"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col">
                     <FormLabel>Account Manager</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter account manager" {...field} />
-                    </FormControl>
+                    <Popover open={open} onOpenChange={setOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full h-10 justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? accountManagers.find(
+                                  (manager) => manager.name === field.value
+                                )?.name || field.value
+                              : "Select account manager"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Search account manager..." />
+                          <CommandEmpty>No account manager found.</CommandEmpty>
+                          <CommandGroup>
+                            {accountManagers.map((manager) => (
+                              <CommandItem
+                                key={manager.id}
+                                value={manager.name}
+                                onSelect={() => {
+                                  form.setValue("accountManager", manager.name);
+                                  setOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    manager.name === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {manager.name}
+                                <span className="ml-2 text-xs text-muted-foreground">
+                                  ({manager.role})
+                                </span>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
