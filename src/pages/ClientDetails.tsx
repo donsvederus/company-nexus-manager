@@ -56,13 +56,30 @@ export default function ClientDetails() {
       const foundClient = getClientById(id);
       if (foundClient) {
         setClient(foundClient);
-        setEditedClient(foundClient); // Set the editedClient with the found client
+        
+        // Check if the client's account manager is in the valid list
+        const isValidManager = accountManagers.length > 0 && accountManagers.some(
+          manager => manager.name === foundClient.accountManager
+        );
+        
+        // If not, update the client with a valid account manager
+        if (!isValidManager && accountManagers.length > 0) {
+          const updatedClient = {
+            ...foundClient,
+            accountManager: accountManagers[0].name
+          };
+          updateClient(updatedClient);
+          setClient(updatedClient);
+          toast.info("Client's account manager was updated to a valid manager");
+        }
+        
+        setEditedClient(foundClient); 
       } else {
         toast.error("Client not found");
         navigate("/clients");
       }
     }
-  }, [id, getClientById, navigate]);
+  }, [id, getClientById, navigate, accountManagers, updateClient]);
 
   if (!client) {
     return (
@@ -306,12 +323,12 @@ export default function ClientDetails() {
                         <span className="text-sm font-medium">Account Manager:</span>
                         {accountManagers && accountManagers.length > 0 ? (
                           <Select 
-                            defaultValue={editedClient.accountManager || client.accountManager}
+                            defaultValue={editedClient.accountManager || client?.accountManager}
                             onValueChange={(value) => handleInputChange('accountManager', value)}
                           >
                             <SelectTrigger className="w-2/3 h-8 text-sm">
                               <SelectValue placeholder="Select account manager">
-                                {editedClient.accountManager || client.accountManager}
+                                {editedClient.accountManager || client?.accountManager}
                               </SelectValue>
                             </SelectTrigger>
                             <SelectContent>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -85,7 +85,7 @@ const defaultSettings = {
   logo: ""
 };
 
-// Sample account managers
+// Sample account managers - adding more diverse options
 const initialAccountManagers: AccountManager[] = [
   {
     id: "1",
@@ -122,11 +122,39 @@ const initialAccountManagers: AccountManager[] = [
     username: "admin",
     password: "admin123",
     role: "admin"
+  },
+  // Adding more account managers
+  {
+    id: "5",
+    name: "Sarah Connor",
+    email: "sarah.connor@clientnexus.com",
+    phone: "(555) 444-5555",
+    username: "sarahc",
+    password: "password123",
+    role: "manager"
+  },
+  {
+    id: "6",
+    name: "Tony Stark",
+    email: "tony.stark@clientnexus.com",
+    phone: "(555) 555-6666",
+    username: "tonystark",
+    password: "password123",
+    role: "manager"
+  },
+  {
+    id: "7",
+    name: "Diana Prince",
+    email: "diana.prince@clientnexus.com",
+    phone: "(555) 666-7777",
+    username: "dianap",
+    password: "password123",
+    role: "manager"
   }
 ];
 
 const SettingsPage = () => {
-  const { hasRole, user } = useAuth();
+  const { hasRole, user, updateAccountManagers } = useAuth();
   const { clients, updateClient } = useClients();
   const [companySettings, setCompanySettings] = useState(defaultSettings);
   const [accountManagers, setAccountManagers] = useState<AccountManager[]>(initialAccountManagers);
@@ -288,6 +316,13 @@ const SettingsPage = () => {
       role: "manager"
     });
   };
+
+  // When component mounts, update the account managers in the auth context
+  useEffect(() => {
+    if (updateAccountManagers) {
+      updateAccountManagers(accountManagers);
+    }
+  }, [accountManagers, updateAccountManagers]);
 
   return (
     <div className="space-y-6">

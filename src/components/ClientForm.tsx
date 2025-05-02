@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -34,6 +33,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserRole } from "@/types/auth";
 import { useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
 
 // Update the form schema to include website
 const formSchema = z.object({
@@ -79,11 +79,15 @@ export default function ClientForm({
       ? {
           ...defaultValues,
           startDate: new Date(defaultValues.startDate),
+          // Force the account manager to be valid if it's not in the list
+          accountManager: accountManagers.some(manager => manager.name === defaultValues.accountManager) 
+            ? defaultValues.accountManager 
+            : accountManagers.length > 0 ? accountManagers[0].name : "",
         }
       : {
           companyName: "",
           address: "",
-          accountManager: "",
+          accountManager: accountManagers.length > 0 ? accountManagers[0].name : "",
           mainContact: "",
           email: "",
           phone: "",
@@ -92,6 +96,18 @@ export default function ClientForm({
           status: "active" as ClientStatus,
         },
   });
+
+  // Update form's account manager field if it's not in the list when users data loads
+  useEffect(() => {
+    if (accountManagers.length > 0 && defaultValues) {
+      const currentAccountManager = form.getValues().accountManager;
+      const isValidManager = accountManagers.some(manager => manager.name === currentAccountManager);
+      
+      if (!isValidManager) {
+        form.setValue('accountManager', accountManagers[0].name);
+      }
+    }
+  }, [accountManagers, defaultValues, form]);
 
   const handleSubmit = (data: ClientFormValues) => {
     // Convert date to ISO string for consistency
