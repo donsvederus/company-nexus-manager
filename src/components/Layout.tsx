@@ -13,13 +13,14 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserRole } from "@/types/auth";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: {
     href: string;
     title: string;
     icon: React.ReactNode;
-    requiredRole?: "admin" | "manager";
+    requiredRole?: UserRole;
   }[];
 }
 
@@ -75,7 +76,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return null;
   }
   
-  const sidebarNavItems = [
+  const sidebarNavItems: {
+    title: string;
+    href: string;
+    icon: React.ReactNode;
+    requiredRole?: UserRole;
+  }[] = [
     {
       title: "Dashboard",
       href: "/",
@@ -100,7 +106,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       title: "Settings",
       href: "/settings",
       icon: <Settings className="h-4 w-4" />,
-      requiredRole: "admin",
+      requiredRole: "admin"
     },
   ];
 
