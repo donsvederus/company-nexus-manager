@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { CurrentServicesTab } from "@/components/services/CurrentServicesTab";
 import { AddServicesTab } from "@/components/services/AddServicesTab";
 import { ClientService } from "@/types/service";
+import { Settings } from "lucide-react";
 
 export default function ClientServices() {
   const { id } = useParams<{ id: string }>();
@@ -193,6 +194,14 @@ export default function ClientServices() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">Services: {client.companyName}</h1>
         <div className="flex space-x-2">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate("/services")}
+            className="flex items-center gap-1"
+          >
+            <Settings className="h-4 w-4" />
+            Manage Service Types
+          </Button>
           <Button variant="outline" onClick={() => navigate(`/clients/${client.id}`)}>
             Back to Client
           </Button>
