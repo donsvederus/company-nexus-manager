@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useClients } from "@/context/ClientContext";
 import { useAuth } from "@/context/AuthContext";
+import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import StatusBadge from "@/components/StatusBadge";
@@ -87,7 +88,7 @@ export default function ClientList() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">Client List</h1>
         <Button className="bg-brand-600 hover:bg-brand-700" asChild>
-          <a href="/clients/new">Add New Client</a>
+          <Link to="/clients/new">Add New Client</Link>
         </Button>
       </div>
       
@@ -144,9 +145,9 @@ export default function ClientList() {
                 filteredClients.map((client) => (
                   <TableRow key={client.id} className="hover:bg-muted/50">
                     <TableCell className="font-medium">
-                      <a href={`/clients/${client.id}`} className="text-brand-600 hover:underline">
+                      <Link to={`/clients/${client.id}`} className="text-brand-600 hover:underline">
                         {client.companyName}
-                      </a>
+                      </Link>
                     </TableCell>
                     <TableCell>{client.accountManager}</TableCell>
                     <TableCell>{client.mainContact}</TableCell>
