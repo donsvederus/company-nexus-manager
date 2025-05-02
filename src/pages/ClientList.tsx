@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useClients } from "@/context/ClientContext";
 import { useAuth } from "@/context/AuthContext";
@@ -117,7 +116,7 @@ export default function ClientList() {
                 <TableHead>Account Manager</TableHead>
                 <TableHead>Main Contact</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
+                <TableHead className="whitespace-nowrap">Phone</TableHead>
                 <TableHead>Start Date</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
@@ -134,7 +133,7 @@ export default function ClientList() {
                     <TableCell>{client.accountManager}</TableCell>
                     <TableCell>{client.mainContact}</TableCell>
                     <TableCell>{client.email}</TableCell>
-                    <TableCell>{client.phone}</TableCell>
+                    <TableCell className="whitespace-nowrap">{client.phone}</TableCell>
                     <TableCell>{new Date(client.startDate).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <StatusBadge status={client.status as ClientStatus} />
