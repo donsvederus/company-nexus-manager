@@ -34,7 +34,7 @@ type FormValues = z.infer<typeof formSchema>;
 const Login = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [isSubmitting, useState] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // If already authenticated, redirect to dashboard
   React.useEffect(() => {
