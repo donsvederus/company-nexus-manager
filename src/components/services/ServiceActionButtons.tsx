@@ -1,0 +1,91 @@
+
+import { Button } from "@/components/ui/button";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Copy, Trash2, EyeOff, Eye } from "lucide-react";
+
+interface ServiceActionButtonsProps {
+  serviceId: string;
+  clientServiceId: string;
+  isActive: boolean;
+  onEdit: (serviceId: string) => void;
+  onDuplicate: (clientServiceId: string) => void;
+  onToggleStatus: (clientServiceId: string, isActive: boolean) => void;
+  onDelete: (clientServiceId: string) => void;
+}
+
+export const ServiceActionButtons = ({
+  serviceId,
+  clientServiceId,
+  isActive,
+  onEdit,
+  onDuplicate,
+  onToggleStatus,
+  onDelete
+}: ServiceActionButtonsProps) => {
+  return (
+    <div className="flex items-center gap-1">
+      <Button 
+        size="sm" 
+        variant="ghost" 
+        onClick={() => onEdit(serviceId)}
+      >
+        Edit
+      </Button>
+      
+      <Button 
+        size="sm" 
+        variant="ghost" 
+        onClick={() => onDuplicate(clientServiceId)}
+      >
+        <Copy className="h-4 w-4" />
+      </Button>
+      
+      <Button 
+        size="sm" 
+        variant="ghost" 
+        onClick={() => onToggleStatus(clientServiceId, isActive)}
+      >
+        {isActive ? (
+          <EyeOff className="h-4 w-4" />
+        ) : (
+          <Eye className="h-4 w-4" />
+        )}
+      </Button>
+      
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button size="sm" variant="ghost" className="text-red-500">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Service</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove this service from the client?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => onDelete(clientServiceId)} 
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};
