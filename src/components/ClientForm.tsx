@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
-import { Client, ClientFormData, ClientStatus } from "@/types/client";
+import { Client, ClientFormData, ClientStatus, ClientFormValues } from "@/types/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -33,6 +33,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
+// Update the form schema to use Date for startDate
 const formSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
   address: z.string().min(1, "Address is required"),
@@ -59,7 +60,7 @@ export default function ClientForm({
 }: ClientFormProps) {
   const navigate = useNavigate();
   
-  const form = useForm<ClientFormData>({
+  const form = useForm<ClientFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues
       ? {
@@ -78,9 +79,9 @@ export default function ClientForm({
         },
   });
 
-  const handleSubmit = (data: ClientFormData) => {
+  const handleSubmit = (data: ClientFormValues) => {
     // Convert date to ISO string for consistency
-    const formattedData = {
+    const formattedData: ClientFormData = {
       ...data,
       startDate: data.startDate.toISOString().split("T")[0],
     };
@@ -215,7 +216,6 @@ export default function ClientForm({
                           selected={field.value}
                           onSelect={field.onChange}
                           initialFocus
-                          className="pointer-events-auto"
                         />
                       </PopoverContent>
                     </Popover>
