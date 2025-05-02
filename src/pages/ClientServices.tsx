@@ -79,6 +79,8 @@ export default function ClientServices() {
       setClientServices(prev => 
         prev.map(cs => cs.id === clientServiceId ? updatedService : cs)
       );
+      
+      toast.success("Service details updated");
     }
   };
   

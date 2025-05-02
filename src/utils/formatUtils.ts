@@ -1,4 +1,3 @@
-
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -6,22 +5,12 @@ export const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-export const getFinalCost = (service: any, clientService?: any) => {
-  if (!service) return 0;
-  
-  // If it's already a number, return it
-  if (typeof service === 'number') {
-    return service;
+export const getFinalCost = (defaultCost: number, customCost?: number) => {
+  // If customCost is explicitly set (even to 0), use that value
+  if (customCost !== undefined && customCost !== null) {
+    return customCost;
   }
   
-  // If it's a service object, get the cost
-  const defaultCost = typeof service === 'object' ? service.defaultCost : 0;
-  
-  // If clientService has a custom cost, use that instead
-  if (clientService && typeof clientService === 'object' && 
-      clientService.customCost !== undefined && clientService.customCost !== null) {
-    return clientService.customCost;
-  }
-  
+  // Otherwise use the default cost
   return defaultCost;
 };

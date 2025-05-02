@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Service, ClientService } from "@/types/service";
 import { toast } from "sonner";
@@ -526,9 +525,16 @@ export const ServiceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const updateClientService = (updatedClientService: ClientService) => {
     setClientServices((prevClientServices) =>
       prevClientServices.map((cs) =>
-        cs.id === updatedClientService.id ? updatedClientService : cs
+        cs.id === updatedClientService.id ? { ...updatedClientService } : cs
       )
     );
+    
+    // Also update localStorage
+    const updatedServices = clientServices.map((cs) => 
+      cs.id === updatedClientService.id ? { ...updatedClientService } : cs
+    );
+    localStorage.setItem("clientServices", JSON.stringify(updatedServices));
+    
     toast.success("Client service updated successfully");
   };
 
