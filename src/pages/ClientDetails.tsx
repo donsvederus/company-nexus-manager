@@ -26,6 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
+import ClientServiceList from "@/components/ClientServiceList";
 
 export default function ClientDetails() {
   const { id } = useParams<{ id: string }>();
@@ -318,6 +319,9 @@ export default function ClientDetails() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Add client services section here */}
+      {client && <ClientServiceList client={client} />}
     </div>
   );
 }
