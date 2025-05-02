@@ -24,7 +24,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Settings, Upload, Plus, Trash, Edit } from "lucide-react";
+import { SettingsIcon, Upload, Plus, Trash, Edit } from "lucide-react";
 
 // Company Settings Schema
 const companyFormSchema = z.object({
@@ -84,7 +84,7 @@ const initialAccountManagers: AccountManager[] = [
   }
 ];
 
-const Settings = () => {
+const SettingsPage = () => {
   const [companySettings, setCompanySettings] = useState(defaultSettings);
   const [accountManagers, setAccountManagers] = useState<AccountManager[]>(initialAccountManagers);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -140,7 +140,7 @@ const Settings = () => {
       setAccountManagers(prevManagers => 
         prevManagers.map(manager => 
           manager.id === editingManager.id 
-            ? { ...manager, ...data } 
+            ? { ...manager, name: data.name, email: data.email, phone: data.phone } 
             : manager
         )
       );
@@ -150,7 +150,9 @@ const Settings = () => {
       // Add new manager
       const newManager: AccountManager = {
         id: Date.now().toString(),
-        ...data
+        name: data.name,
+        email: data.email,
+        phone: data.phone
       };
       setAccountManagers([...accountManagers, newManager]);
       toast.success("Account manager added successfully");
@@ -227,7 +229,7 @@ const Settings = () => {
                         className="w-full h-full object-cover" 
                       />
                     ) : (
-                      <Settings className="h-10 w-10 text-muted-foreground" />
+                      <SettingsIcon className="h-10 w-10 text-muted-foreground" />
                     )}
                   </div>
                   <div className="flex-1 space-y-2">
@@ -477,4 +479,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default SettingsPage;
