@@ -11,6 +11,7 @@ export interface Client {
   phone: string;
   startDate: string; // This remains a string in storage
   status: ClientStatus;
+  website?: string; // Added website domain field
 }
 
 // Add a form-specific type that uses Date object for the form
@@ -23,6 +24,7 @@ export interface ClientFormValues {
   phone: string;
   startDate: Date; // Use Date object for form interactions
   status: ClientStatus;
+  website?: string; // Added website domain field
 }
 
 export type ClientFormData = Omit<Client, "id">;

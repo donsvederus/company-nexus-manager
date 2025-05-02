@@ -13,6 +13,8 @@ export interface ClientService {
   serviceId: string;
   customCost?: number;
   notes?: string;
+  domain?: string; // Added domain field
+  isActive: boolean; // Added isActive field to track active/inactive services
 }
 
 export type ServiceCategory = 

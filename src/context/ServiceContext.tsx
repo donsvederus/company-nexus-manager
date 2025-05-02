@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Service, ClientService } from "@/types/service";
 import { toast } from "sonner";
@@ -84,34 +83,42 @@ const initialServices: Service[] = [
   }
 ];
 
-// Sample client services
+// Sample client services with updated structure
 const initialClientServices: ClientService[] = [
   {
     id: "1",
     clientId: "1",
     serviceId: "1",
     customCost: 8.99,
-    notes: "Discounted hosting plan"
+    notes: "Discounted hosting plan",
+    domain: "acmecorp.com",
+    isActive: true
   },
   {
     id: "2",
     clientId: "1",
     serviceId: "2",
-    notes: "Using default cost"
+    notes: "Using default cost",
+    domain: "acmecorp.com",
+    isActive: true
   },
   {
     id: "3",
     clientId: "1",
     serviceId: "6",
     customCost: 100.00,
-    notes: "Enhanced maintenance package"
+    notes: "Enhanced maintenance package",
+    domain: "acmecorp.com",
+    isActive: true
   },
   {
     id: "4",
     clientId: "3",
     serviceId: "7",
     customCost: 399.99,
-    notes: "Premium SEO package"
+    notes: "Premium SEO package",
+    domain: "wayneenterprises.com",
+    isActive: true
   }
 ];
 
@@ -126,7 +133,10 @@ interface ServiceContextType {
   updateClientService: (clientService: ClientService) => void;
   deleteClientService: (id: string) => void;
   getClientServices: (clientId: string) => ClientService[];
+  getActiveClientServices: (clientId: string) => ClientService[];
   getServiceDetails: (serviceId: string) => Service | undefined;
+  duplicateClientService: (clientServiceId: string) => void;
+  toggleClientServiceStatus: (clientServiceId: string, isActive: boolean) => void;
 }
 
 const ServiceContext = createContext<ServiceContextType | undefined>(undefined);
@@ -139,7 +149,18 @@ export const ServiceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const [clientServices, setClientServices] = useState<ClientService[]>(() => {
     const savedClientServices = localStorage.getItem("clientServices");
-    return savedClientServices ? JSON.parse(savedClientServices) : initialClientServices;
+    
+    // Add isActive field to existing client services if missing
+    if (savedClientServices) {
+      const parsedServices = JSON.parse(savedClientServices);
+      const updatedServices = parsedServices.map((cs: any) => ({
+        ...cs,
+        isActive: cs.isActive !== undefined ? cs.isActive : true
+      }));
+      return updatedServices;
+    }
+    
+    return initialClientServices;
   });
 
   // Save data to localStorage whenever it changes
@@ -186,6 +207,7 @@ export const ServiceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const newClientService: ClientService = {
       ...clientServiceData,
       id: Date.now().toString(),
+      isActive: clientServiceData.isActive !== undefined ? clientServiceData.isActive : true
     };
     setClientServices((prevClientServices) => [...prevClientServices, newClientService]);
     toast.success("Client service added successfully");
@@ -210,9 +232,36 @@ export const ServiceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const getClientServices = (clientId: string) => {
     return clientServices.filter((cs) => cs.clientId === clientId);
   };
+  
+  const getActiveClientServices = (clientId: string) => {
+    return clientServices.filter((cs) => cs.clientId === clientId && cs.isActive);
+  };
 
   const getServiceDetails = (serviceId: string) => {
     return services.find((service) => service.id === serviceId);
+  };
+  
+  const duplicateClientService = (clientServiceId: string) => {
+    const serviceToDuplicate = clientServices.find(cs => cs.id === clientServiceId);
+    
+    if (serviceToDuplicate) {
+      const newService: Omit<ClientService, "id"> = {
+        ...serviceToDuplicate,
+        notes: serviceToDuplicate.notes ? `${serviceToDuplicate.notes} (Copy)` : '(Copy)',
+      };
+      
+      addClientService(newService);
+    }
+  };
+  
+  const toggleClientServiceStatus = (clientServiceId: string, isActive: boolean) => {
+    setClientServices(prev => 
+      prev.map(cs => 
+        cs.id === clientServiceId ? { ...cs, isActive } : cs
+      )
+    );
+    
+    toast.success(isActive ? "Service activated" : "Service deactivated");
   };
 
   const value = {
@@ -226,7 +275,10 @@ export const ServiceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     updateClientService,
     deleteClientService,
     getClientServices,
+    getActiveClientServices,
     getServiceDetails,
+    duplicateClientService,
+    toggleClientServiceStatus
   };
 
   return <ServiceContext.Provider value={value}>{children}</ServiceContext.Provider>;

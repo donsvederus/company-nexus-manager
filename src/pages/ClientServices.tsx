@@ -9,7 +9,17 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DollarSign, Plus, Save, Trash2 } from "lucide-react";
+import { 
+  DollarSign, 
+  Plus, 
+  Save, 
+  Trash2, 
+  Copy, 
+  Globe, 
+  EyeOff, 
+  Eye, 
+  PlusCircle 
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +31,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Service, ClientService } from "@/types/service";
 
@@ -34,7 +50,9 @@ export default function ClientServices() {
     updateClientService,
     deleteClientService,
     getClientServices,
-    getServiceDetails
+    getServiceDetails,
+    duplicateClientService,
+    toggleClientServiceStatus
   } = useServices();
   
   const [client, setClient] = useState(id ? getClientById(id) : null);
@@ -43,6 +61,9 @@ export default function ClientServices() {
   const [editingService, setEditingService] = useState<string | null>(null);
   const [customCost, setCustomCost] = useState<number | ''>('');
   const [serviceNotes, setServiceNotes] = useState<string>('');
+  const [serviceDomain, setServiceDomain] = useState<string>('');
+  const [showInactiveServices, setShowInactiveServices] = useState(false);
+  const [activeTab, setActiveTab] = useState("current");
   
   useEffect(() => {
     if (id) {
@@ -89,6 +110,7 @@ export default function ClientServices() {
     setEditingService(serviceId);
     setCustomCost(clientService?.customCost ?? '');
     setServiceNotes(clientService?.notes ?? '');
+    setServiceDomain(clientService?.domain || client?.website || '');
   };
   
   const saveCustomCost = () => {
@@ -101,7 +123,8 @@ export default function ClientServices() {
         const updatedService = {
           ...existingService,
           customCost: customCost === '' ? undefined : Number(customCost),
-          notes: serviceNotes || undefined
+          notes: serviceNotes || undefined,
+          domain: serviceDomain || undefined
         };
         updateClientService(updatedService);
         
@@ -115,7 +138,9 @@ export default function ClientServices() {
           clientId: client.id,
           serviceId: editingService,
           customCost: customCost === '' ? undefined : Number(customCost),
-          notes: serviceNotes || undefined
+          notes: serviceNotes || undefined,
+          domain: serviceDomain || undefined,
+          isActive: true
         };
         
         addClientService(newClientService);
@@ -128,6 +153,7 @@ export default function ClientServices() {
       setEditingService(null);
       setCustomCost('');
       setServiceNotes('');
+      setServiceDomain('');
     }
   };
   
@@ -146,6 +172,43 @@ export default function ClientServices() {
     }
   };
   
+  const handleDuplicate = (clientServiceId: string) => {
+    duplicateClientService(clientServiceId);
+    
+    // Refresh client services list
+    if (client) {
+      setClientServices(getClientServices(client.id));
+    }
+    
+    toast.success("Service duplicated");
+  };
+  
+  const handleToggleStatus = (clientServiceId: string, currentStatus: boolean) => {
+    toggleClientServiceStatus(clientServiceId, !currentStatus);
+    
+    // Refresh client services list
+    if (client) {
+      setClientServices(getClientServices(client.id));
+    }
+  };
+  
+  const addNewService = (serviceId: string) => {
+    if (!client) return;
+    
+    const newClientService: Omit<ClientService, "id"> = {
+      clientId: client.id,
+      serviceId: serviceId,
+      domain: client.website || undefined,
+      isActive: true
+    };
+    
+    addClientService(newClientService);
+    
+    // Refresh client services list
+    setClientServices(getClientServices(client.id));
+    toast.success("Service added successfully");
+  };
+  
   const saveChanges = () => {
     if (!client) return;
     
@@ -156,7 +219,9 @@ export default function ClientServices() {
       if (!existingService) {
         const newClientService: Omit<ClientService, "id"> = {
           clientId: client.id,
-          serviceId: serviceId
+          serviceId: serviceId,
+          domain: client.website || undefined,
+          isActive: true
         };
         
         addClientService(newClientService);
@@ -173,6 +238,13 @@ export default function ClientServices() {
     // Refresh client services
     setClientServices(getClientServices(client.id));
     toast.success("Services updated successfully");
+  };
+
+  const getDisplayClientServices = () => {
+    if (!showInactiveServices) {
+      return clientServices.filter(cs => cs.isActive);
+    }
+    return clientServices;
   };
 
   if (!client) {
@@ -199,135 +271,248 @@ export default function ClientServices() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Manage Client Services</CardTitle>
-          <CardDescription>
-            Select services to assign to this client and customize costs if needed
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12">Select</TableHead>
-                <TableHead>Service</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Default Cost</TableHead>
-                <TableHead>Custom Cost</TableHead>
-                <TableHead className="w-40">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {services.map((service) => {
-                const clientService = getClientService(service.id);
-                const isSelected = selectedServices.includes(service.id);
-                const isEditing = editingService === service.id;
-                
-                return (
-                  <TableRow key={service.id}>
-                    <TableCell>
-                      <Checkbox 
-                        checked={isSelected}
-                        onCheckedChange={(checked) => {
-                          handleServiceSelect(service.id, checked === true);
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">{service.name}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="capitalize">
-                        {service.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{formatCurrency(service.defaultCost)}</TableCell>
-                    <TableCell>
-                      {isEditing ? (
-                        <div className="flex flex-col gap-2">
-                          <Input
-                            type="number"
-                            step="0.01"
-                            placeholder="Custom cost (optional)"
-                            value={customCost}
-                            onChange={(e) => setCustomCost(e.target.value === '' ? '' : Number(e.target.value))}
-                            className="w-32"
-                          />
-                          <Input
-                            placeholder="Notes (optional)"
-                            value={serviceNotes}
-                            onChange={(e) => setServiceNotes(e.target.value)}
-                          />
-                        </div>
-                      ) : (
-                        <>
-                          {clientService?.customCost !== undefined ? (
-                            <div className="flex items-center gap-2">
-                              {formatCurrency(clientService.customCost)}
-                              {clientService.customCost !== service.defaultCost && (
-                                <Badge variant="outline" className="text-xs">Custom</Badge>
-                              )}
-                            </div>
-                          ) : isSelected ? formatCurrency(service.defaultCost) : '-'}
-                          {clientService?.notes && (
-                            <div className="text-xs text-muted-foreground mt-1">
-                              Note: {clientService.notes}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {isEditing ? (
-                        <Button size="sm" variant="outline" onClick={saveCustomCost} className="flex items-center gap-1">
-                          <Save className="h-4 w-4" /> Save
-                        </Button>
-                      ) : isSelected ? (
-                        <div className="flex items-center gap-2">
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            onClick={() => startEditing(service.id)}
-                            className="flex items-center gap-1"
-                          >
-                            {clientService?.customCost !== undefined ? "Edit" : "Add Custom"}
-                          </Button>
-                          
-                          {clientService && (
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button size="sm" variant="ghost" className="text-red-500">
-                                  <Trash2 className="h-4 w-4" />
+      <Tabs defaultValue="current" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="current">Current Services</TabsTrigger>
+          <TabsTrigger value="add">Add New Services</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="current" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Manage Client Services</h2>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-1"
+                onClick={() => setShowInactiveServices(!showInactiveServices)}
+              >
+                {showInactiveServices ? (
+                  <>
+                    <EyeOff className="h-4 w-4" /> Hide Inactive
+                  </>
+                ) : (
+                  <>
+                    <Eye className="h-4 w-4" /> Show Inactive
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {getDisplayClientServices().length === 0 ? (
+            <Card>
+              <CardContent className="text-center p-6">
+                <p className="text-muted-foreground mb-4">No {showInactiveServices ? "" : "active"} services assigned to this client</p>
+                <Button onClick={() => setActiveTab("add")} className="flex items-center gap-1">
+                  <PlusCircle className="h-4 w-4" /> Add Services
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="p-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Service</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Domain</TableHead>
+                      <TableHead>Default Cost</TableHead>
+                      <TableHead>Custom Cost</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="w-40">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {getDisplayClientServices().map((clientService) => {
+                      const service = getServiceDetails(clientService.serviceId);
+                      if (!service) return null;
+                      
+                      const isEditing = editingService === clientService.serviceId;
+                      
+                      return (
+                        <TableRow key={clientService.id} className={!clientService.isActive ? "opacity-60" : ""}>
+                          <TableCell className="font-medium">{service.name}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="capitalize">
+                              {service.category}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {isEditing ? (
+                              <Input
+                                value={serviceDomain}
+                                onChange={(e) => setServiceDomain(e.target.value)}
+                                className="w-32"
+                                placeholder={client.website || "example.com"}
+                              />
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <Globe className="h-4 w-4 text-muted-foreground" />
+                                {clientService.domain || client.website || "-"}
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell>{formatCurrency(service.defaultCost)}</TableCell>
+                          <TableCell>
+                            {isEditing ? (
+                              <div className="flex flex-col gap-2">
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="Custom cost (optional)"
+                                  value={customCost}
+                                  onChange={(e) => setCustomCost(e.target.value === '' ? '' : Number(e.target.value))}
+                                  className="w-32"
+                                />
+                                <Input
+                                  placeholder="Notes (optional)"
+                                  value={serviceNotes}
+                                  onChange={(e) => setServiceNotes(e.target.value)}
+                                />
+                              </div>
+                            ) : (
+                              <>
+                                {clientService.customCost !== undefined ? (
+                                  <div className="flex items-center gap-2">
+                                    {formatCurrency(clientService.customCost)}
+                                    {clientService.customCost !== service.defaultCost && (
+                                      <Badge variant="outline" className="text-xs">Custom</Badge>
+                                    )}
+                                  </div>
+                                ) : formatCurrency(service.defaultCost)}
+                                {clientService.notes && (
+                                  <div className="text-xs text-muted-foreground mt-1">
+                                    Note: {clientService.notes}
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={clientService.isActive ? "success" : "secondary"}>
+                              {clientService.isActive ? "Active" : "Inactive"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {isEditing ? (
+                              <Button size="sm" variant="outline" onClick={saveCustomCost} className="flex items-center gap-1">
+                                <Save className="h-4 w-4" /> Save
+                              </Button>
+                            ) : (
+                              <div className="flex items-center gap-1">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  onClick={() => startEditing(clientService.serviceId)}
+                                >
+                                  Edit
                                 </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Service</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to remove this service from the client?
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction 
-                                    onClick={() => handleDelete(clientService.id)} 
-                                    className="bg-red-500 hover:bg-red-600"
-                                  >
-                                    Remove
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          )}
+                                
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  onClick={() => handleDuplicate(clientService.id)}
+                                >
+                                  <Copy className="h-4 w-4" />
+                                </Button>
+                                
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  onClick={() => handleToggleStatus(clientService.id, clientService.isActive)}
+                                >
+                                  {clientService.isActive ? (
+                                    <EyeOff className="h-4 w-4" />
+                                  ) : (
+                                    <Eye className="h-4 w-4" />
+                                  )}
+                                </Button>
+                                
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button size="sm" variant="ghost" className="text-red-500">
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete Service</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to remove this service from the client?
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction 
+                                        onClick={() => handleDelete(clientService.id)} 
+                                        className="bg-red-500 hover:bg-red-600"
+                                      >
+                                        Remove
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="add">
+          <Card>
+            <CardHeader>
+              <CardTitle>Add Services</CardTitle>
+              <CardDescription>
+                Select services to add to this client
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {services.map((service) => {
+                  const isAssigned = clientServices.some(cs => cs.serviceId === service.id && cs.isActive);
+                  
+                  return (
+                    <Card key={service.id} className={`border ${isAssigned ? 'border-green-300 bg-green-50' : ''}`}>
+                      <CardHeader className="p-4">
+                        <CardTitle className="text-base">{service.name}</CardTitle>
+                        <Badge variant="outline" className="capitalize w-fit">
+                          {service.category}
+                        </Badge>
+                      </CardHeader>
+                      <CardContent className="p-4 pt-0">
+                        <div className="text-sm text-muted-foreground mb-2">
+                          {service.description || "No description available"}
                         </div>
-                      ) : '-'}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                        <div className="font-bold mb-4">
+                          {formatCurrency(service.defaultCost)}
+                          <span className="text-xs text-muted-foreground ml-1">default</span>
+                        </div>
+                        <Button 
+                          className="w-full" 
+                          variant={isAssigned ? "outline" : "default"}
+                          onClick={() => addNewService(service.id)}
+                          disabled={isAssigned}
+                        >
+                          {isAssigned ? "Already Added" : "Add Service"}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

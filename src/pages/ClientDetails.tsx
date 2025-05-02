@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import StatusBadge from "@/components/StatusBadge";
-import { Edit, Save } from "lucide-react";
+import { Edit, Globe, Save } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -86,7 +86,8 @@ export default function ClientDetails() {
         ...client,
         companyName: editedClient.companyName || client.companyName,
         address: editedClient.address || client.address,
-        startDate: editedClient.startDate || client.startDate
+        startDate: editedClient.startDate || client.startDate,
+        website: editedClient.website
       };
       updateClient(updatedClient);
       setClient(updatedClient);
@@ -114,7 +115,7 @@ export default function ClientDetails() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight">{client.companyName}</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{client?.companyName}</h1>
         <div className="flex space-x-2">
           <Button variant="outline" onClick={() => navigate("/clients")}>
             Back to List
@@ -147,7 +148,7 @@ export default function ClientDetails() {
         <Card className="col-span-2">
           <CardHeader>
             <CardTitle>Client Information</CardTitle>
-            <CardDescription>Detailed information about {client.companyName}</CardDescription>
+            <CardDescription>Detailed information about {client?.companyName}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -176,6 +177,15 @@ export default function ClientDetails() {
                         />
                       </div>
                       <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Website:</span>
+                        <Input 
+                          value={editedClient.website || ''} 
+                          onChange={(e) => handleInputChange('website', e.target.value)}
+                          className="w-2/3 h-8 text-sm"
+                          placeholder="example.com"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Address:</span>
                         <Input 
                           value={editedClient.address || ''} 
@@ -195,14 +205,35 @@ export default function ClientDetails() {
                     </>
                   ) : (
                     <>
-                      <InfoItem label="Company Name" value={client.companyName} />
-                      <InfoItem label="Address" value={client.address} />
-                      <InfoItem label="Start Date" value={new Date(client.startDate).toLocaleDateString()} />
+                      <InfoItem label="Company Name" value={client?.companyName || ''} />
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Website:</span>
+                        {client?.website ? (
+                          <div className="text-sm flex items-center">
+                            <Globe className="h-3 w-3 mr-1 inline text-muted-foreground" />
+                            <a 
+                              href={`http://${client.website}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-500 hover:underline"
+                            >
+                              {client.website}
+                            </a>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">Not specified</span>
+                        )}
+                      </div>
+                      <InfoItem label="Address" value={client?.address || ''} />
+                      <InfoItem 
+                        label="Start Date" 
+                        value={client ? new Date(client.startDate).toLocaleDateString() : ''}
+                      />
                     </>
                   )}
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Status:</span>
-                    <StatusBadge status={client.status as ClientStatus} />
+                    <StatusBadge status={client?.status as ClientStatus} />
                   </div>
                 </div>
               </div>
@@ -258,10 +289,10 @@ export default function ClientDetails() {
                     </>
                   ) : (
                     <>
-                      <InfoItem label="Account Manager" value={client.accountManager} />
-                      <InfoItem label="Main Contact" value={client.mainContact} />
-                      <InfoItem label="Email" value={client.email} />
-                      <InfoItem label="Phone" value={client.phone} />
+                      <InfoItem label="Account Manager" value={client?.accountManager || ''} />
+                      <InfoItem label="Main Contact" value={client?.mainContact || ''} />
+                      <InfoItem label="Email" value={client?.email || ''} />
+                      <InfoItem label="Phone" value={client?.phone || ''} />
                     </>
                   )}
                 </div>
@@ -278,7 +309,7 @@ export default function ClientDetails() {
             <div className="space-y-3">
               <div className="flex items-center space-x-2">
                 <p className="text-sm font-medium">Current status:</p>
-                <StatusBadge status={client.status as ClientStatus} />
+                <StatusBadge status={client?.status as ClientStatus} />
               </div>
               <div className="space-y-3 pt-2">
                 <TooltipProvider>
@@ -286,8 +317,8 @@ export default function ClientDetails() {
                     <TooltipTrigger asChild>
                       <Button 
                         className="w-full bg-green-600 hover:bg-green-700"
-                        onClick={() => handleStatusChange("active")}
-                        disabled={client.status === "active"}
+                        onClick={() => client && handleStatusChange("active")}
+                        disabled={client?.status === "active"}
                       >
                         Set as Active
                       </Button>
@@ -303,8 +334,8 @@ export default function ClientDetails() {
                     <TooltipTrigger asChild>
                       <Button 
                         className="w-full bg-red-600 hover:bg-red-700" 
-                        onClick={() => handleStatusChange("inactive")}
-                        disabled={client.status === "inactive"}
+                        onClick={() => client && handleStatusChange("inactive")}
+                        disabled={client?.status === "inactive"}
                       >
                         Set as Inactive
                       </Button>
@@ -320,7 +351,6 @@ export default function ClientDetails() {
         </Card>
       </div>
 
-      {/* Add client services section here */}
       {client && <ClientServiceList client={client} />}
     </div>
   );

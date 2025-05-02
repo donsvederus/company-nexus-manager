@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, PlusSquare } from "lucide-react";
+import { DollarSign, Globe, PlusSquare } from "lucide-react";
 
 interface ClientServiceListProps {
   client: Client;
@@ -15,9 +15,9 @@ interface ClientServiceListProps {
 
 export default function ClientServiceList({ client }: ClientServiceListProps) {
   const navigate = useNavigate();
-  const { getClientServices, getServiceDetails } = useServices();
+  const { getActiveClientServices, getServiceDetails } = useServices();
   
-  const clientServices = getClientServices(client.id);
+  const clientServices = getActiveClientServices(client.id);
   
   const calculateTotalCost = () => {
     return clientServices.reduce((total, cs) => {
@@ -37,12 +37,14 @@ export default function ClientServiceList({ client }: ClientServiceListProps) {
     }).format(amount);
   };
 
+  const defaultDomain = client.website || "";
+
   return (
     <Card className="mt-6">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>Client Services</CardTitle>
-          <CardDescription>Services provided to {client.companyName}</CardDescription>
+          <CardDescription>Active services provided to {client.companyName}</CardDescription>
         </div>
         <Button 
           onClick={() => navigate(`/clients/${client.id}/services`)}
@@ -54,7 +56,7 @@ export default function ClientServiceList({ client }: ClientServiceListProps) {
       <CardContent>
         {clientServices.length === 0 ? (
           <div className="text-center py-6">
-            <p className="text-muted-foreground mb-4">No services configured for this client</p>
+            <p className="text-muted-foreground mb-4">No active services configured for this client</p>
             <Button 
               onClick={() => navigate(`/clients/${client.id}/services`)}
               className="flex items-center gap-1"
@@ -68,6 +70,7 @@ export default function ClientServiceList({ client }: ClientServiceListProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Service</TableHead>
+                  <TableHead>Domain</TableHead>
                   <TableHead>Default Cost</TableHead>
                   <TableHead>Client Cost</TableHead>
                   <TableHead>Notes</TableHead>
@@ -81,6 +84,12 @@ export default function ClientServiceList({ client }: ClientServiceListProps) {
                   return (
                     <TableRow key={cs.id}>
                       <TableCell className="font-medium">{service.name}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Globe className="h-4 w-4 text-muted-foreground" />
+                          {cs.domain || defaultDomain || "-"}
+                        </div>
+                      </TableCell>
                       <TableCell>{formatCurrency(service.defaultCost)}</TableCell>
                       <TableCell>
                         {cs.customCost !== undefined ? (

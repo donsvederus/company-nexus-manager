@@ -32,7 +32,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Update the form schema to use Date for startDate
+// Update the form schema to include website
 const formSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
   address: z.string().min(1, "Address is required"),
@@ -44,6 +44,7 @@ const formSchema = z.object({
     required_error: "Start date is required",
   }),
   status: z.enum(["active", "inactive"] as const),
+  website: z.string().optional(),
 });
 
 interface ClientFormProps {
@@ -73,6 +74,7 @@ export default function ClientForm({
           mainContact: "",
           email: "",
           phone: "",
+          website: "",
           startDate: new Date(),
           status: "active" as ClientStatus,
         },
@@ -103,6 +105,20 @@ export default function ClientForm({
                   <FormLabel>Company Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter company name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="website"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Website Domain</FormLabel>
+                  <FormControl>
+                    <Input placeholder="example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
