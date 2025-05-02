@@ -1,7 +1,7 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useClients } from "@/context/ClientContext";
+import { useAuth } from "@/context/AuthContext";
 import { Client, ClientStatus, ClientFormData } from "@/types/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import ClientServiceList from "@/components/ClientServiceList";
 
@@ -32,11 +39,17 @@ export default function ClientDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getClientById, updateClientStatus, deleteClient, updateClient } = useClients();
+  const { users } = useAuth();
   const [client, setClient] = useState<Client | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isBasicEditing, setIsBasicEditing] = useState(false);
   const [isContactEditing, setIsContactEditing] = useState(false);
   const [editedClient, setEditedClient] = useState<Partial<Client>>({});
+  
+  // Get account managers from users
+  const accountManagers = Array.isArray(users) 
+    ? users.filter(user => user.role === "admin" || user.role === "manager") 
+    : [];
 
   useEffect(() => {
     if (id) {
@@ -261,11 +274,29 @@ export default function ClientDetails() {
                     <>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Account Manager:</span>
-                        <Input 
-                          value={editedClient.accountManager || ''} 
-                          onChange={(e) => handleInputChange('accountManager', e.target.value)}
-                          className="w-2/3 h-8 text-sm"
-                        />
+                        {accountManagers && accountManagers.length > 0 ? (
+                          <Select 
+                            value={editedClient.accountManager || ''}
+                            onValueChange={(value) => handleInputChange('accountManager', value)}
+                          >
+                            <SelectTrigger className="w-2/3 h-8 text-sm">
+                              <SelectValue placeholder="Select account manager" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {accountManagers.map((manager) => (
+                                <SelectItem key={manager.id} value={manager.name}>
+                                  {manager.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input 
+                            value={editedClient.accountManager || ''} 
+                            onChange={(e) => handleInputChange('accountManager', e.target.value)}
+                            className="w-2/3 h-8 text-sm"
+                          />
+                        )}
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Main Contact:</span>
