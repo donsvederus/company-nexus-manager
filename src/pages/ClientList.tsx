@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Filter, User } from "lucide-react";
+import { Search, User } from "lucide-react";
 
 export default function ClientList() {
   const { clients } = useClients();
@@ -65,12 +65,6 @@ export default function ClientList() {
     setFilteredClients(filtered);
   }, [searchTerm, statusFilter, showOnlyMyClients, clients, user]);
 
-  const handleResetFilters = () => {
-    setSearchTerm("");
-    setStatusFilter("all");
-    setShowOnlyMyClients(false);
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -111,12 +105,6 @@ export default function ClientList() {
             >
               <User className="h-4 w-4" />
               {showOnlyMyClients ? "All Clients" : "My Clients"}
-            </Button>
-          )}
-          {(searchTerm || statusFilter !== "all" || showOnlyMyClients) && (
-            <Button variant="outline" onClick={handleResetFilters}>
-              <Filter className="h-4 w-4 mr-2" />
-              Reset Filters
             </Button>
           )}
         </div>
@@ -167,4 +155,3 @@ export default function ClientList() {
     </div>
   );
 }
-
