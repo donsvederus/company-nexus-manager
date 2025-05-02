@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -447,6 +446,7 @@ const SettingsPage = () => {
               {/* Account Manager Form */}
               <Form {...managerForm}>
                 <form onSubmit={managerForm.handleSubmit(onSaveAccountManager)} className="space-y-4">
+                  {/* Rearranged Name and Email fields to be side by side */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={managerForm.control}
