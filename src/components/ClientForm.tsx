@@ -212,7 +212,7 @@ export default function ClientForm({
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "w-full pl-3 text-left font-normal",
+                              "w-full pl-3 text-left font-normal h-10",
                               !field.value && "text-muted-foreground"
                             )}
                           >
@@ -243,14 +243,14 @@ export default function ClientForm({
                 control={form.control}
                 name="status"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col">
                     <FormLabel>Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="h-10">
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                       </FormControl>
