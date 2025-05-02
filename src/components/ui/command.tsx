@@ -58,12 +58,14 @@ CommandInput.displayName = CommandPrimitive.Input.displayName
 const CommandList = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.List>
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
     className={cn("max-h-[300px] overflow-y-auto overflow-x-hidden", className)}
     {...props}
-  />
+  >
+    {children}
+  </CommandPrimitive.List>
 ))
 
 CommandList.displayName = CommandPrimitive.List.displayName
@@ -84,7 +86,7 @@ CommandEmpty.displayName = CommandPrimitive.Empty.displayName
 const CommandGroup = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Group>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Group>
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <CommandPrimitive.Group
     ref={ref}
     className={cn(
@@ -92,7 +94,9 @@ const CommandGroup = React.forwardRef<
       className
     )}
     {...props}
-  />
+  >
+    {children || null}
+  </CommandPrimitive.Group>
 ))
 
 CommandGroup.displayName = CommandPrimitive.Group.displayName
@@ -112,20 +116,7 @@ CommandSeparator.displayName = CommandPrimitive.Separator.displayName
 const CommandItem = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item>
->(({ className, ...props }, ref) => {
-  // Create a safe copy of props with defaults for potentially undefined values
-  const safeProps = { ...props };
-  
-  // Handle the 'value' property which could potentially be undefined
-  if (safeProps.value === undefined) {
-    safeProps.value = '';
-  }
-  
-  // Handle the 'children' property which could potentially be undefined
-  if (safeProps.children === undefined) {
-    safeProps.children = '';
-  }
-  
+>(({ className, children, value, ...props }, ref) => {
   return (
     <CommandPrimitive.Item
       ref={ref}
@@ -133,9 +124,12 @@ const CommandItem = React.forwardRef<
         "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none data-[selected='true']:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50",
         className
       )}
-      {...safeProps}
-    />
-  );
+      value={value || ""}
+      {...props}
+    >
+      {children || null}
+    </CommandPrimitive.Item>
+  )
 })
 
 CommandItem.displayName = CommandPrimitive.Item.displayName
