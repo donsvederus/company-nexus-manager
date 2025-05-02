@@ -113,8 +113,18 @@ const CommandItem = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item>
 >(({ className, ...props }, ref) => {
-  // Ensure we're not passing undefined or invalid props to the component
+  // Create a safe copy of props with defaults for potentially undefined values
   const safeProps = { ...props };
+  
+  // Handle the 'value' property which could potentially be undefined
+  if (safeProps.value === undefined) {
+    safeProps.value = '';
+  }
+  
+  // Handle the 'children' property which could potentially be undefined
+  if (safeProps.children === undefined) {
+    safeProps.children = '';
+  }
   
   return (
     <CommandPrimitive.Item

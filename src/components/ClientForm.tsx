@@ -73,7 +73,7 @@ export default function ClientForm({
   const { users } = useAuth();
   const [open, setOpen] = useState(false);
   
-  // Filter managers from the users list and ensure users is never undefined
+  // Make sure accountManagers is always an array, even if users is undefined
   const accountManagers = Array.isArray(users) 
     ? users.filter(user => user.role === "admin" || user.role === "manager") 
     : [];
@@ -109,6 +109,49 @@ export default function ClientForm({
       startDate: data.startDate.toISOString().split("T")[0],
     };
     onSubmit(formattedData);
+  };
+
+  // Function to render account manager selection content safely
+  const renderAccountManagerContent = () => {
+    if (!accountManagers || accountManagers.length === 0) {
+      return (
+        <div className="p-4 text-center text-sm text-muted-foreground">
+          No account managers available
+        </div>
+      );
+    }
+
+    return (
+      <Command>
+        <CommandInput placeholder="Search account manager..." />
+        <CommandEmpty>No account manager found.</CommandEmpty>
+        <CommandGroup>
+          {accountManagers.map((manager) => (
+            <CommandItem
+              key={manager.id}
+              value={manager.name}
+              onSelect={() => {
+                form.setValue("accountManager", manager.name);
+                setOpen(false);
+              }}
+            >
+              <Check
+                className={cn(
+                  "mr-2 h-4 w-4",
+                  manager.name === form.watch("accountManager")
+                    ? "opacity-100"
+                    : "opacity-0"
+                )}
+              />
+              {manager.name}
+              <span className="ml-2 text-xs text-muted-foreground">
+                ({manager.role})
+              </span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      </Command>
+    );
   };
 
   return (
@@ -189,41 +232,7 @@ export default function ClientForm({
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-full p-0">
-                        {Array.isArray(accountManagers) && accountManagers.length > 0 ? (
-                          <Command>
-                            <CommandInput placeholder="Search account manager..." />
-                            <CommandEmpty>No account manager found.</CommandEmpty>
-                            <CommandGroup>
-                              {accountManagers.map((manager) => (
-                                <CommandItem
-                                  key={manager.id}
-                                  value={manager.name}
-                                  onSelect={() => {
-                                    form.setValue("accountManager", manager.name);
-                                    setOpen(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      manager.name === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {manager.name}
-                                  <span className="ml-2 text-xs text-muted-foreground">
-                                    ({manager.role})
-                                  </span>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </Command>
-                        ) : (
-                          <div className="p-4 text-center text-sm text-muted-foreground">
-                            No account managers available
-                          </div>
-                        )}
+                        {renderAccountManagerContent()}
                       </PopoverContent>
                     </Popover>
                     <FormMessage />
