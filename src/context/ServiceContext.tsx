@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Service, ClientService } from "@/types/service";
 import { toast } from "sonner";
@@ -139,7 +140,7 @@ const initialClientServices: ClientService[] = [
     domain: "wayneenterprises.com",
     isActive: true
   },
-  // Services for new clients
+  // Services for existing clients
   {
     id: "7",
     clientId: "4",
@@ -260,6 +261,173 @@ const initialClientServices: ClientService[] = [
     customCost: 125.00,
     notes: "Enhanced maintenance",
     domain: "cyberdyne.com",
+    isActive: true
+  },
+  // Services for new clients (Initech)
+  {
+    id: "21",
+    clientId: "8",
+    serviceId: "1",
+    customCost: 12.99,
+    notes: "Basic hosting package",
+    domain: "initech.com",
+    isActive: true
+  },
+  {
+    id: "22",
+    clientId: "8",
+    serviceId: "3",
+    customCost: 8.99,
+    notes: "Business email package",
+    domain: "initech.com",
+    isActive: true
+  },
+  {
+    id: "23",
+    clientId: "8",
+    serviceId: "6",
+    customCost: 85.00,
+    notes: "Standard maintenance",
+    domain: "initech.com",
+    isActive: true
+  },
+  // Services for Massive Dynamic
+  {
+    id: "24",
+    clientId: "9",
+    serviceId: "1",
+    customCost: 49.99,
+    notes: "Premium hosting with dedicated server",
+    domain: "massivedynamic.com",
+    isActive: true
+  },
+  {
+    id: "25",
+    clientId: "9",
+    serviceId: "4",
+    customCost: 2499.99,
+    notes: "Enterprise website design",
+    domain: "massivedynamic.com",
+    isActive: true
+  },
+  {
+    id: "26",
+    clientId: "9",
+    serviceId: "7",
+    customCost: 599.99,
+    notes: "Advanced SEO strategy",
+    domain: "massivedynamic.com",
+    isActive: true
+  },
+  {
+    id: "27",
+    clientId: "9",
+    serviceId: "8",
+    customCost: 999.99,
+    notes: "Premium PPC management",
+    domain: "massivedynamic.com",
+    isActive: true
+  },
+  {
+    id: "28",
+    clientId: "9",
+    serviceId: "10",
+    customCost: 250.00,
+    notes: "Executive consulting",
+    domain: "massivedynamic.com",
+    isActive: true
+  },
+  // Services for Hooli
+  {
+    id: "29",
+    clientId: "10",
+    serviceId: "1",
+    customCost: 39.99,
+    notes: "Premium cloud hosting",
+    domain: "hooli.com",
+    isActive: true
+  },
+  {
+    id: "30",
+    clientId: "10",
+    serviceId: "3",
+    customCost: 24.99,
+    notes: "Enterprise email solution",
+    domain: "hooli.com",
+    isActive: true
+  },
+  {
+    id: "31",
+    clientId: "10",
+    serviceId: "9",
+    customCost: 499.99,
+    notes: "Comprehensive social media management",
+    domain: "hooli.com",
+    isActive: true
+  },
+  // Services for Pied Piper
+  {
+    id: "32",
+    clientId: "11",
+    serviceId: "1",
+    customCost: 9.99,
+    notes: "Startup hosting package",
+    domain: "piedpiper.com",
+    isActive: true
+  },
+  {
+    id: "33",
+    clientId: "11",
+    serviceId: "4",
+    customCost: 799.99,
+    notes: "Custom startup website design",
+    domain: "piedpiper.com",
+    isActive: true
+  },
+  {
+    id: "34",
+    clientId: "11",
+    serviceId: "7",
+    customCost: 199.99,
+    notes: "Basic SEO package",
+    domain: "piedpiper.com",
+    isActive: true
+  },
+  // Services for Soylent Corp
+  {
+    id: "35",
+    clientId: "12",
+    serviceId: "1",
+    customCost: 29.99,
+    notes: "Premium hosting for e-commerce",
+    domain: "soylent.com",
+    isActive: true
+  },
+  {
+    id: "36",
+    clientId: "12",
+    serviceId: "6",
+    customCost: 150.00,
+    notes: "E-commerce maintenance",
+    domain: "soylent.com",
+    isActive: true
+  },
+  {
+    id: "37",
+    clientId: "12",
+    serviceId: "8",
+    customCost: 699.99,
+    notes: "Product marketing campaign",
+    domain: "soylent.com",
+    isActive: true
+  },
+  {
+    id: "38",
+    clientId: "12",
+    serviceId: "9",
+    customCost: 449.99,
+    notes: "Premium social media marketing",
+    domain: "soylent.com",
     isActive: true
   }
 ];

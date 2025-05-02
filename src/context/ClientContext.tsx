@@ -81,6 +81,67 @@ const initialClients: Client[] = [
     phone: "(555) 789-4561",
     startDate: "2020-08-29",
     status: "active",
+  },
+  // Adding 5 more active clients
+  {
+    id: "8",
+    companyName: "Initech",
+    address: "4120 Freidrich Lane, Austin, USA",
+    accountManager: "Bill Lumbergh",
+    mainContact: "Peter Gibbons",
+    email: "peter@initech.com",
+    phone: "(555) 222-3333",
+    startDate: "2022-05-12",
+    status: "active",
+    website: "initech.com"
+  },
+  {
+    id: "9",
+    companyName: "Massive Dynamic",
+    address: "555 Broadway, New York, USA",
+    accountManager: "Nina Sharp",
+    mainContact: "Walter Bishop",
+    email: "walter@massivedynamic.com",
+    phone: "(555) 444-5555",
+    startDate: "2021-11-02",
+    status: "active",
+    website: "massivedynamic.com"
+  },
+  {
+    id: "10",
+    companyName: "Hooli",
+    address: "1401 N Shoreline Blvd, Mountain View, USA",
+    accountManager: "Gavin Belson",
+    mainContact: "Jared Dunn",
+    email: "jared@hooli.com",
+    phone: "(555) 666-7777",
+    startDate: "2022-07-18",
+    status: "active",
+    website: "hooli.com"
+  },
+  {
+    id: "11",
+    companyName: "Pied Piper",
+    address: "5230 Newell Road, Palo Alto, USA",
+    accountManager: "Monica Hall",
+    mainContact: "Richard Hendricks",
+    email: "richard@piedpiper.com",
+    phone: "(555) 888-9999",
+    startDate: "2023-01-05",
+    status: "active",
+    website: "piedpiper.com"
+  },
+  {
+    id: "12",
+    companyName: "Soylent Corp",
+    address: "101 Future Avenue, New York, USA",
+    accountManager: "Henry Santoro",
+    mainContact: "William Simonson",
+    email: "william@soylent.com",
+    phone: "(555) 000-1111",
+    startDate: "2022-09-22",
+    status: "active",
+    website: "soylent.com"
   }
 ];
 
