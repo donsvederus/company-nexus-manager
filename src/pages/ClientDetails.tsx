@@ -50,6 +50,11 @@ export default function ClientDetails() {
       if (foundClient) {
         setClient(foundClient);
         
+        // Initialize editedClient with ALL client fields to ensure proper editing
+        setEditedClient({
+          ...foundClient
+        });
+        
         // Check if the client's account manager is in the valid list
         const isValidManager = accountManagers.length > 0 && accountManagers.some(
           manager => manager.name === foundClient.accountManager
@@ -65,8 +70,6 @@ export default function ClientDetails() {
           setClient(updatedClient);
           toast.info("Client's account manager was updated to a valid manager");
         }
-        
-        setEditedClient(foundClient); 
       } else {
         toast.error("Client not found");
         navigate("/clients");
@@ -100,6 +103,7 @@ export default function ClientDetails() {
   };
 
   const handleInputChange = (field: string, value: string) => {
+    console.log(`Updating field ${field} with value: ${value}`);
     setEditedClient(prev => ({ ...prev, [field]: value }));
   };
 
@@ -112,6 +116,7 @@ export default function ClientDetails() {
         startDate: editedClient.startDate || client.startDate,
         website: editedClient.website !== undefined ? editedClient.website : client.website
       };
+      console.log("Saving basic info with website:", updatedClient.website);
       updateClient(updatedClient);
       setClient(updatedClient);
       setIsBasicEditing(false);
@@ -157,7 +162,7 @@ export default function ClientDetails() {
         companyName: client.companyName,
         address: client.address,
         startDate: client.startDate,
-        website: client.website || '' // Make sure website has a value (empty string if undefined)
+        website: client.website || '' // Initialize website properly
       }));
     }
     setIsBasicEditing(true);
