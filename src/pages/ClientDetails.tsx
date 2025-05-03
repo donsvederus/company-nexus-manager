@@ -1,117 +1,87 @@
 
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useClients } from "@/context/client";
-import { useAuth } from "@/context/AuthContext";
-import { Client } from "@/types/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
-import ClientServiceList from "@/components/ClientServiceList";
-import BasicInfoCard from "@/components/client/BasicInfoCard";
-import ContactInfoCard from "@/components/client/ContactInfoCard";
-import StatusManagementCard from "@/components/client/StatusManagementCard";
-import ClientDetailsHeader from "@/components/client/ClientDetailsHeader";
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useClients } from '@/context/ClientContext';
+import ClientDetailsHeader from '@/components/client/ClientDetailsHeader';
+import BasicInfoCard from '@/components/client/BasicInfoCard';
+import ContactInfoCard from '@/components/client/ContactInfoCard';
+import StatusManagementCard from '@/components/client/StatusManagementCard';
+import ClientServiceList from '@/components/ClientServiceList';
+import WorkLogPreview from '@/components/worklog/WorkLogPreview';
 
 export default function ClientDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getClientById, deleteClient, updateClient } = useClients();
-  const { users } = useAuth();
-  const [client, setClient] = useState<Client | null>(null);
+  const { getClientById, deleteClient, updateClientStatus, updateLastContactDate } = useClients();
+
+  const client = id ? getClientById(id) : null;
   
-  // Get account managers from users
-  const accountManagers = Array.isArray(users) 
-    ? users.filter(user => user.role === "admin" || user.role === "manager") 
-    : [];
-
-  useEffect(() => {
-    if (id) {
-      const foundClient = getClientById(id);
-      if (foundClient) {
-        setClient(foundClient);
-        
-        // Check if the client's account manager is in the valid list
-        const isValidManager = accountManagers.length > 0 && accountManagers.some(
-          manager => manager.name === foundClient.accountManager
-        );
-        
-        // If not, update the client with a valid account manager
-        if (!isValidManager && accountManagers.length > 0) {
-          const updatedClient = {
-            ...foundClient,
-            accountManager: accountManagers[0].name
-          };
-          updateClient(updatedClient);
-          setClient(updatedClient);
-          toast.info("Client's account manager was updated to a valid manager");
-        }
-      } else {
-        toast.error("Client not found");
-        navigate("/clients");
-      }
-    }
-  }, [id, getClientById, navigate, accountManagers, updateClient]);
-
-  const handleDelete = () => {
-    if (client) {
-      deleteClient(client.id);
-      toast.success("Client deleted successfully");
-      navigate("/clients");
-    }
-  };
-
-  const handleClientUpdate = (updatedClient: Client) => {
-    setClient(updatedClient);
-  };
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   if (!client) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-muted-foreground">Loading client details...</p>
+          <p className="text-muted-foreground">Client not found</p>
+          <button 
+            className="mt-4 underline text-blue-600 hover:text-blue-800"
+            onClick={() => navigate('/clients')}
+          >
+            Back to Client List
+          </button>
         </div>
       </div>
     );
   }
 
+  const handleDelete = () => {
+    if (id) {
+      deleteClient(id);
+      navigate('/clients');
+    }
+  };
+
+  const handleStatusChange = (newStatus: 'active' | 'inactive') => {
+    if (id) {
+      updateClientStatus(id, newStatus);
+    }
+  };
+
+  const handleLastContactUpdate = (date?: Date) => {
+    if (id) {
+      updateLastContactDate(id, date);
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <>
       <ClientDetailsHeader 
-        client={client} 
-        onDelete={handleDelete} 
+        client={client}
+        onEdit={() => navigate(`/clients/${id}/edit`)}
+        onDelete={() => setShowDeleteDialog(true)}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="col-span-2">
-          <CardHeader>
-            <CardTitle>Client Information</CardTitle>
-            <CardDescription>Detailed information about {client?.companyName}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <BasicInfoCard 
-                  client={client} 
-                  onClientUpdate={handleClientUpdate} 
-                />
-              </div>
-              <div>
-                <ContactInfoCard 
-                  client={client} 
-                  onClientUpdate={handleClientUpdate} 
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <StatusManagementCard 
-          client={client} 
-          onStatusChange={handleClientUpdate} 
-        />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <div className="md:col-span-2 space-y-6">
+          <BasicInfoCard client={client} />
+          <ContactInfoCard client={client} onLastContactUpdate={handleLastContactUpdate} />
+          
+          {/* Display work log preview if client has work logs */}
+          {client.workLogs && client.workLogs.length > 0 && (
+            <WorkLogPreview clientId={client.id} workLogs={client.workLogs} />
+          )}
+          
+          {/* Display client services */}
+          <ClientServiceList client={client} />
+        </div>
+        
+        <div className="space-y-6">
+          <StatusManagementCard 
+            client={client}
+            onStatusChange={handleStatusChange}
+          />
+        </div>
       </div>
-
-      {client && <ClientServiceList client={client} />}
-    </div>
+    </>
   );
 }
