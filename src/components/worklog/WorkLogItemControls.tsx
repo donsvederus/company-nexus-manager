@@ -50,6 +50,8 @@ export function WorkLogItemControls({
       >
         <Check className="h-3 w-3" /> {completed ? "Completed" : "Complete"}
       </Button>
+      
+      {/* NextRecurrence component is now rendered in WorkLogItem.tsx */}
     </div>
   );
 }

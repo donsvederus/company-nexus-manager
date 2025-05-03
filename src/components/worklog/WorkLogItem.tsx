@@ -100,6 +100,7 @@ export function WorkLogItem({
               endTimeExists={!!log.endTime}
             />
             
+            {/* Positioned directly under the WorkLogItemControls */}
             <WorkLogNextRecurrence 
               completed={!!log.completed}
               recurring={!!log.recurring}
