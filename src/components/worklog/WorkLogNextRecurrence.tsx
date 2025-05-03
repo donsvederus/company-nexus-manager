@@ -12,7 +12,7 @@ export function WorkLogNextRecurrence({
   recurring, 
   nextRecurrenceDate 
 }: WorkLogNextRecurrenceProps) {
-  if (!(completed && recurring && nextRecurrenceDate)) {
+  if (!(recurring && nextRecurrenceDate)) {
     return null;
   }
 
