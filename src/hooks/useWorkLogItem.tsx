@@ -29,14 +29,16 @@ export function useWorkLogItem(log: WorkLog, onUpdate: (log: WorkLog) => void) {
   };
   
   const handleStopTracking = () => {
+    if (!log.startTime) return;
+    
     const endTime = new Date().toISOString();
     
-    const start = new Date(log.startTime!);
+    const start = new Date(log.startTime);
     const end = new Date(endTime);
     const sessionDurationInMinutes = Math.round((end.getTime() - start.getTime()) / 60000);
     
     // Add current session duration to accumulated duration
-    const totalDuration = accumulatedDuration + sessionDurationInMinutes;
+    const totalDuration = (log.duration || 0) + sessionDurationInMinutes;
     
     onUpdate({
       ...log,

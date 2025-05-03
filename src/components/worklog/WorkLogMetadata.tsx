@@ -26,7 +26,7 @@ export function WorkLogMetadata({ log }: WorkLogMetadataProps) {
     if (log.startTime && !log.endTime) {
       // Active tracking - the useTimeTracking hook handles it
       return elapsed;
-    } else if (log.duration) {
+    } else if (log.duration && log.duration > 0) {
       // Completed tracking - just display the total duration
       return formatMinutesToTime(log.duration);
     }
