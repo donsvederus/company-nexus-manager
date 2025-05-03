@@ -1,43 +1,23 @@
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useClients } from "@/context/ClientContext";
 import { useAuth } from "@/context/AuthContext";
-import { Client, ClientStatus, ClientFormData } from "@/types/client";
+import { Client } from "@/types/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import StatusBadge from "@/components/StatusBadge";
-import { Edit, Globe, Save } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import ClientServiceList from "@/components/ClientServiceList";
+import BasicInfoCard from "@/components/client/BasicInfoCard";
+import ContactInfoCard from "@/components/client/ContactInfoCard";
+import StatusManagementCard from "@/components/client/StatusManagementCard";
+import ClientDetailsHeader from "@/components/client/ClientDetailsHeader";
 
 export default function ClientDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getClientById, updateClientStatus, deleteClient, updateClient } = useClients();
+  const { getClientById, deleteClient, updateClient } = useClients();
   const { users } = useAuth();
   const [client, setClient] = useState<Client | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isBasicEditing, setIsBasicEditing] = useState(false);
-  const [isContactEditing, setIsContactEditing] = useState(false);
-  const [editedClient, setEditedClient] = useState<Partial<Client>>({});
   
   // Get account managers from users
   const accountManagers = Array.isArray(users) 
@@ -49,11 +29,6 @@ export default function ClientDetails() {
       const foundClient = getClientById(id);
       if (foundClient) {
         setClient(foundClient);
-        
-        // Initialize editedClient with ALL client fields to ensure proper editing
-        setEditedClient({
-          ...foundClient
-        });
         
         // Check if the client's account manager is in the valid list
         const isValidManager = accountManagers.length > 0 && accountManagers.some(
@@ -77,6 +52,18 @@ export default function ClientDetails() {
     }
   }, [id, getClientById, navigate, accountManagers, updateClient]);
 
+  const handleDelete = () => {
+    if (client) {
+      deleteClient(client.id);
+      toast.success("Client deleted successfully");
+      navigate("/clients");
+    }
+  };
+
+  const handleClientUpdate = (updatedClient: Client) => {
+    setClient(updatedClient);
+  };
+
   if (!client) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -87,118 +74,12 @@ export default function ClientDetails() {
     );
   }
 
-  const handleStatusChange = (newStatus: ClientStatus) => {
-    if (client) {
-      updateClientStatus(client.id, newStatus);
-      setClient({ ...client, status: newStatus });
-    }
-  };
-
-  const handleDelete = () => {
-    if (client) {
-      deleteClient(client.id);
-      toast.success("Client deleted successfully");
-      navigate("/clients");
-    }
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    console.log(`Updating field ${field} with value: ${value}`);
-    setEditedClient(prev => ({ ...prev, [field]: value }));
-  };
-
-  const saveBasicInfo = () => {
-    if (client && editedClient) {
-      const updatedClient = {
-        ...client,
-        companyName: editedClient.companyName || client.companyName,
-        address: editedClient.address || client.address,
-        startDate: editedClient.startDate || client.startDate,
-        website: editedClient.website !== undefined ? editedClient.website : client.website
-      };
-      console.log("Saving basic info with website:", updatedClient.website);
-      updateClient(updatedClient);
-      setClient(updatedClient);
-      setIsBasicEditing(false);
-      toast.success("Basic information updated successfully");
-    }
-  };
-
-  const saveContactInfo = () => {
-    if (client && editedClient) {
-      const updatedClient = {
-        ...client,
-        mainContact: editedClient.mainContact || client.mainContact,
-        email: editedClient.email || client.email,
-        phone: editedClient.phone || client.phone
-      };
-      updateClient(updatedClient);
-      setClient(updatedClient);
-      setIsContactEditing(false);
-      toast.success("Contact information updated successfully");
-    }
-  };
-
-  // Function to set editing state and ensure editedClient has current values
-  const startContactEditing = () => {
-    if (client) {
-      // Ensure the editedClient has the current client values before entering edit mode
-      setEditedClient(current => ({
-        ...current,
-        mainContact: client.mainContact,
-        email: client.email,
-        phone: client.phone
-      }));
-    }
-    setIsContactEditing(true);
-  };
-
-  // Function to set basic editing state and ensure editedClient has current values
-  const startBasicEditing = () => {
-    if (client) {
-      // Ensure the editedClient has the current client values before entering edit mode
-      setEditedClient(current => ({
-        ...current,
-        companyName: client.companyName,
-        address: client.address,
-        startDate: client.startDate,
-        website: client.website || '' // Initialize website properly
-      }));
-    }
-    setIsBasicEditing(true);
-  };
-
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight">{client?.companyName}</h1>
-        <div className="flex space-x-2">
-          <Button variant="outline" onClick={() => navigate("/clients")}>
-            Back to List
-          </Button>
-          <Button variant="outline" asChild>
-            <a href={`/clients/${id}/edit`}>Edit Client</a>
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive">Delete Client</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the client
-                  record from your system.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
+      <ClientDetailsHeader 
+        client={client} 
+        onDelete={handleDelete} 
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="col-span-2">
@@ -209,238 +90,28 @@ export default function ClientDetails() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium text-muted-foreground">Basic Information</h3>
-                  {isBasicEditing ? (
-                    <Button size="sm" variant="ghost" onClick={saveBasicInfo} className="flex items-center gap-1">
-                      <Save className="h-4 w-4" /> Save
-                    </Button>
-                  ) : (
-                    <Button size="sm" variant="ghost" onClick={startBasicEditing} className="flex items-center gap-1">
-                      <Edit className="h-4 w-4" /> Edit
-                    </Button>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  {isBasicEditing ? (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Company:</span>
-                        <div className="w-2/3">
-                          <Input 
-                            value={editedClient.companyName || ''} 
-                            onChange={(e) => handleInputChange('companyName', e.target.value)}
-                            className="h-8 text-sm w-full"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Website:</span>
-                        <div className="w-2/3">
-                          <Input 
-                            value={editedClient.website || ''}
-                            onChange={(e) => handleInputChange('website', e.target.value)}
-                            className="h-8 text-sm w-full"
-                            placeholder="example.com"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Address:</span>
-                        <div className="w-2/3">
-                          <Input 
-                            value={editedClient.address || ''} 
-                            onChange={(e) => handleInputChange('address', e.target.value)}
-                            className="h-8 text-sm w-full"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Start Date:</span>
-                        <div className="w-2/3">
-                          <Input 
-                            type="date"
-                            value={new Date(editedClient.startDate || '').toISOString().split('T')[0]} 
-                            onChange={(e) => handleInputChange('startDate', e.target.value)}
-                            className="h-8 text-sm w-full"
-                          />
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <InfoItem label="Company" value={client?.companyName || ''} />
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Website:</span>
-                        {client?.website ? (
-                          <div className="text-sm flex items-center">
-                            <Globe className="h-3 w-3 mr-1 inline text-muted-foreground" />
-                            <a 
-                              href={`http://${client.website}`} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-blue-500 hover:underline"
-                            >
-                              {client.website}
-                            </a>
-                          </div>
-                        ) : (
-                          <span className="text-sm text-muted-foreground">Not specified</span>
-                        )}
-                      </div>
-                      <InfoItem label="Address" value={client?.address || ''} />
-                      <InfoItem 
-                        label="Start Date" 
-                        value={client ? new Date(client.startDate).toLocaleDateString() : ''}
-                      />
-                      {client?.endDate && client.status === "inactive" && (
-                        <InfoItem 
-                          label="End Date" 
-                          value={new Date(client.endDate).toLocaleDateString()}
-                        />
-                      )}
-                    </>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Status:</span>
-                    <StatusBadge status={client?.status as ClientStatus} />
-                  </div>
-                </div>
+                <BasicInfoCard 
+                  client={client} 
+                  onClientUpdate={handleClientUpdate} 
+                />
               </div>
               <div>
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium text-muted-foreground">Contact Information</h3>
-                  {isContactEditing ? (
-                    <Button size="sm" variant="ghost" onClick={saveContactInfo} className="flex items-center gap-1">
-                      <Save className="h-4 w-4" /> Save
-                    </Button>
-                  ) : (
-                    <Button size="sm" variant="ghost" onClick={startContactEditing} className="flex items-center gap-1">
-                      <Edit className="h-4 w-4" /> Edit
-                    </Button>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  {isContactEditing ? (
-                    <>
-                      {/* Display account manager as read-only text */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Manager:</span>
-                        <span className="text-sm text-muted-foreground w-2/3 text-right">
-                          {client.accountManager}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Contact:</span>
-                        <div className="w-2/3">
-                          <Input 
-                            value={editedClient.mainContact || ''} 
-                            onChange={(e) => handleInputChange('mainContact', e.target.value)}
-                            className="h-8 text-sm w-full"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Email:</span>
-                        <div className="w-2/3">
-                          <Input 
-                            value={editedClient.email || ''} 
-                            onChange={(e) => handleInputChange('email', e.target.value)}
-                            className="h-8 text-sm w-full"
-                            type="email"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Phone:</span>
-                        <div className="w-2/3">
-                          <Input 
-                            value={editedClient.phone || ''} 
-                            onChange={(e) => handleInputChange('phone', e.target.value)}
-                            className="h-8 text-sm w-full"
-                          />
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <InfoItem label="Manager" value={client?.accountManager || ''} />
-                      <InfoItem label="Contact" value={client?.mainContact || ''} />
-                      <InfoItem label="Email" value={client?.email || ''} />
-                      <InfoItem label="Phone" value={client?.phone || ''} />
-                    </>
-                  )}
-                </div>
+                <ContactInfoCard 
+                  client={client} 
+                  onClientUpdate={handleClientUpdate} 
+                />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Status Management</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <p className="text-sm font-medium">Current status:</p>
-                <StatusBadge status={client?.status as ClientStatus} />
-              </div>
-              <div className="space-y-3 pt-2">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        className="w-full bg-green-600 hover:bg-green-700"
-                        onClick={() => client && handleStatusChange("active")}
-                        disabled={client?.status === "active"}
-                      >
-                        Set as Active
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Mark this client as currently active</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        className="w-full bg-red-600 hover:bg-red-700" 
-                        onClick={() => client && handleStatusChange("inactive")}
-                        disabled={client?.status === "inactive"}
-                      >
-                        Set as Inactive
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Mark this client as inactive. Limited functionality will be available.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <StatusManagementCard 
+          client={client} 
+          onStatusChange={handleClientUpdate} 
+        />
       </div>
 
       {client && <ClientServiceList client={client} />}
-    </div>
-  );
-}
-
-interface InfoItemProps {
-  label: string;
-  value: string;
-}
-
-function InfoItem({ label, value }: InfoItemProps) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm font-medium">{label}:</span>
-      <span className="text-sm">{value}</span>
     </div>
   );
 }
