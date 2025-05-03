@@ -57,8 +57,13 @@ export function WorkLogItem({
   const handleCheckboxChange = (checked: boolean) => {
     onToggleComplete(log.id, checked);
   };
+
+  const handleToggleComplete = () => {
+    onToggleComplete(log.id, !log.completed);
+  };
   
   const isTracking = !!log.startTime && !log.endTime;
+  const hasEndTime = !!log.endTime;
 
   return (
     <Card className={cn(
@@ -159,6 +164,8 @@ export function WorkLogItem({
                     onStartTracking={handleStartTracking}
                     onStopTracking={handleStopTracking}
                     completed={log.completed || false}
+                    onToggleComplete={handleToggleComplete}
+                    endTimeExists={hasEndTime}
                   />
                   
                   <WorkLogItemActions

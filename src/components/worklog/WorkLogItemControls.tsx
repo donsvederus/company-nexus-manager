@@ -7,8 +7,8 @@ interface WorkLogItemControlsProps {
   completed: boolean;
   onStartTracking: () => void;
   onStopTracking: () => void;
-  onToggleComplete: () => void;
-  endTimeExists: boolean;
+  onToggleComplete?: () => void;
+  endTimeExists?: boolean;
 }
 
 export function WorkLogItemControls({
@@ -16,8 +16,8 @@ export function WorkLogItemControls({
   completed,
   onStartTracking,
   onStopTracking,
-  onToggleComplete,
-  endTimeExists
+  onToggleComplete = () => {},
+  endTimeExists = false
 }: WorkLogItemControlsProps) {
   return (
     <div className="flex flex-col gap-2">
