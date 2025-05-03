@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useClients } from "@/context/ClientContext"; // Add clients context
 import { User, UserRole } from "@/types/auth";
 import {
   Card,
@@ -29,6 +30,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -40,7 +51,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { UserPlus, Edit, Trash } from "lucide-react";
+import { UserPlus, Edit, Trash, Users } from "lucide-react";
 
 // Make sure all fields are required to match the User interface
 const userFormSchema = z.object({
@@ -55,9 +66,16 @@ type UserFormValues = z.infer<typeof userFormSchema>;
 
 export default function SettingsPage() {
   const { user, users, hasRole, updateAccountManagers } = useAuth();
+  const { clients, updateClient } = useClients(); // Get client functions
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [managers, setManagers] = useState<User[]>([]);
+  
+  // State for reassignment dialog
+  const [isReassignOpen, setIsReassignOpen] = useState(false); 
+  const [managerToDelete, setManagerToDelete] = useState<User | null>(null);
+  const [reassignTo, setReassignTo] = useState<string>("");
+  const [managerClients, setManagerClients] = useState<number>(0);
   
   useEffect(() => {
     // Filter users to show only managers and admins
@@ -129,10 +147,64 @@ export default function SettingsPage() {
     setIsDialogOpen(true);
   };
   
-  const handleDelete = (userId: string) => {
-    const updatedManagers = managers.filter((manager) => manager.id !== userId);
+  const handleDelete = (manager: User) => {
+    const managerName = manager.name;
+    
+    // Check if this manager has any assigned clients
+    const managerHasClients = clients.some(client => client.accountManager === managerName);
+    
+    if (managerHasClients) {
+      // Count how many clients are assigned to this manager
+      const clientCount = clients.filter(client => client.accountManager === managerName).length;
+      
+      setManagerToDelete(manager);
+      setManagerClients(clientCount);
+      setReassignTo("");
+      setIsReassignOpen(true);
+    } else {
+      // If no clients, delete directly
+      const updatedManagers = managers.filter((m) => m.id !== manager.id);
+      updateAccountManagers(updatedManagers);
+      toast.success("Account manager removed successfully");
+    }
+  };
+  
+  const handleReassignClients = () => {
+    if (!managerToDelete || !reassignTo) {
+      toast.error("Please select a manager to reassign clients to");
+      return;
+    }
+    
+    // Find the new manager by id
+    const newManager = managers.find(m => m.id === reassignTo);
+    
+    if (!newManager) {
+      toast.error("Selected manager not found");
+      return;
+    }
+    
+    // Update all clients assigned to the deleted manager
+    const updatedClients = clients.map(client => {
+      if (client.accountManager === managerToDelete.name) {
+        return { ...client, accountManager: newManager.name };
+      }
+      return client;
+    });
+    
+    // Update each client individually
+    updatedClients.forEach(client => {
+      if (client.accountManager === newManager.name) {
+        updateClient(client);
+      }
+    });
+    
+    // Now delete the manager
+    const updatedManagers = managers.filter((m) => m.id !== managerToDelete.id);
     updateAccountManagers(updatedManagers);
-    toast.success("Account manager removed successfully");
+    
+    toast.success(`All clients reassigned to ${newManager.name} and ${managerToDelete.name} removed successfully`);
+    setIsReassignOpen(false);
+    setManagerToDelete(null);
   };
   
   const handleAddNew = () => {
@@ -324,7 +396,7 @@ export default function SettingsPage() {
                           variant="ghost"
                           size="icon"
                           className="text-red-500 hover:text-red-600"
-                          onClick={() => handleDelete(manager.id)}
+                          onClick={() => handleDelete(manager)}
                         >
                           <Trash className="h-4 w-4" />
                         </Button>
@@ -343,6 +415,51 @@ export default function SettingsPage() {
           </Table>
         </CardContent>
       </Card>
+      
+      {/* Reassign Clients Dialog */}
+      <AlertDialog open={isReassignOpen} onOpenChange={setIsReassignOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reassign Clients</AlertDialogTitle>
+            <AlertDialogDescription>
+              {managerToDelete?.name} is currently managing {managerClients} client{managerClients !== 1 ? 's' : ''}. 
+              You must reassign these clients to another manager before deleting this account.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="py-4">
+            <FormItem>
+              <FormLabel>Reassign to:</FormLabel>
+              <Select onValueChange={setReassignTo} value={reassignTo}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a manager" />
+                </SelectTrigger>
+                <SelectContent>
+                  {managers
+                    .filter(m => m.id !== managerToDelete?.id) // Exclude the manager being deleted
+                    .map(manager => (
+                      <SelectItem key={manager.id} value={manager.id}>
+                        {manager.name} ({manager.role})
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </FormItem>
+          </div>
+          
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsReassignOpen(false)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleReassignClients} 
+              disabled={!reassignTo}
+              className="flex items-center gap-2"
+            >
+              <Users className="h-4 w-4" />
+              Reassign and Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
