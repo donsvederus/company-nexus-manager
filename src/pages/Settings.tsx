@@ -42,6 +42,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { UserPlus, Edit, Trash } from "lucide-react";
 
+// Make sure all fields are required to match the User interface
 const userFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email format"),
@@ -59,7 +60,7 @@ export default function SettingsPage() {
   const [managers, setManagers] = useState<User[]>([]);
   
   useEffect(() => {
-    // Filter users to only show managers and admins
+    // Filter users to show only managers and admins
     setManagers(users.filter(u => u.role === "manager" || u.role === "admin"));
   }, [users]);
   
@@ -79,7 +80,15 @@ export default function SettingsPage() {
     if (editingUser) {
       const updatedManagers = managers.map((manager) => {
         if (manager.id === editingUser.id) {
-          return { ...data, id: manager.id };
+          // Ensure all required fields are included
+          return {
+            id: manager.id,
+            name: data.name,
+            email: data.email,
+            username: data.username,
+            password: data.password,
+            role: data.role,
+          } as User;
         }
         return manager;
       });
@@ -89,9 +98,13 @@ export default function SettingsPage() {
     } 
     // Adding a new user
     else {
-      const newUser = {
-        ...data,
+      const newUser: User = {
         id: `user-${Date.now()}`,
+        name: data.name,
+        email: data.email,
+        username: data.username,
+        password: data.password,
+        role: data.role,
       };
       
       const updatedManagers = [...managers, newUser];
