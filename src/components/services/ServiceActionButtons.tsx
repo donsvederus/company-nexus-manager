@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Copy, Trash2, EyeOff, Eye } from "lucide-react";
+import { Copy, Trash2, EyeOff, Eye, Pencil } from "lucide-react";
 
 interface ServiceActionButtonsProps {
   serviceId: string; // This is actually the ID of the service in the services array
@@ -39,7 +39,7 @@ export const ServiceActionButtons = ({
         variant="ghost" 
         onClick={() => onEdit(clientServiceId)}
       >
-        Edit
+        <Pencil className="h-4 w-4" />
       </Button>
       
       <Button 
