@@ -66,25 +66,23 @@ export default function ClientDetails() {
       />
 
       <div className="grid grid-cols-12 gap-6 mt-6">
-        {/* Top row - aligned side by side */}
         <div className="col-span-12 space-y-6">
+          {/* Top row - Basic info and Status management side by side with better proportion */}
           <div className="grid grid-cols-12 gap-6">
-            {/* Left column - Basic information */}
-            <div className="col-span-12 md:col-span-8 space-y-6">
+            {/* Left column - Basic information - takes more space */}
+            <div className="col-span-12 md:col-span-9 space-y-6">
               <BasicInfoCard client={client} onClientUpdate={handleClientUpdate} />
+              <ContactInfoCard client={client} onClientUpdate={handleClientUpdate} />
             </div>
             
-            {/* Right column - status management */}
-            <div className="col-span-12 md:col-span-4">
+            {/* Right column - status management - takes less space */}
+            <div className="col-span-12 md:col-span-3">
               <StatusManagementCard 
                 client={client}
                 onStatusChange={handleStatusChange}
               />
             </div>
           </div>
-          
-          {/* Contact info - full width below basic info and status */}
-          <ContactInfoCard client={client} onClientUpdate={handleClientUpdate} />
           
           {/* Full width client services */}
           <ClientServiceList client={client} />
