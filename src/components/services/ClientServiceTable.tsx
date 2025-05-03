@@ -38,9 +38,10 @@ export const ClientServiceTable = ({
     const clientService = clientServices.find(cs => cs.id === clientServiceId);
     if (clientService) {
       setEditingServiceId(clientServiceId);
-      // Ensure we're loading the existing values or default to empty string
+      // Load existing values or use defaults
       setCustomCost(clientService.customCost !== undefined ? clientService.customCost.toString() : '');
       setServiceNotes(clientService.notes || '');
+      // Use existing domain, or fall back to client website if domain is empty
       setServiceDomain(clientService.domain || client?.website || '');
     }
   };
@@ -54,7 +55,7 @@ export const ClientServiceTable = ({
         editingServiceId,
         costValue,
         serviceNotes,
-        serviceDomain
+        serviceDomain || client.website || '' // Ensure domain has a value, preferring serviceDomain but falling back to client website
       );
       
       // Reset editing state
@@ -99,6 +100,7 @@ export const ClientServiceTable = ({
           if (!service) return null;
           
           const isEditing = editingServiceId === clientService.id;
+          const displayDomain = clientService.domain || client.website || "-";
           
           return (
             <TableRow key={clientService.id} className={!clientService.isActive ? "opacity-60" : ""}>
@@ -119,7 +121,7 @@ export const ClientServiceTable = ({
                 ) : (
                   <div className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-muted-foreground" />
-                    {clientService.domain || client.website || "-"}
+                    {displayDomain}
                   </div>
                 )}
               </TableCell>

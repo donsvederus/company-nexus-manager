@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useClients } from "@/context/ClientContext";
@@ -70,7 +71,7 @@ export default function ClientServices() {
         ...existingService,
         customCost: customCostValue,
         notes: notes || undefined,
-        domain: domain || undefined
+        domain: domain || client.website || undefined // Ensure domain has a value, preferring provided domain but falling back to client website
       };
       
       updateClientService(updatedService);
