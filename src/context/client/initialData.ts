@@ -240,6 +240,48 @@ export const initialClients: Client[] = [
     phone: "(555) 789-4561",
     startDate: "2020-08-29",
     status: "active",
+    workLogs: [
+      {
+        id: "wl11",
+        clientId: "7",
+        description: "AI System Security Audit",
+        notes: "Complete security review of Skynet neural network protocols",
+        startTime: "2024-04-28T09:00:00Z",
+        endTime: "2024-04-28T17:00:00Z",
+        duration: 480,
+        completed: true,
+        recurring: true,
+        recurrenceType: "monthly",
+        dueDate: "2024-04-30T00:00:00Z",
+        createdAt: "2024-04-20T10:00:00Z",
+        updatedAt: "2024-04-28T17:00:00Z"
+      },
+      {
+        id: "wl12",
+        clientId: "7",
+        description: "Neural Network Optimization",
+        notes: "Improve machine learning algorithms for the defense network",
+        startTime: "2024-05-01T13:00:00Z",
+        endTime: "2024-05-01T18:00:00Z",
+        duration: 300,
+        completed: true,
+        recurring: false,
+        dueDate: "2024-05-01T00:00:00Z",
+        createdAt: "2024-04-25T11:30:00Z",
+        updatedAt: "2024-05-01T18:00:00Z"
+      },
+      {
+        id: "wl13",
+        clientId: "7",
+        description: "Prototype T-800 Design Review",
+        notes: "Review technical specifications and design blueprints for the new model",
+        completed: false,
+        recurring: false,
+        dueDate: "2025-05-15T00:00:00Z",
+        createdAt: "2024-04-30T14:00:00Z",
+        updatedAt: "2024-04-30T14:00:00Z"
+      }
+    ]
   },
   {
     id: "8",
