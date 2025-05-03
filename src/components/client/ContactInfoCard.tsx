@@ -6,6 +6,14 @@ import { Edit, Save } from "lucide-react";
 import { Client } from "@/types/client";
 import { toast } from "sonner";
 import { useClients } from "@/context/ClientContext";
+import { useAuth } from "@/context/AuthContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ContactInfoCardProps {
   client: Client;
@@ -28,19 +36,30 @@ function InfoItem({ label, value }: InfoItemProps) {
 
 export default function ContactInfoCard({ client, onClientUpdate }: ContactInfoCardProps) {
   const { updateClient } = useClients();
+  const { users, user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editedInfo, setEditedInfo] = useState({
     mainContact: client.mainContact,
     email: client.email,
-    phone: client.phone
+    phone: client.phone,
+    accountManager: client.accountManager
   });
+
+  // Get account managers from users
+  const accountManagers = Array.isArray(users) 
+    ? users.filter(u => u.role === "admin" || u.role === "manager") 
+    : [];
+
+  // Check if current user is admin
+  const isAdmin = user?.role === "admin";
 
   // Update local state when client prop changes
   useEffect(() => {
     setEditedInfo({
       mainContact: client.mainContact,
       email: client.email,
-      phone: client.phone
+      phone: client.phone,
+      accountManager: client.accountManager
     });
   }, [client]);
 
@@ -54,7 +73,8 @@ export default function ContactInfoCard({ client, onClientUpdate }: ContactInfoC
       ...client,
       mainContact: editedInfo.mainContact || client.mainContact,
       email: editedInfo.email || client.email,
-      phone: editedInfo.phone || client.phone
+      phone: editedInfo.phone || client.phone,
+      accountManager: editedInfo.accountManager || client.accountManager
     };
     
     updateClient(updatedClient);
@@ -67,7 +87,8 @@ export default function ContactInfoCard({ client, onClientUpdate }: ContactInfoC
     setEditedInfo({
       mainContact: client.mainContact,
       email: client.email,
-      phone: client.phone
+      phone: client.phone,
+      accountManager: client.accountManager
     });
     setIsEditing(true);
   };
@@ -89,13 +110,40 @@ export default function ContactInfoCard({ client, onClientUpdate }: ContactInfoC
       <div className="space-y-2">
         {isEditing ? (
           <>
-            {/* Display account manager as read-only text */}
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Manager:</span>
-              <span className="text-sm text-muted-foreground w-2/3 text-right">
-                {client.accountManager}
-              </span>
-            </div>
+            {/* Account manager dropdown - only show to admin users */}
+            {isAdmin && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Manager:</span>
+                <div className="w-2/3">
+                  <Select
+                    value={editedInfo.accountManager}
+                    onValueChange={(value) => handleInputChange('accountManager', value)}
+                  >
+                    <SelectTrigger className="h-8 text-sm w-full">
+                      <SelectValue placeholder="Select a manager" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accountManagers.map((manager) => (
+                        <SelectItem key={manager.id} value={manager.name}>
+                          {manager.name} ({manager.role})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+            
+            {/* Read-only manager field for non-admin users */}
+            {!isAdmin && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Manager:</span>
+                <span className="text-sm text-muted-foreground w-2/3 text-right">
+                  {client.accountManager}
+                </span>
+              </div>
+            )}
+            
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Contact:</span>
               <div className="w-2/3">
