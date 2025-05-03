@@ -57,22 +57,22 @@ export default function ClientDetails() {
     <>
       <ClientDetailsHeader 
         client={client}
-        onEdit={() => navigate(`/clients/${id}/edit`)}
-        onDelete={() => setShowDeleteDialog(true)}
+        onEditClick={() => navigate(`/clients/${id}/edit`)}
+        onDeleteClick={() => setShowDeleteDialog(true)}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         <div className="md:col-span-2 space-y-6">
           <BasicInfoCard client={client} />
-          <ContactInfoCard client={client} onLastContactUpdate={handleLastContactUpdate} />
+          <ContactInfoCard client={client} />
+          
+          {/* Display client services */}
+          <ClientServiceList client={client} />
           
           {/* Display work log preview if client has work logs */}
           {client.workLogs && client.workLogs.length > 0 && (
             <WorkLogPreview clientId={client.id} workLogs={client.workLogs} />
           )}
-          
-          {/* Display client services */}
-          <ClientServiceList client={client} />
         </div>
         
         <div className="space-y-6">
