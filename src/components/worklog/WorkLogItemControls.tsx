@@ -36,7 +36,7 @@ export function WorkLogItemControls({
           size="sm"
           className="w-full flex items-center gap-1"
           onClick={onStartTracking}
-          disabled={!!endTimeExists || completed}
+          disabled={completed}
         >
           <Play className="h-3 w-3" /> Start
         </Button>

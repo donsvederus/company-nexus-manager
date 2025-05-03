@@ -15,7 +15,7 @@ export function useTimeTracking(startTime?: string, endTime?: string, previousDu
         const start = new Date(startTime);
         const now = new Date();
         const currentSessionMinutes = Math.floor((now.getTime() - start.getTime()) / 60000);
-        const totalMinutes = (previousDuration || 0) + currentSessionMinutes;
+        const totalMinutes = accumulatedMinutes + currentSessionMinutes;
         
         const hours = Math.floor(totalMinutes / 60);
         const minutes = totalMinutes % 60;
@@ -25,7 +25,7 @@ export function useTimeTracking(startTime?: string, endTime?: string, previousDu
       }, 1000);
     } else if (startTime && endTime) {
       // When tracking is stopped, calculate the final time once
-      const totalMinutes = previousDuration || 0;
+      const totalMinutes = accumulatedMinutes;
       
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
@@ -44,7 +44,7 @@ export function useTimeTracking(startTime?: string, endTime?: string, previousDu
     return () => {
       if (timer) window.clearInterval(timer);
     };
-  }, [isTracking, startTime, endTime, previousDuration]);
+  }, [isTracking, startTime, endTime, accumulatedMinutes, previousDuration]);
   
   useEffect(() => {
     setIsTracking(!!startTime && !endTime);
