@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useClients } from "@/context/ClientContext";
@@ -220,7 +221,7 @@ export default function ClientDetails() {
                   {isBasicEditing ? (
                     <>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Company Name:</span>
+                        <span className="text-sm font-medium">Company:</span>
                         <Input 
                           value={editedClient.companyName || ''} 
                           onChange={(e) => handleInputChange('companyName', e.target.value)}
@@ -256,7 +257,7 @@ export default function ClientDetails() {
                     </>
                   ) : (
                     <>
-                      <InfoItem label="Company Name" value={client?.companyName || ''} />
+                      <InfoItem label="Company" value={client?.companyName || ''} />
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Website:</span>
                         {client?.website ? (
@@ -312,13 +313,13 @@ export default function ClientDetails() {
                     <>
                       {/* Display account manager as read-only text */}
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Account Manager:</span>
+                        <span className="text-sm font-medium">Manager:</span>
                         <span className="text-sm text-muted-foreground w-2/3 text-right">
                           {client.accountManager}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Main Contact:</span>
+                        <span className="text-sm font-medium">Contact:</span>
                         <Input 
                           value={editedClient.mainContact || ''} 
                           onChange={(e) => handleInputChange('mainContact', e.target.value)}
@@ -345,8 +346,8 @@ export default function ClientDetails() {
                     </>
                   ) : (
                     <>
-                      <InfoItem label="Account Manager" value={client?.accountManager || ''} />
-                      <InfoItem label="Main Contact" value={client?.mainContact || ''} />
+                      <InfoItem label="Manager" value={client?.accountManager || ''} />
+                      <InfoItem label="Contact" value={client?.mainContact || ''} />
                       <InfoItem label="Email" value={client?.email || ''} />
                       <InfoItem label="Phone" value={client?.phone || ''} />
                     </>

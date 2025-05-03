@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -131,7 +132,7 @@ export default function ClientForm({
               name="companyName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company Name</FormLabel>
+                  <FormLabel>Company</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter company name" {...field} />
                   </FormControl>
@@ -174,7 +175,7 @@ export default function ClientForm({
                 name="accountManager"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Account Manager</FormLabel>
+                    <FormLabel>Manager</FormLabel>
                     <FormControl>
                       {accountManagers && accountManagers.length > 0 ? (
                         <Select 
@@ -209,7 +210,7 @@ export default function ClientForm({
                 name="mainContact"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Main Contact</FormLabel>
+                    <FormLabel>Contact</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter main contact" {...field} />
                     </FormControl>
