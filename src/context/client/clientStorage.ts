@@ -1,6 +1,6 @@
 
 import { Client } from "@/types/client";
-import { initialClients } from "./initialData";
+import { initialClients } from "./data";
 
 // Function to load clients from localStorage
 export const loadClients = (): Client[] => {
