@@ -4,6 +4,7 @@ import { useClients } from "@/context/ClientContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import StatusBadge from "@/components/StatusBadge";
 import { ClientStatus } from "@/types/client";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const { clients } = useClients();
@@ -67,9 +68,9 @@ export default function Dashboard() {
                 {stats.recentClients.map((client) => (
                   <tr key={client.id} className="border-b hover:bg-gray-50">
                     <td className="p-2">
-                      <a href={`/clients/${client.id}`} className="text-brand-600 hover:underline">
+                      <Link to={`/clients/${client.id}`} className="text-brand-600 hover:underline">
                         {client.companyName}
-                      </a>
+                      </Link>
                     </td>
                     <td className="p-2">{client.accountManager}</td>
                     <td className="p-2">{new Date(client.startDate).toLocaleDateString()}</td>
