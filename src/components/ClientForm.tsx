@@ -35,6 +35,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { UserRole } from "@/types/auth";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
+import { useFormProtection } from "@/hooks/useFormProtection";
 
 // Update the form schema to include website
 const formSchema = z.object({
@@ -98,6 +99,10 @@ export default function ClientForm({
         },
   });
 
+  // Check if the form is dirty (has unsaved changes)
+  const isDirty = form.formState.isDirty;
+  const { ProtectionDialog } = useFormProtection(isDirty);
+
   // Update form's account manager field if it's not in the list when users data loads
   useEffect(() => {
     if (accountManagers.length > 0 && defaultValues) {
@@ -117,6 +122,11 @@ export default function ClientForm({
       startDate: data.startDate.toISOString().split("T")[0],
     };
     onSubmit(formattedData);
+  };
+
+  const handleCancel = () => {
+    // If form is dirty, the useFormProtection hook will handle the confirmation
+    navigate(-1);
   };
 
   return (
@@ -318,7 +328,7 @@ export default function ClientForm({
           </CardContent>
           
           <CardFooter className="flex justify-between">
-            <Button type="button" variant="outline" onClick={() => navigate(-1)}>
+            <Button type="button" variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
             <Button type="submit" className="bg-brand-600 hover:bg-brand-700">
@@ -327,6 +337,9 @@ export default function ClientForm({
           </CardFooter>
         </form>
       </Form>
+      
+      {/* Render the protection dialog */}
+      <ProtectionDialog />
     </Card>
   );
 }

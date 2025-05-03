@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useServices } from "@/context/ServiceContext";
 import { Service, ServiceCategory } from "@/types/service";
@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useFormProtection } from "@/hooks/useFormProtection";
 
 const categoryOptions: ServiceCategory[] = [
   "hosting",
@@ -35,6 +36,21 @@ export default function AddService() {
   const [category, setCategory] = useState<ServiceCategory>("other");
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Track if form has user input (is dirty)
+  const [isDirty, setIsDirty] = useState(false);
+  const { ProtectionDialog } = useFormProtection(isDirty);
+
+  // Track form changes to set dirty state
+  useEffect(() => {
+    const isFormDirty = 
+      name !== "" ||
+      defaultCost !== "" ||
+      category !== "other" ||
+      description !== "";
+    
+    setIsDirty(isFormDirty);
+  }, [name, defaultCost, category, description]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +76,7 @@ export default function AddService() {
     };
     
     addService(newService);
+    setIsDirty(false); // Reset dirty state after saving
     
     setTimeout(() => {
       setIsLoading(false);
@@ -67,11 +84,16 @@ export default function AddService() {
     }, 500);
   };
 
+  const handleCancel = () => {
+    // If form is dirty, the useFormProtection hook will handle the confirmation
+    navigate("/services");
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">Add New Service</h1>
-        <Button variant="outline" onClick={() => navigate("/services")}>
+        <Button variant="outline" onClick={handleCancel}>
           Cancel
         </Button>
       </div>
@@ -144,7 +166,7 @@ export default function AddService() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate("/services")}
+                onClick={handleCancel}
               >
                 Cancel
               </Button>
@@ -155,6 +177,9 @@ export default function AddService() {
           </form>
         </CardContent>
       </Card>
+      
+      {/* Render the protection dialog */}
+      <ProtectionDialog />
     </div>
   );
 }

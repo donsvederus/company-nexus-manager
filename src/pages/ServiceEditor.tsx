@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useServices } from "@/context/ServiceContext";
@@ -31,6 +30,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useFormProtection } from "@/hooks/useFormProtection";
 
 const categoryOptions: ServiceCategory[] = [
   "hosting",
@@ -56,6 +56,10 @@ export default function ServiceEditor() {
   const [newCategory, setNewCategory] = useState("");
   const [allCategories, setAllCategories] = useState<ServiceCategory[]>(categoryOptions);
   const [categoryToRemove, setCategoryToRemove] = useState<ServiceCategory | null>(null);
+  
+  // Track if form is dirty (has changes)
+  const [isDirty, setIsDirty] = useState(false);
+  const { ProtectionDialog } = useFormProtection(isDirty);
 
   useEffect(() => {
     // Collect all unique categories used across all services
@@ -87,6 +91,26 @@ export default function ServiceEditor() {
     }
   }, [id, getServiceById, navigate, services]);
 
+  // Reset dirty state when form is initialized
+  useEffect(() => {
+    if (service) {
+      setIsDirty(false);
+    }
+  }, [service]);
+
+  // Track form changes to set dirty state
+  useEffect(() => {
+    if (service) {
+      const isFormDirty = 
+        name !== service.name ||
+        parseFloat(defaultCost) !== service.defaultCost ||
+        category !== service.category ||
+        description !== (service.description || "");
+      
+      setIsDirty(isFormDirty);
+    }
+  }, [name, defaultCost, category, description, service]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -114,6 +138,7 @@ export default function ServiceEditor() {
     };
     
     updateService(updatedService);
+    setIsDirty(false); // Reset dirty state after saving
     
     setTimeout(() => {
       setIsLoading(false);
@@ -172,6 +197,11 @@ export default function ServiceEditor() {
     return !services.some(s => s.category === cat && s.id !== id);
   };
 
+  const handleCancel = () => {
+    // If form is dirty, the useFormProtection hook will handle the confirmation
+    navigate(-1);
+  };
+
   if (!service) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -186,7 +216,7 @@ export default function ServiceEditor() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">Edit Service</h1>
-        <Button variant="outline" onClick={() => navigate(-1)}>
+        <Button variant="outline" onClick={handleCancel}>
           Cancel
         </Button>
       </div>
@@ -355,7 +385,7 @@ export default function ServiceEditor() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate(-1)}
+                onClick={handleCancel}
               >
                 Cancel
               </Button>
@@ -366,6 +396,9 @@ export default function ServiceEditor() {
           </form>
         </CardContent>
       </Card>
+      
+      {/* Render the protection dialog */}
+      <ProtectionDialog />
     </div>
   );
 }
