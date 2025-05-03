@@ -8,7 +8,7 @@ import ContactInfoCard from '@/components/client/ContactInfoCard';
 import StatusManagementCard from '@/components/client/StatusManagementCard';
 import ClientServiceList from '@/components/ClientServiceList';
 import WorkLogPreview from '@/components/worklog/WorkLogPreview';
-import { Client } from '@/types/client';
+import { Client, ClientStatus } from '@/types/client';
 
 export default function ClientDetails() {
   const { id } = useParams<{ id: string }>();
@@ -42,7 +42,7 @@ export default function ClientDetails() {
     }
   };
 
-  const handleStatusChange = (newStatus: 'active' | 'inactive') => {
+  const handleStatusChange = (newStatus: ClientStatus) => {
     if (id) {
       updateClientStatus(id, newStatus);
     }
@@ -66,10 +66,23 @@ export default function ClientDetails() {
       />
 
       <div className="grid grid-cols-12 gap-6 mt-6">
-        {/* Left column - increased width to 9 columns */}
-        <div className="col-span-12 md:col-span-9 space-y-6">
-          <BasicInfoCard client={client} onClientUpdate={handleClientUpdate} />
-          <ContactInfoCard client={client} onClientUpdate={handleClientUpdate} />
+        {/* Full width column for main content */}
+        <div className="col-span-12 space-y-6">
+          <div className="grid grid-cols-12 gap-6">
+            {/* Left column - client information */}
+            <div className="col-span-12 md:col-span-9 space-y-6">
+              <BasicInfoCard client={client} onClientUpdate={handleClientUpdate} />
+              <ContactInfoCard client={client} onClientUpdate={handleClientUpdate} />
+            </div>
+            
+            {/* Right column - status management */}
+            <div className="col-span-12 md:col-span-3 space-y-6">
+              <StatusManagementCard 
+                client={client}
+                onStatusChange={handleStatusChange}
+              />
+            </div>
+          </div>
           
           {/* Full width client services */}
           <ClientServiceList client={client} />
@@ -78,14 +91,6 @@ export default function ClientDetails() {
           {client.workLogs && client.workLogs.length > 0 && (
             <WorkLogPreview clientId={client.id} workLogs={client.workLogs} />
           )}
-        </div>
-        
-        {/* Right column - decreased width to 3 columns */}
-        <div className="col-span-12 md:col-span-3 space-y-6">
-          <StatusManagementCard 
-            client={client}
-            onStatusChange={handleStatusChange}
-          />
         </div>
       </div>
     </>

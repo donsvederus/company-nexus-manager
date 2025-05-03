@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 
 interface StatusManagementCardProps {
   client: Client;
-  onStatusChange: (client: Client) => void;
+  onStatusChange: (newStatus: ClientStatus) => void;
 }
 
 export default function StatusManagementCard({ client, onStatusChange }: StatusManagementCardProps) {
@@ -24,18 +23,11 @@ export default function StatusManagementCard({ client, onStatusChange }: StatusM
 
   const handleStatusChange = (newStatus: ClientStatus) => {
     updateClientStatus(client.id, newStatus);
-    onStatusChange({
-      ...client,
-      status: newStatus,
-      // If setting to inactive, add end date; if active, remove end date
-      ...(newStatus === 'inactive' 
-        ? { endDate: new Date().toISOString().split('T')[0] }
-        : { endDate: undefined })
-    });
+    onStatusChange(newStatus);
   };
 
   const handleWorkLogClick = () => {
-    navigate(`/clients/${client.id}/work-log`);
+    navigate(`/clients/${client.id}/worklog`);
   };
 
   return (
