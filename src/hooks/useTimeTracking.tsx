@@ -39,6 +39,9 @@ export function useTimeTracking(startTime?: string, endTime?: string, previousDu
       const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
       
       setElapsed(formattedTime);
+    } else {
+      // Set a default time of 00:00:00 when no time is tracked
+      setElapsed("00:00:00");
     }
     
     return () => {
