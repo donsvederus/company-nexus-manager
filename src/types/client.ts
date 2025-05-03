@@ -34,6 +34,7 @@ export interface WorkLog {
   recurring?: boolean; // Indicates if this is a recurring task
   recurrenceType?: string; // Type of recurrence (daily, weekly, etc.)
   nextRecurrenceDate?: string; // Next date for recurrence
+  dueDate?: string; // Added due date field
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
 }
