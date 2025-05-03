@@ -18,6 +18,20 @@ export interface Client {
   website?: string; // Website domain field
   lastContactDate?: string; // Added last contact date field
   endDate?: string; // Added end date field
+  workLogs?: WorkLog[]; // Added work logs
+}
+
+// Work log type for tracking time spent on client work
+export interface WorkLog {
+  id: string;
+  clientId: string;
+  description: string;
+  notes: string;
+  startTime?: string; // ISO string when started
+  endTime?: string; // ISO string when ended
+  duration?: number; // Duration in minutes if manually entered
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
 }
 
 // Add a form-specific type that uses Date object for the form

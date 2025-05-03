@@ -10,6 +10,8 @@ import {
 import { Client, ClientStatus } from "@/types/client";
 import StatusBadge from "@/components/StatusBadge";
 import { useClients } from "@/context/ClientContext";
+import { Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface StatusManagementCardProps {
   client: Client;
@@ -18,6 +20,7 @@ interface StatusManagementCardProps {
 
 export default function StatusManagementCard({ client, onStatusChange }: StatusManagementCardProps) {
   const { updateClientStatus } = useClients();
+  const navigate = useNavigate();
 
   const handleStatusChange = (newStatus: ClientStatus) => {
     updateClientStatus(client.id, newStatus);
@@ -29,6 +32,10 @@ export default function StatusManagementCard({ client, onStatusChange }: StatusM
         ? { endDate: new Date().toISOString().split('T')[0] }
         : { endDate: undefined })
     });
+  };
+
+  const handleWorkLogClick = () => {
+    navigate(`/clients/${client.id}/work-log`);
   };
 
   return (
@@ -73,6 +80,24 @@ export default function StatusManagementCard({ client, onStatusChange }: StatusM
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Mark this client as inactive. Limited functionality will be available.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    className="w-full" 
+                    variant="outline"
+                    onClick={handleWorkLogClick}
+                  >
+                    <Clock className="mr-2 h-4 w-4" />
+                    Manage Work Log
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Track time and add notes for work done with this client</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

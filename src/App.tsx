@@ -16,6 +16,7 @@ import AddClient from "@/pages/AddClient";
 import EditClient from "@/pages/EditClient";
 import ClientDetails from "@/pages/ClientDetails";
 import ClientServices from "@/pages/ClientServices";
+import ClientWorkLog from "@/pages/ClientWorkLog";
 import ServiceList from "@/pages/ServiceList";
 import AddService from "@/pages/AddService";
 import ServiceEditor from "@/pages/ServiceEditor";
@@ -43,6 +44,7 @@ const App = () => (
                 <Route path="/clients/:id" element={<Layout><ClientDetails /></Layout>} />
                 <Route path="/clients/:id/edit" element={<Layout><EditClient /></Layout>} />
                 <Route path="/clients/:id/services" element={<Layout><ClientServices /></Layout>} />
+                <Route path="/clients/:id/work-log" element={<Layout><ClientWorkLog /></Layout>} />
                 <Route path="/services" element={<Layout><ServiceList /></Layout>} />
                 <Route path="/services/new" element={<Layout><AddService /></Layout>} />
                 <Route path="/services/:id/edit" element={<Layout><ServiceEditor /></Layout>} />
