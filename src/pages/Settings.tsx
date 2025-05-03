@@ -1,8 +1,8 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useClients } from "@/context/ClientContext"; // Add clients context
-import { User, UserRole } from "@/types/auth";
+import { useClients } from "@/context/ClientContext";
+import { User } from "@/types/auth";
 import {
   Card,
   CardContent,
@@ -10,50 +10,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { UserPlus, Edit, Trash, Users } from "lucide-react";
+import { UserPlus } from "lucide-react";
+import { AccountManagerForm } from "@/components/settings/AccountManagerForm";
+import { ManagersTable } from "@/components/settings/ManagersTable";
+import { ReassignClientsDialog } from "@/components/settings/ReassignClientsDialog";
+import { z } from "zod";
 
-// Make sure all fields are required to match the User interface
+// Reuse the schema from the AccountManagerForm component
 const userFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email format"),
@@ -66,7 +35,7 @@ type UserFormValues = z.infer<typeof userFormSchema>;
 
 export default function SettingsPage() {
   const { user, users, hasRole, updateAccountManagers } = useAuth();
-  const { clients, updateClient } = useClients(); // Get client functions
+  const { clients, updateClient } = useClients();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [managers, setManagers] = useState<User[]>([]);
@@ -82,18 +51,7 @@ export default function SettingsPage() {
     setManagers(users.filter(u => u.role === "manager" || u.role === "admin"));
   }, [users]);
   
-  const form = useForm<UserFormValues>({
-    resolver: zodResolver(userFormSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      username: "",
-      password: "",
-      role: "manager",
-    },
-  });
-  
-  const onSubmit = (data: UserFormValues) => {
+  const handleSubmit = (data: UserFormValues) => {
     // If editing an existing user
     if (editingUser) {
       const updatedManagers = managers.map((manager) => {
@@ -132,18 +90,10 @@ export default function SettingsPage() {
     
     setIsDialogOpen(false);
     setEditingUser(null);
-    form.reset();
   };
   
   const handleEdit = (user: User) => {
     setEditingUser(user);
-    form.reset({
-      name: user.name,
-      email: user.email,
-      username: user.username,
-      password: user.password,
-      role: user.role,
-    });
     setIsDialogOpen(true);
   };
   
@@ -209,13 +159,6 @@ export default function SettingsPage() {
   
   const handleAddNew = () => {
     setEditingUser(null);
-    form.reset({
-      name: "",
-      email: "",
-      username: "",
-      password: "",
-      role: "manager",
-    });
     setIsDialogOpen(true);
   };
   
@@ -256,210 +199,33 @@ export default function SettingsPage() {
                 Add New Manager
               </Button>
             </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{editingUser ? "Edit Manager" : "Add New Manager"}</DialogTitle>
-                <DialogDescription>
-                  {editingUser
-                    ? "Update the account manager details below."
-                    : "Add a new account manager to assign to clients."}
-                </DialogDescription>
-              </DialogHeader>
-              
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter full name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="email@example.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="username"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Username</FormLabel>
-                          <FormControl>
-                            <Input placeholder="username" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <Input type="password" placeholder="••••••" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  
-                  <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Role</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select role" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="manager">Manager</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button type="submit">
-                      {editingUser ? "Update Manager" : "Add Manager"}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
+            <AccountManagerForm 
+              editingUser={editingUser} 
+              onSubmit={handleSubmit} 
+              onCancel={() => setIsDialogOpen(false)} 
+            />
           </Dialog>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Username</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {managers.length > 0 ? (
-                managers.map((manager) => (
-                  <TableRow key={manager.id}>
-                    <TableCell className="font-medium">{manager.name}</TableCell>
-                    <TableCell>{manager.email}</TableCell>
-                    <TableCell>{manager.username}</TableCell>
-                    <TableCell className="capitalize">{manager.role}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(manager)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-red-500 hover:text-red-600"
-                          onClick={() => handleDelete(manager)}
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
-                    No account managers found. Add one to get started.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+          <ManagersTable 
+            managers={managers}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
         </CardContent>
       </Card>
       
       {/* Reassign Clients Dialog */}
-      <AlertDialog open={isReassignOpen} onOpenChange={setIsReassignOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Reassign Clients</AlertDialogTitle>
-            <AlertDialogDescription>
-              {managerToDelete?.name} is currently managing {managerClients} client{managerClients !== 1 ? 's' : ''}. 
-              You must reassign these clients to another manager before deleting this account.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          
-          <div className="py-4">
-            <FormItem>
-              <FormLabel>Reassign to:</FormLabel>
-              <Select onValueChange={setReassignTo} value={reassignTo}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a manager" />
-                </SelectTrigger>
-                <SelectContent>
-                  {managers
-                    .filter(m => m.id !== managerToDelete?.id) // Exclude the manager being deleted
-                    .map(manager => (
-                      <SelectItem key={manager.id} value={manager.id}>
-                        {manager.name} ({manager.role})
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </FormItem>
-          </div>
-          
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setIsReassignOpen(false)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleReassignClients} 
-              disabled={!reassignTo}
-              className="flex items-center gap-2"
-            >
-              <Users className="h-4 w-4" />
-              Reassign and Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ReassignClientsDialog
+        isOpen={isReassignOpen}
+        onOpenChange={setIsReassignOpen}
+        managerToDelete={managerToDelete}
+        managers={managers}
+        clientCount={managerClients}
+        reassignTo={reassignTo}
+        setReassignTo={setReassignTo}
+        onConfirm={handleReassignClients}
+      />
     </div>
   );
 }
