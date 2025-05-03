@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { WorkLog } from "@/types/client";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import WorkLogMetadata from "./WorkLogMetadata";
@@ -9,6 +9,7 @@ import WorkLogItemActions from "./WorkLogItemActions";
 import WorkLogRecurrenceDialog from "./WorkLogRecurrenceDialog";
 import WorkLogNextRecurrence from "./WorkLogNextRecurrence";
 import { useTimeTracking } from "@/hooks/useTimeTracking";
+import { useWorkLogItem } from "@/hooks/useWorkLogItem";
 
 interface WorkLogItemProps {
   log: WorkLog;
@@ -31,69 +32,26 @@ export function WorkLogItem({
   onToggleRecurring,
   onSetRecurrenceSchedule
 }: WorkLogItemProps) {
-  const [description, setDescription] = useState<string>(log.description || "");
-  const [notes, setNotes] = useState<string>(log.notes || "");
-  const [showRecurrenceDialog, setShowRecurrenceDialog] = useState(false);
-  
   const { elapsed, isTracking } = useTimeTracking(log.startTime, log.endTime);
   
-  useEffect(() => {
-    setDescription(log.description || "");
-    setNotes(log.notes || "");
-  }, [log]);
-  
-  const handleStartTracking = () => {
-    const startTime = new Date().toISOString();
-    onUpdate({
-      ...log,
-      startTime,
-      updatedAt: new Date().toISOString()
-    });
-  };
-  
-  const handleStopTracking = () => {
-    const endTime = new Date().toISOString();
-    
-    const start = new Date(log.startTime!);
-    const end = new Date(endTime);
-    const durationInMinutes = Math.round((end.getTime() - start.getTime()) / 60000);
-    
-    onUpdate({
-      ...log,
-      endTime,
-      duration: durationInMinutes,
-      updatedAt: new Date().toISOString()
-    });
-  };
-  
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDescription(e.target.value);
-    onUpdate({
-      ...log,
-      description: e.target.value,
-      updatedAt: new Date().toISOString()
-    });
-  };
-  
-  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setNotes(e.target.value);
-    onUpdate({
-      ...log,
-      notes: e.target.value,
-      updatedAt: new Date().toISOString()
-    });
-  };
-
-  const handleRecurrenceDialogOpen = () => {
-    setShowRecurrenceDialog(true);
-  };
+  const {
+    description,
+    notes,
+    showRecurrenceDialog,
+    handleStartTracking,
+    handleStopTracking,
+    handleDescriptionChange,
+    handleNotesChange,
+    handleRecurrenceDialogOpen,
+    handleRecurrenceDialogOpenChange
+  } = useWorkLogItem(log, onUpdate);
 
   const handleSetRecurrenceSchedule = (recurrenceType: RecurrenceType, nextDate?: Date) => {
     if (onSetRecurrenceSchedule) {
       onSetRecurrenceSchedule(log.id, recurrenceType, nextDate);
     }
     onToggleRecurring(log.id, true);
-    setShowRecurrenceDialog(false);
+    handleRecurrenceDialogOpenChange(false);
   };
 
   const handleToggleComplete = () => {
@@ -164,7 +122,7 @@ export function WorkLogItem({
 
         <WorkLogRecurrenceDialog 
           open={showRecurrenceDialog}
-          onOpenChange={setShowRecurrenceDialog}
+          onOpenChange={handleRecurrenceDialogOpenChange}
           onSetRecurrence={handleSetRecurrenceSchedule}
         />
       </CardFooter>
