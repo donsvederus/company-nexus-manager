@@ -12,7 +12,7 @@ import WorkLogPreview from '@/components/worklog/WorkLogPreview';
 export default function ClientDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getClientById, deleteClient, updateClientStatus, updateLastContactDate } = useClients();
+  const { getClientById, deleteClient, updateClientStatus, updateLastContactDate, updateClient } = useClients();
 
   const client = id ? getClientById(id) : null;
   
@@ -53,18 +53,22 @@ export default function ClientDetails() {
     }
   };
 
+  const handleClientUpdate = (updatedClient: Client) => {
+    updateClient(updatedClient);
+  };
+
   return (
     <>
       <ClientDetailsHeader 
         client={client}
-        onEditClick={() => navigate(`/clients/${id}/edit`)}
-        onDeleteClick={() => setShowDeleteDialog(true)}
+        onDelete={handleDelete}
+        onEdit={() => navigate(`/clients/${id}/edit`)}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         <div className="md:col-span-2 space-y-6">
-          <BasicInfoCard client={client} />
-          <ContactInfoCard client={client} />
+          <BasicInfoCard client={client} onClientUpdate={handleClientUpdate} />
+          <ContactInfoCard client={client} onClientUpdate={handleClientUpdate} />
           
           {/* Display client services */}
           <ClientServiceList client={client} />
