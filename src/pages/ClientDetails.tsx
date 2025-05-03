@@ -67,16 +67,16 @@ export default function ClientDetails() {
 
       <div className="grid grid-cols-12 gap-6 mt-6">
         <div className="col-span-12 space-y-6">
-          {/* Top row - Basic info and Status management side by side with better proportion */}
+          {/* Top row - Basic info and Status management with equal 50-50 split */}
           <div className="grid grid-cols-12 gap-6">
-            {/* Left column - Basic and contact information - takes less space now */}
-            <div className="col-span-12 md:col-span-7 space-y-6">
+            {/* Left column - Basic and contact information - exactly half the space */}
+            <div className="col-span-12 md:col-span-6 space-y-6">
               <BasicInfoCard client={client} onClientUpdate={handleClientUpdate} />
               <ContactInfoCard client={client} onClientUpdate={handleClientUpdate} />
             </div>
             
-            {/* Right column - status management - takes more space now */}
-            <div className="col-span-12 md:col-span-5">
+            {/* Right column - status management - exactly half the space */}
+            <div className="col-span-12 md:col-span-6">
               <StatusManagementCard 
                 client={client}
                 onStatusChange={handleStatusChange}
