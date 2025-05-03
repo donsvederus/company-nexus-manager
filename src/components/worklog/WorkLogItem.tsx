@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { WorkLog } from "@/types/client";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -131,7 +132,8 @@ export function WorkLogItem({
     onDelete(log.id);
   };
 
-  const cardClassName = log.completed 
+  // Only apply the opacity to completed non-recurring items
+  const cardClassName = log.completed && !log.recurring
     ? "border-l-2 border-l-gray-400 opacity-75" 
     : "border-l-2 border-l-brand-600";
 
@@ -163,6 +165,14 @@ export function WorkLogItem({
               onToggleComplete={handleToggleComplete}
               endTimeExists={!!log.endTime}
             />
+            
+            {/* Show next recurring date if completed and recurring */}
+            {log.completed && log.recurring && log.nextRecurrenceDate && (
+              <div className="mt-2 text-xs text-muted-foreground flex items-center">
+                <Calendar className="h-3 w-3 mr-1" />
+                <span>Next: {new Date(log.nextRecurrenceDate).toLocaleDateString()}</span>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
