@@ -1,7 +1,7 @@
 
 import React, { createContext, useState, useEffect } from "react";
 import { ServiceContextType } from "./types";
-import { initialServices, initialClientServices } from "./initialData";
+import { initialServices, initialClientServices } from "./data";
 import { createServiceOperations } from "./serviceOperations";
 import { createClientServiceOperations } from "./clientServiceOperations";
 import { Service, ClientService } from "@/types/service";
