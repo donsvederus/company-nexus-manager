@@ -38,6 +38,7 @@ export const ClientServiceTable = ({
     const clientService = clientServices.find(cs => cs.id === clientServiceId);
     if (clientService) {
       setEditingServiceId(clientServiceId);
+      // Ensure we're loading the existing values or default to empty string
       setCustomCost(clientService.customCost !== undefined ? clientService.customCost.toString() : '');
       setServiceNotes(clientService.notes || '');
       setServiceDomain(clientService.domain || client?.website || '');
@@ -58,9 +59,6 @@ export const ClientServiceTable = ({
       
       // Reset editing state
       setEditingServiceId(null);
-      setCustomCost('');
-      setServiceNotes('');
-      setServiceDomain('');
     }
   };
   
