@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Play, Square, Check, Timer } from "lucide-react";
+import { Play, Square, Check, Timer, Stop } from "lucide-react";
 
 interface WorkLogItemControlsProps {
   isTracking: boolean;
@@ -28,7 +28,7 @@ export function WorkLogItemControls({
           className="w-full flex items-center gap-1"
           onClick={onStopTracking}
         >
-          <Square className="h-3 w-3" /> Stop
+          <Stop className="h-3 w-3" /> Stop
         </Button>
       ) : !completed && (
         <Button 

@@ -38,7 +38,7 @@ export function useWorkLogItem(log: WorkLog, onUpdate: (log: WorkLog) => void) {
     const end = new Date(endTime);
     const sessionDurationInMinutes = Math.round((end.getTime() - start.getTime()) / 60000);
     
-    // Add current session duration to accumulated duration
+    // Add current session duration to the accumulated duration
     const totalDuration = (log.duration || 0) + sessionDurationInMinutes;
     
     console.log("Session duration:", sessionDurationInMinutes, "Total:", totalDuration);
