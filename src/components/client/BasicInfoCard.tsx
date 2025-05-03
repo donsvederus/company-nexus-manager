@@ -19,6 +19,7 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
   const [editedInfo, setEditedInfo] = useState({
     companyName: client.companyName,
     street: client.street || '',
+    streetLines: client.streetLines || [client.street || ''],
     city: client.city || '',
     state: client.state || '',
     zipCode: client.zipCode || '',
@@ -31,6 +32,7 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
     setEditedInfo({
       companyName: client.companyName,
       street: client.street || '',
+      streetLines: client.streetLines || [client.street || ''],
       city: client.city || '',
       state: client.state || '',
       zipCode: client.zipCode || '',
@@ -45,10 +47,16 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
   };
 
   const saveBasicInfo = () => {
+    // Ensure streetLines is properly set with at least the first street line
+    const streetLines = editedInfo.streetLines && editedInfo.streetLines.length > 0 
+      ? editedInfo.streetLines 
+      : [editedInfo.street];
+    
     const updatedClient = {
       ...client,
       companyName: editedInfo.companyName || client.companyName,
-      street: editedInfo.street,
+      street: streetLines[0], // Keep first line in street for backward compatibility
+      streetLines: streetLines,
       city: editedInfo.city,
       state: editedInfo.state,
       zipCode: editedInfo.zipCode,
@@ -67,6 +75,7 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
     setEditedInfo({
       companyName: client.companyName,
       street: client.street || '',
+      streetLines: client.streetLines || [client.street || ''],
       city: client.city || '',
       state: client.state || '',
       zipCode: client.zipCode || '',

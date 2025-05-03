@@ -5,7 +5,8 @@ import { ClientStatus } from "@/types/client";
 // Form schema for client validation
 export const clientFormSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
-  street: z.string().min(1, "Street is required"),
+  streetLines: z.array(z.string()).min(1, "At least one street line is required"),
+  street: z.string().optional(), // Keep for backward compatibility
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required").max(2, "Use state abbreviation (2 letters)"),
   zipCode: z.string().min(5, "ZIP code is required"),

@@ -4,7 +4,8 @@ export type ClientStatus = "active" | "inactive";
 export interface Client {
   id: string;
   companyName: string;
-  street: string;       // Changed from address to street
+  street: string;       // For backward compatibility
+  streetLines?: string[]; // New field for multiple street lines
   city: string;         // Added city field
   state: string;        // Added state field
   zipCode: string;      // Added zip code field
@@ -22,7 +23,8 @@ export interface Client {
 // Add a form-specific type that uses Date object for the form
 export interface ClientFormValues {
   companyName: string;
-  street: string;       // Changed from address to street
+  street?: string;      // Original field for backward compatibility
+  streetLines?: string[]; // New array of street lines
   city: string;         // Added city field
   state: string;        // Added state field
   zipCode: string;      // Added zip code field

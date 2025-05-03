@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -48,11 +49,24 @@ export default function ClientForm({
   
   // Get default address values from client data
   const getDefaultAddressValues = () => {
-    if (!defaultValues) return { street: "", city: "", state: "", zipCode: "" };
+    if (!defaultValues) return { 
+      street: "", 
+      streetLines: [""], 
+      city: "", 
+      state: "", 
+      zipCode: "" 
+    };
+    
+    // Initialize streetLines from the existing street if needed
+    let streetLines = defaultValues.streetLines || [];
+    if (!streetLines.length && defaultValues.street) {
+      streetLines = [defaultValues.street];
+    }
     
     // Otherwise use the defined fields
     return {
       street: defaultValues.street || "",
+      streetLines: streetLines.length ? streetLines : [""],
       city: defaultValues.city || "",
       state: defaultValues.state || "",
       zipCode: defaultValues.zipCode || ""
@@ -67,6 +81,7 @@ export default function ClientForm({
       ? {
           ...defaultValues,
           street: addressValues.street,
+          streetLines: addressValues.streetLines,
           city: addressValues.city,
           state: addressValues.state,
           zipCode: addressValues.zipCode,
@@ -78,6 +93,7 @@ export default function ClientForm({
         }
       : {
           companyName: "",
+          streetLines: [""],
           street: "",
           city: "",
           state: "",
@@ -109,11 +125,18 @@ export default function ClientForm({
   }, [accountManagers, defaultValues, form]);
 
   const handleSubmit = (data: ClientFormValues) => {
-    // Convert date to ISO string for consistency
-    const formattedData: ClientFormData = {
+    // Combine multiple street lines into a single street field for compatibility
+    let formattedData: ClientFormData = {
       ...data,
       startDate: data.startDate.toISOString().split("T")[0],
     };
+    
+    // Ensure backward compatibility by setting street from streetLines
+    if (data.streetLines && data.streetLines.length > 0) {
+      formattedData.street = data.streetLines[0];
+      formattedData.streetLines = data.streetLines;
+    }
+    
     onSubmit(formattedData);
   };
 
