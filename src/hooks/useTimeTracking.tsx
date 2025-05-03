@@ -28,11 +28,17 @@ export function useTimeTracking(startTime?: string, endTime?: string, previousDu
       }, 1000);
     } else if (startTime && endTime) {
       // When tracking is stopped, calculate the final time once
-      const totalMinutes = accumulatedMinutes;
+      const start = new Date(startTime);
+      const end = new Date(endTime);
+      
+      // Calculate the session duration in minutes
+      const sessionDurationInMinutes = (end.getTime() - start.getTime()) / 60000;
+      const totalMinutes = accumulatedMinutes + sessionDurationInMinutes;
       
       const hours = Math.floor(totalMinutes / 60);
       const minutes = Math.floor(totalMinutes % 60);
-      const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
+      const seconds = 0; // Reset seconds to 00 when stopped
+      const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
       
       setElapsed(formattedTime);
     } else if (previousDuration > 0) {

@@ -21,7 +21,7 @@ export function WorkLogMetadata({ log }: WorkLogMetadataProps) {
       // Active tracking - the useTimeTracking hook handles it
       return elapsed;
     } else if (log.duration && log.duration > 0) {
-      // Completed tracking - just display the total duration
+      // Completed tracking with accumulated duration
       const hours = Math.floor(log.duration / 60);
       const minutes = Math.floor(log.duration % 60);
       return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
