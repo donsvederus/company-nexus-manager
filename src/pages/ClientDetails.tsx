@@ -110,7 +110,7 @@ export default function ClientDetails() {
         companyName: editedClient.companyName || client.companyName,
         address: editedClient.address || client.address,
         startDate: editedClient.startDate || client.startDate,
-        website: editedClient.website
+        website: editedClient.website // Ensure website is included in the update
       };
       updateClient(updatedClient);
       setClient(updatedClient);
@@ -157,7 +157,7 @@ export default function ClientDetails() {
         companyName: client.companyName,
         address: client.address,
         startDate: client.startDate,
-        website: client.website
+        website: client.website || '' // Make sure website has a value (empty string if undefined)
       }));
     }
     setIsBasicEditing(true);
