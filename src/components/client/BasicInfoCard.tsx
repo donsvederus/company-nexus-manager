@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,29 +39,6 @@ function FormattedAddress({ client }: { client: Client }) {
     );
   } 
   
-  // Fallback to legacy address format
-  if (client.address) {
-    // Split address into parts (assuming format like "123 Main St, City, State ZIP")
-    const parts = client.address.split(",").map(part => part.trim());
-    
-    // Extract street (first part)
-    const street = parts[0] || '';
-    
-    // Extract city (second part, if exists)
-    const city = parts.length > 1 ? parts[1] : '';
-    
-    // Extract state and zip (third part, if exists)
-    const stateZip = parts.length > 2 ? parts[2] : '';
-    
-    return (
-      <div className="text-sm text-right">
-        <div>{street}</div>
-        <div>{city}</div>
-        <div>{stateZip}</div>
-      </div>
-    );
-  }
-  
   return <span className="text-sm text-muted-foreground">Not specified</span>;
 }
 
@@ -75,7 +51,6 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
     city: client.city || '',
     state: client.state || '',
     zipCode: client.zipCode || '',
-    address: client.address || '', // Keep for backwards compatibility
     startDate: client.startDate,
     website: client.website || ''
   });
@@ -88,7 +63,6 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
       city: client.city || '',
       state: client.state || '',
       zipCode: client.zipCode || '',
-      address: client.address || '', // Keep for backwards compatibility
       startDate: client.startDate,
       website: client.website || ''
     });
@@ -126,7 +100,6 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
       city: client.city || '',
       state: client.state || '',
       zipCode: client.zipCode || '',
-      address: client.address || '', // Keep for backwards compatibility
       startDate: client.startDate,
       website: client.website || '' // Initialize website properly
     });
