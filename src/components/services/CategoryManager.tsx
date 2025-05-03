@@ -23,6 +23,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
 interface CategoryManagerProps {
@@ -55,7 +56,7 @@ export function CategoryManager({
     }
     
     // Add the new category to our list
-    setAllCategories(prev => [...prev, newCategory]);
+    setAllCategories([...allCategories, newCategory]);
     
     // Select the new category
     setCategory(newCategory);
@@ -78,7 +79,7 @@ export function CategoryManager({
     }
     
     // Remove the category
-    setAllCategories(prev => prev.filter(cat => cat !== categoryToRemove));
+    setAllCategories(allCategories.filter(cat => cat !== categoryToRemove));
     
     // If the current service was using this category, change it to "other"
     if (category === categoryToRemove) {
@@ -151,17 +152,16 @@ export function CategoryManager({
           
           {category && !categoryOptions.includes(category) && isCategoryRemovable(category) && (
             <AlertDialog>
-              <AlertDialog.Trigger asChild>
+              <AlertDialogTrigger asChild>
                 <Button
                   type="button"
                   variant="outline"
                   className="flex items-center gap-1 text-destructive"
-                  onClick={() => setCategoryToRemove(category)}
                 >
                   <Trash2 className="h-4 w-4" />
                   Remove
                 </Button>
-              </AlertDialog.Trigger>
+              </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Remove category</AlertDialogTitle>

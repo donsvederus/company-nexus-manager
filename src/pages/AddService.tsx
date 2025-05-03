@@ -1,12 +1,11 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useServices } from "@/context/ServiceContext";
+import { useServices } from "@/context/services";
 import { Service, ServiceCategory } from "@/types/service";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ServiceForm } from "@/components/services/ServiceForm";
-import { v4 as uuidv4 } from 'uuid';
 
 const categoryOptions: ServiceCategory[] = [
   "hosting",
@@ -23,7 +22,7 @@ export default function AddService() {
   
   // Create an empty service template
   const emptyService: Service = {
-    id: uuidv4(), // This will be replaced when addService is called
+    id: "", // We'll generate an ID when the service is actually added
     name: "",
     defaultCost: 0,
     category: "other",
@@ -31,9 +30,7 @@ export default function AddService() {
   };
 
   const handleSave = (serviceData: Omit<Service, "id">) => {
-    // Remove the temporary id
-    const { id, ...serviceWithoutId } = serviceData;
-    addService(serviceWithoutId);
+    addService(serviceData);
     
     setTimeout(() => {
       navigate("/services");
