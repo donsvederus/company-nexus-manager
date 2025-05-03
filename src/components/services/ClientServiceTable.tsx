@@ -2,13 +2,15 @@
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Globe, Save, DollarSign } from "lucide-react";
 import { ServiceActionButtons } from "./ServiceActionButtons";
 import { Service, ClientService } from "@/types/service";
-import { formatCurrency, getFinalCost } from "@/utils/formatUtils";
 import { Client } from "@/types/client";
+import { ServiceCostDisplay } from "./table/ServiceCostDisplay";
+import { DomainDisplay } from "./table/DomainDisplay";
+import { ServiceNotesDisplay } from "./table/ServiceNotesDisplay";
+import { ServiceStatusBadge } from "./table/ServiceStatusBadge";
+import { ServiceCostInput } from "./table/ServiceCostInput";
+import { EditActionButton } from "./table/EditActionButton";
 
 interface ClientServiceTableProps {
   clientServices: ClientService[];
@@ -100,7 +102,6 @@ export const ClientServiceTable = ({
           if (!service) return null;
           
           const isEditing = editingServiceId === clientService.id;
-          const displayDomain = clientService.domain || client.website || "-";
           
           return (
             <TableRow key={clientService.id} className={!clientService.isActive ? "opacity-60" : ""}>
@@ -111,68 +112,39 @@ export const ClientServiceTable = ({
                 </Badge>
               </TableCell>
               <TableCell>
+                <DomainDisplay 
+                  isEditing={isEditing} 
+                  domain={serviceDomain} 
+                  defaultDomain={client.website || ""}
+                  onDomainChange={(value) => setServiceDomain(value)}
+                />
+              </TableCell>
+              <TableCell>
                 {isEditing ? (
-                  <Input
-                    value={serviceDomain}
-                    onChange={(e) => setServiceDomain(e.target.value)}
-                    className="w-32"
-                    placeholder={client.website || "example.com"}
+                  <ServiceCostInput 
+                    value={customCost} 
+                    onChange={handleCostChange} 
                   />
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-muted-foreground" />
-                    {displayDomain}
-                  </div>
-                )}
-              </TableCell>
-              <TableCell>
-                {isEditing ? (
-                  <div className="flex items-center gap-2">
-                    <div className="relative w-32">
-                      <DollarSign className="h-4 w-4 absolute left-2 top-[11px] text-muted-foreground" />
-                      <Input
-                        placeholder="Custom cost"
-                        value={customCost}
-                        onChange={handleCostChange}
-                        className="pl-8"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    {formatCurrency(getFinalCost(service.defaultCost, clientService.customCost))}
-                    {clientService.customCost !== undefined && (
-                      <Badge variant="outline" className="text-xs">Custom</Badge>
-                    )}
-                  </div>
-                )}
-              </TableCell>
-              <TableCell>
-                {isEditing ? (
-                  <Input
-                    placeholder="Notes (optional)"
-                    value={serviceNotes}
-                    onChange={(e) => setServiceNotes(e.target.value)}
+                  <ServiceCostDisplay 
+                    defaultCost={service.defaultCost} 
+                    customCost={clientService.customCost} 
                   />
-                ) : (
-                  <div className="text-sm text-muted-foreground">
-                    {clientService.notes || "-"}
-                  </div>
                 )}
               </TableCell>
               <TableCell>
-                <Badge 
-                  variant={clientService.isActive ? "default" : "secondary"} 
-                  className={clientService.isActive ? "bg-green-500 hover:bg-green-600" : ""}
-                >
-                  {clientService.isActive ? "Active" : "Inactive"}
-                </Badge>
+                <ServiceNotesDisplay 
+                  isEditing={isEditing} 
+                  notes={isEditing ? serviceNotes : (clientService.notes || '')} 
+                  onNotesChange={(value) => setServiceNotes(value)}
+                />
+              </TableCell>
+              <TableCell>
+                <ServiceStatusBadge isActive={clientService.isActive} />
               </TableCell>
               <TableCell>
                 {isEditing ? (
-                  <Button size="sm" variant="outline" onClick={handleSaveCustomCost} className="flex items-center gap-1">
-                    <Save className="h-4 w-4" /> Save
-                  </Button>
+                  <EditActionButton onSave={handleSaveCustomCost} />
                 ) : (
                   <ServiceActionButtons
                     serviceId={clientService.serviceId}
