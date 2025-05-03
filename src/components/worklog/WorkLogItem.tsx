@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { WorkLog } from "@/types/client";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { formatDuration, intervalToDuration } from "date-fns";
+import { Calendar } from "lucide-react";
 import WorkLogMetadata from "./WorkLogMetadata";
 import WorkLogForm from "./WorkLogForm";
 import WorkLogItemControls from "./WorkLogItemControls";
