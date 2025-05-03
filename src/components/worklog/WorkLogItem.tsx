@@ -1,13 +1,14 @@
+
 import { useState, useEffect } from "react";
 import { WorkLog } from "@/types/client";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { formatDuration, intervalToDuration } from "date-fns";
-import { Calendar } from "lucide-react";
 import WorkLogMetadata from "./WorkLogMetadata";
 import WorkLogForm from "./WorkLogForm";
 import WorkLogItemControls from "./WorkLogItemControls";
 import WorkLogItemActions from "./WorkLogItemActions";
 import WorkLogRecurrenceDialog from "./WorkLogRecurrenceDialog";
+import WorkLogNextRecurrence from "./WorkLogNextRecurrence";
+import { useTimeTracking } from "@/hooks/useTimeTracking";
 
 interface WorkLogItemProps {
   log: WorkLog;
@@ -30,43 +31,19 @@ export function WorkLogItem({
   onToggleRecurring,
   onSetRecurrenceSchedule
 }: WorkLogItemProps) {
-  const [isTracking, setIsTracking] = useState<boolean>(false);
-  const [elapsed, setElapsed] = useState<string>("");
   const [description, setDescription] = useState<string>(log.description || "");
   const [notes, setNotes] = useState<string>(log.notes || "");
   const [showRecurrenceDialog, setShowRecurrenceDialog] = useState(false);
   
-  useEffect(() => {
-    let timer: number;
-    
-    if (isTracking && log.startTime && !log.endTime) {
-      timer = window.setInterval(() => {
-        const start = new Date(log.startTime!);
-        const now = new Date();
-        const duration = intervalToDuration({ start, end: now });
-        setElapsed(formatDuration(duration));
-      }, 1000);
-    } else if (log.startTime && log.endTime) {
-      const start = new Date(log.startTime);
-      const end = new Date(log.endTime);
-      const duration = intervalToDuration({ start, end });
-      setElapsed(formatDuration(duration));
-    }
-    
-    return () => {
-      if (timer) window.clearInterval(timer);
-    };
-  }, [isTracking, log.startTime, log.endTime]);
+  const { elapsed, isTracking } = useTimeTracking(log.startTime, log.endTime);
   
   useEffect(() => {
-    setIsTracking(!!log.startTime && !log.endTime);
     setDescription(log.description || "");
     setNotes(log.notes || "");
   }, [log]);
   
   const handleStartTracking = () => {
     const startTime = new Date().toISOString();
-    setIsTracking(true);
     onUpdate({
       ...log,
       startTime,
@@ -76,7 +53,6 @@ export function WorkLogItem({
   
   const handleStopTracking = () => {
     const endTime = new Date().toISOString();
-    setIsTracking(false);
     
     const start = new Date(log.startTime!);
     const end = new Date(endTime);
@@ -166,13 +142,11 @@ export function WorkLogItem({
               endTimeExists={!!log.endTime}
             />
             
-            {/* Show next recurring date if completed and recurring */}
-            {log.completed && log.recurring && log.nextRecurrenceDate && (
-              <div className="mt-2 text-xs text-muted-foreground flex items-center">
-                <Calendar className="h-3 w-3 mr-1" />
-                <span>Next: {new Date(log.nextRecurrenceDate).toLocaleDateString()}</span>
-              </div>
-            )}
+            <WorkLogNextRecurrence 
+              completed={!!log.completed}
+              recurring={!!log.recurring}
+              nextRecurrenceDate={log.nextRecurrenceDate}
+            />
           </div>
         </div>
       </CardContent>
