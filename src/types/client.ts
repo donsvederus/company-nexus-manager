@@ -32,6 +32,8 @@ export interface WorkLog {
   duration?: number; // Duration in minutes if manually entered
   completed?: boolean; // Indicates if work is complete
   recurring?: boolean; // Indicates if this is a recurring task
+  recurrenceType?: string; // Type of recurrence (daily, weekly, etc.)
+  nextRecurrenceDate?: string; // Next date for recurrence
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
 }

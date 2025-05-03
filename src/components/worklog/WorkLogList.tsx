@@ -10,6 +10,7 @@ interface WorkLogListProps {
   onDuplicate: (id: string) => void;
   onToggleComplete: (id: string, completed: boolean) => void;
   onToggleRecurring: (id: string, recurring: boolean) => void;
+  onSetRecurrenceSchedule?: (id: string, recurrenceType: string, nextDate?: Date) => void;
 }
 
 export function WorkLogList({ 
@@ -18,7 +19,8 @@ export function WorkLogList({
   onDelete, 
   onDuplicate,
   onToggleComplete,
-  onToggleRecurring
+  onToggleRecurring,
+  onSetRecurrenceSchedule
 }: WorkLogListProps) {
   // Sort logs: non-completed and most recent first, then completed logs
   const sortedLogs = [...logs].sort((a, b) => {
@@ -42,6 +44,7 @@ export function WorkLogList({
             onDuplicate={onDuplicate}
             onToggleComplete={onToggleComplete}
             onToggleRecurring={onToggleRecurring}
+            onSetRecurrenceSchedule={onSetRecurrenceSchedule}
           />
         ))}
       </div>

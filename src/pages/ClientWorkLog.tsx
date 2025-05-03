@@ -141,6 +141,23 @@ export default function ClientWorkLog() {
     setIsDirty(true);
   };
 
+  const handleSetRecurrenceSchedule = (logId: string, recurrenceType: string, nextDate?: Date) => {
+    const updatedLogs = workLogs.map(log => 
+      log.id === logId 
+        ? { 
+            ...log, 
+            recurring: true,
+            recurrenceType,
+            nextRecurrenceDate: nextDate ? nextDate.toISOString() : undefined,
+            updatedAt: new Date().toISOString() 
+          } 
+        : log
+    );
+    setWorkLogs(updatedLogs);
+    setIsDirty(true);
+    toast.success(`Recurrence set to ${recurrenceType}`);
+  };
+
   if (!client) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -177,6 +194,7 @@ export default function ClientWorkLog() {
               onDuplicate={handleDuplicateWorkLog}
               onToggleComplete={handleToggleComplete}
               onToggleRecurring={handleToggleRecurring}
+              onSetRecurrenceSchedule={handleSetRecurrenceSchedule}
             />
           )}
         </CardContent>

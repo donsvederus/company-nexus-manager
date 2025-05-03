@@ -7,7 +7,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { format, formatDistanceToNow, formatDuration, intervalToDuration } from "date-fns";
-import { Play, Square, Trash2, Copy, Check, Repeat } from "lucide-react";
+import { Play, Square, Trash2, Copy, Check, Repeat, Calendar } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface WorkLogItemProps {
   log: WorkLog;
@@ -16,7 +30,10 @@ interface WorkLogItemProps {
   onDuplicate: (id: string) => void;
   onToggleComplete: (id: string, completed: boolean) => void;
   onToggleRecurring: (id: string, recurring: boolean) => void;
+  onSetRecurrenceSchedule?: (id: string, recurrenceType: string, nextDate?: Date) => void;
 }
+
+type RecurrenceType = "daily" | "weekly" | "biweekly" | "monthly" | "yearly";
 
 export function WorkLogItem({ 
   log, 
@@ -24,12 +41,16 @@ export function WorkLogItem({
   onDelete, 
   onDuplicate,
   onToggleComplete,
-  onToggleRecurring
+  onToggleRecurring,
+  onSetRecurrenceSchedule
 }: WorkLogItemProps) {
   const [isTracking, setIsTracking] = useState<boolean>(false);
   const [elapsed, setElapsed] = useState<string>("");
   const [description, setDescription] = useState<string>(log.description || "");
   const [notes, setNotes] = useState<string>(log.notes || "");
+  const [showRecurrenceDialog, setShowRecurrenceDialog] = useState(false);
+  const [selectedRecurrence, setSelectedRecurrence] = useState<RecurrenceType>("daily");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   
   useEffect(() => {
     let timer: number;
@@ -101,6 +122,18 @@ export function WorkLogItem({
       notes: e.target.value,
       updatedAt: new Date().toISOString()
     });
+  };
+
+  const handleRecurrenceDialogOpen = () => {
+    setShowRecurrenceDialog(true);
+  };
+
+  const handleSetRecurrenceSchedule = () => {
+    if (onSetRecurrenceSchedule) {
+      onSetRecurrenceSchedule(log.id, selectedRecurrence, selectedDate);
+    }
+    onToggleRecurring(log.id, true);
+    setShowRecurrenceDialog(false);
   };
 
   const cardClassName = log.completed 
@@ -177,16 +210,6 @@ export function WorkLogItem({
               )}
 
               <Button
-                variant={log.recurring ? "default" : "outline"}
-                size="sm"
-                className="w-full flex items-center gap-1 h-7"
-                onClick={() => onToggleRecurring(log.id, !log.recurring)}
-                disabled={log.completed}
-              >
-                <Repeat className="h-3 w-3" /> {log.recurring ? "Recurring" : "Set Recurring"}
-              </Button>
-
-              <Button
                 variant={log.completed ? "secondary" : "outline"}
                 size="sm"
                 className="w-full flex items-center gap-1 h-7"
@@ -200,6 +223,15 @@ export function WorkLogItem({
       </CardContent>
       
       <CardFooter className="justify-end gap-2 py-1">
+        <Button 
+          variant={log.recurring ? "default" : "ghost"} 
+          size="sm" 
+          onClick={handleRecurrenceDialogOpen}
+          className="h-7 text-xs"
+          disabled={log.completed}
+        >
+          <Repeat className="h-3 w-3 mr-1" /> {log.recurring ? "Recurring" : "Set Recurring"}
+        </Button>
         <Button 
           variant="ghost" 
           size="sm" 
@@ -217,6 +249,80 @@ export function WorkLogItem({
         >
           <Trash2 className="h-3 w-3 mr-1" /> Delete
         </Button>
+
+        {/* Recurrence Dialog */}
+        <Dialog open={showRecurrenceDialog} onOpenChange={setShowRecurrenceDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Set Recurrence Schedule</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="recurrence-type">Recurrence Type</Label>
+                <RadioGroup 
+                  id="recurrence-type" 
+                  defaultValue={selectedRecurrence} 
+                  onValueChange={(value) => setSelectedRecurrence(value as RecurrenceType)}
+                  className="grid grid-cols-2 gap-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="daily" id="daily" />
+                    <Label htmlFor="daily">Daily</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="weekly" id="weekly" />
+                    <Label htmlFor="weekly">Weekly</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="biweekly" id="biweekly" />
+                    <Label htmlFor="biweekly">Bi-weekly</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="monthly" id="monthly" />
+                    <Label htmlFor="monthly">Monthly</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yearly" id="yearly" />
+                    <Label htmlFor="yearly">Yearly</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="start-date">Start Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                      id="start-date"
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setShowRecurrenceDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSetRecurrenceSchedule}>
+                Set Recurrence
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardFooter>
     </Card>
   );
