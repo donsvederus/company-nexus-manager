@@ -17,8 +17,8 @@ export function WorkLogList({ logs, onUpdate, onDelete, onDuplicate }: WorkLogLi
   );
 
   return (
-    <ScrollArea className="h-[600px] pr-4">
-      <div className="space-y-4">
+    <ScrollArea className="h-[500px] pr-4">
+      <div className="space-y-3">
         {sortedLogs.map(log => (
           <WorkLogItem 
             key={log.id}

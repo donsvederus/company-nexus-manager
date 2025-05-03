@@ -95,43 +95,44 @@ export function WorkLogItem({ log, onUpdate, onDelete, onDuplicate }: WorkLogIte
   };
 
   return (
-    <Card className="border-l-4 border-l-brand-600">
-      <CardContent className="pt-6">
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="col-span-2 space-y-4">
+    <Card className="border-l-2 border-l-brand-600">
+      <CardContent className="pt-4 pb-2">
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="col-span-2 space-y-3">
             <div>
-              <Label htmlFor={`description-${log.id}`}>Description</Label>
+              <Label htmlFor={`description-${log.id}`} className="text-xs">Description</Label>
               <Input
                 id={`description-${log.id}`}
                 value={description}
                 onChange={handleDescriptionChange}
                 placeholder="Enter work description"
+                className="h-8"
               />
             </div>
             <div>
-              <Label htmlFor={`notes-${log.id}`}>Notes</Label>
+              <Label htmlFor={`notes-${log.id}`} className="text-xs">Notes</Label>
               <Textarea
                 id={`notes-${log.id}`}
                 value={notes}
                 onChange={handleNotesChange}
-                placeholder="Enter detailed notes about the work performed"
-                className="min-h-[120px]"
+                placeholder="Enter notes"
+                className="min-h-[80px] text-sm"
               />
             </div>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div>
-              <p className="text-sm font-medium">Created</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs font-medium">Created</p>
+              <p className="text-xs text-muted-foreground">
                 {formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}
               </p>
             </div>
             
             {log.startTime && (
               <div>
-                <p className="text-sm font-medium">Duration</p>
-                <p className="text-sm font-mono">{elapsed || "00:00:00"}</p>
+                <p className="text-xs font-medium">Duration</p>
+                <p className="text-xs font-mono">{elapsed || "00:00:00"}</p>
               </div>
             )}
             
@@ -139,19 +140,21 @@ export function WorkLogItem({ log, onUpdate, onDelete, onDuplicate }: WorkLogIte
               {isTracking ? (
                 <Button 
                   variant="destructive" 
+                  size="sm"
                   className="w-full flex items-center gap-1"
                   onClick={handleStopTracking}
                 >
-                  <Square className="h-4 w-4" /> Stop Tracking
+                  <Square className="h-3 w-3" /> Stop
                 </Button>
               ) : (
                 <Button 
                   variant="outline" 
+                  size="sm"
                   className="w-full flex items-center gap-1"
                   onClick={handleStartTracking}
                   disabled={!!log.endTime}
                 >
-                  <Play className="h-4 w-4" /> Start Tracking
+                  <Play className="h-3 w-3" /> Start
                 </Button>
               )}
             </div>
@@ -159,22 +162,22 @@ export function WorkLogItem({ log, onUpdate, onDelete, onDuplicate }: WorkLogIte
         </div>
       </CardContent>
       
-      <CardFooter className="justify-end gap-2 pt-0">
+      <CardFooter className="justify-end gap-2 py-1">
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={() => onDuplicate(log.id)}
-          className="flex items-center gap-1"
+          className="h-7 text-xs"
         >
-          <Copy className="h-4 w-4" /> Duplicate
+          <Copy className="h-3 w-3 mr-1" /> Duplicate
         </Button>
         <Button 
           variant="ghost" 
           size="sm" 
-          className="text-red-500 hover:text-red-700 flex items-center gap-1"
+          className="h-7 text-xs text-red-500 hover:text-red-700"
           onClick={() => onDelete(log.id)}
         >
-          <Trash2 className="h-4 w-4" /> Delete
+          <Trash2 className="h-3 w-3 mr-1" /> Delete
         </Button>
       </CardFooter>
     </Card>

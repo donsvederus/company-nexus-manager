@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import WorkLogList from "@/components/worklog/WorkLogList";
 import WorkLogHeader from "@/components/worklog/WorkLogHeader";
+import { useFormProtection } from "@/hooks/useFormProtection";
 
 export default function ClientWorkLog() {
   const { id } = useParams<{ id: string }>();
@@ -16,7 +17,13 @@ export default function ClientWorkLog() {
   const { getClientById, updateClient } = useClients();
   const [client, setClient] = useState<Client | null>(null);
   const [workLogs, setWorkLogs] = useState<WorkLog[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
   
+  // Form protection hooks
+  const { ProtectionDialog } = useFormProtection(isDirty);
+  
+  // Load client data
   useEffect(() => {
     if (id) {
       const foundClient = getClientById(id);
@@ -30,14 +37,40 @@ export default function ClientWorkLog() {
     }
   }, [id, getClientById, navigate]);
 
-  const handleSaveWorkLogs = () => {
-    if (client) {
+  // Auto-save changes when workLogs change
+  useEffect(() => {
+    // Skip initial load
+    if (!client || !isDirty) return;
+    
+    const saveTimeout = setTimeout(() => {
+      handleSaveWorkLogs(false);
+    }, 1000); // Auto-save after 1 second of inactivity
+    
+    return () => clearTimeout(saveTimeout);
+  }, [workLogs, isDirty]);
+
+  const handleSaveWorkLogs = (showToast = true) => {
+    if (!client) return;
+    
+    setIsLoading(true);
+    
+    try {
       const updatedClient = {
         ...client,
         workLogs
       };
+      
       updateClient(updatedClient);
-      toast.success("Work logs saved successfully");
+      setIsDirty(false);
+      
+      if (showToast) {
+        toast.success("Work logs saved successfully");
+      }
+    } catch (error) {
+      toast.error("Failed to save work logs");
+      console.error("Save error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -51,11 +84,13 @@ export default function ClientWorkLog() {
       updatedAt: new Date().toISOString()
     };
     setWorkLogs([...workLogs, newWorkLog]);
+    setIsDirty(true);
   };
 
   const handleDeleteWorkLog = (logId: string) => {
     const updatedLogs = workLogs.filter(log => log.id !== logId);
     setWorkLogs(updatedLogs);
+    setIsDirty(true);
   };
 
   const handleDuplicateWorkLog = (logId: string) => {
@@ -71,6 +106,7 @@ export default function ClientWorkLog() {
         updatedAt: new Date().toISOString()
       };
       setWorkLogs([...workLogs, duplicateLog]);
+      setIsDirty(true);
     }
   };
 
@@ -79,6 +115,7 @@ export default function ClientWorkLog() {
       log.id === updatedLog.id ? updatedLog : log
     );
     setWorkLogs(updatedLogs);
+    setIsDirty(true);
   };
 
   if (!client) {
@@ -92,20 +129,20 @@ export default function ClientWorkLog() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <WorkLogHeader 
         client={client} 
         onSave={handleSaveWorkLogs} 
       />
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Work Log Entries</CardTitle>
-          <Button onClick={handleAddWorkLog}>Add New Log</Button>
+        <CardHeader className="flex flex-row items-center justify-between py-4">
+          <CardTitle className="text-xl">Work Log Entries</CardTitle>
+          <Button size="sm" onClick={handleAddWorkLog}>Add New Log</Button>
         </CardHeader>
         <CardContent>
           {workLogs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10">
+            <div className="flex flex-col items-center justify-center py-8">
               <p className="text-muted-foreground mb-4">No work log entries yet</p>
               <Button onClick={handleAddWorkLog}>Create First Entry</Button>
             </div>
@@ -119,6 +156,9 @@ export default function ClientWorkLog() {
           )}
         </CardContent>
       </Card>
+      
+      {/* Form protection dialog */}
+      <ProtectionDialog />
     </div>
   );
 }
