@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useClients } from "@/context/ClientContext";
@@ -222,37 +221,45 @@ export default function ClientDetails() {
                     <>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Company:</span>
-                        <Input 
-                          value={editedClient.companyName || ''} 
-                          onChange={(e) => handleInputChange('companyName', e.target.value)}
-                          className="w-2/3 h-8 text-sm"
-                        />
+                        <div className="w-2/3">
+                          <Input 
+                            value={editedClient.companyName || ''} 
+                            onChange={(e) => handleInputChange('companyName', e.target.value)}
+                            className="h-8 text-sm w-full"
+                          />
+                        </div>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Website:</span>
-                        <Input 
-                          value={editedClient.website || ''} 
-                          onChange={(e) => handleInputChange('website', e.target.value)}
-                          className="w-2/3 h-8 text-sm"
-                          placeholder="example.com"
-                        />
+                        <div className="w-2/3">
+                          <Input 
+                            value={editedClient.website || ''} 
+                            onChange={(e) => handleInputChange('website', e.target.value)}
+                            className="h-8 text-sm w-full"
+                            placeholder="example.com"
+                          />
+                        </div>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Address:</span>
-                        <Input 
-                          value={editedClient.address || ''} 
-                          onChange={(e) => handleInputChange('address', e.target.value)}
-                          className="w-2/3 h-8 text-sm"
-                        />
+                        <div className="w-2/3">
+                          <Input 
+                            value={editedClient.address || ''} 
+                            onChange={(e) => handleInputChange('address', e.target.value)}
+                            className="h-8 text-sm w-full"
+                          />
+                        </div>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Start Date:</span>
-                        <Input 
-                          type="date"
-                          value={new Date(editedClient.startDate || '').toISOString().split('T')[0]} 
-                          onChange={(e) => handleInputChange('startDate', e.target.value)}
-                          className="w-2/3 h-8 text-sm"
-                        />
+                        <div className="w-2/3">
+                          <Input 
+                            type="date"
+                            value={new Date(editedClient.startDate || '').toISOString().split('T')[0]} 
+                            onChange={(e) => handleInputChange('startDate', e.target.value)}
+                            className="h-8 text-sm w-full"
+                          />
+                        </div>
                       </div>
                     </>
                   ) : (
@@ -320,28 +327,34 @@ export default function ClientDetails() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Contact:</span>
-                        <Input 
-                          value={editedClient.mainContact || ''} 
-                          onChange={(e) => handleInputChange('mainContact', e.target.value)}
-                          className="w-2/3 h-8 text-sm"
-                        />
+                        <div className="w-2/3">
+                          <Input 
+                            value={editedClient.mainContact || ''} 
+                            onChange={(e) => handleInputChange('mainContact', e.target.value)}
+                            className="h-8 text-sm w-full"
+                          />
+                        </div>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Email:</span>
-                        <Input 
-                          value={editedClient.email || ''} 
-                          onChange={(e) => handleInputChange('email', e.target.value)}
-                          className="w-2/3 h-8 text-sm"
-                          type="email"
-                        />
+                        <div className="w-2/3">
+                          <Input 
+                            value={editedClient.email || ''} 
+                            onChange={(e) => handleInputChange('email', e.target.value)}
+                            className="h-8 text-sm w-full"
+                            type="email"
+                          />
+                        </div>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Phone:</span>
-                        <Input 
-                          value={editedClient.phone || ''} 
-                          onChange={(e) => handleInputChange('phone', e.target.value)}
-                          className="w-2/3 h-8 text-sm"
-                        />
+                        <div className="w-2/3">
+                          <Input 
+                            value={editedClient.phone || ''} 
+                            onChange={(e) => handleInputChange('phone', e.target.value)}
+                            className="h-8 text-sm w-full"
+                          />
+                        </div>
                       </div>
                     </>
                   ) : (
