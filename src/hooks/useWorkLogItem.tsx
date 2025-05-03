@@ -9,11 +9,13 @@ export function useWorkLogItem(log: WorkLog, onUpdate: (log: WorkLog) => void) {
   const [notes, setNotes] = useState<string>(log.notes || "");
   const [dueDate, setDueDate] = useState<Date | undefined>(log.dueDate ? new Date(log.dueDate) : undefined);
   const [showRecurrenceDialog, setShowRecurrenceDialog] = useState(false);
+  const [accumulatedDuration, setAccumulatedDuration] = useState<number>(log.duration || 0);
   
   useEffect(() => {
     setDescription(log.description || "");
     setNotes(log.notes || "");
     setDueDate(log.dueDate ? new Date(log.dueDate) : undefined);
+    setAccumulatedDuration(log.duration || 0);
   }, [log]);
   
   const handleStartTracking = () => {
@@ -21,6 +23,7 @@ export function useWorkLogItem(log: WorkLog, onUpdate: (log: WorkLog) => void) {
     onUpdate({
       ...log,
       startTime,
+      endTime: undefined, // Clear any previous end time
       updatedAt: new Date().toISOString()
     });
   };
@@ -30,12 +33,15 @@ export function useWorkLogItem(log: WorkLog, onUpdate: (log: WorkLog) => void) {
     
     const start = new Date(log.startTime!);
     const end = new Date(endTime);
-    const durationInMinutes = Math.round((end.getTime() - start.getTime()) / 60000);
+    const sessionDurationInMinutes = Math.round((end.getTime() - start.getTime()) / 60000);
+    
+    // Add current session duration to accumulated duration
+    const totalDuration = accumulatedDuration + sessionDurationInMinutes;
     
     onUpdate({
       ...log,
       endTime,
-      duration: durationInMinutes,
+      duration: totalDuration,
       updatedAt: new Date().toISOString()
     });
   };
@@ -80,6 +86,7 @@ export function useWorkLogItem(log: WorkLog, onUpdate: (log: WorkLog) => void) {
     notes,
     dueDate,
     showRecurrenceDialog,
+    accumulatedDuration,
     handleStartTracking,
     handleStopTracking,
     handleDescriptionChange,
