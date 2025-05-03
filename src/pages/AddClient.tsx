@@ -1,6 +1,6 @@
 
 import ClientForm from "@/components/ClientForm";
-import { useClients } from "@/context/ClientContext";
+import { useClients } from "@/context/client";
 import { useNavigate } from "react-router-dom";
 import { ClientFormData } from "@/types/client";
 

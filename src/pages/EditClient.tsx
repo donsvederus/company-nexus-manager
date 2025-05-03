@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useClients } from "@/context/ClientContext";
+import { useClients } from "@/context/client";
 import ClientForm from "@/components/ClientForm";
 import { Client, ClientFormData } from "@/types/client";
 import { toast } from "sonner";

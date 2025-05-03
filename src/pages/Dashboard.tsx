@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { useClients } from "@/context/ClientContext";
+import { useClients } from "@/context/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import StatusBadge from "@/components/StatusBadge";
 import { ClientStatus } from "@/types/client";

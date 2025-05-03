@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useClients } from "@/context/ClientContext";
+import { useClients } from "@/context/client";
 import { User } from "@/types/auth";
 import {
   Card,

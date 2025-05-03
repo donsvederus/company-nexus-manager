@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Edit, Save } from "lucide-react";
 import { Client } from "@/types/client";
 import { toast } from "sonner";
-import { useClients } from "@/context/ClientContext";
+import { useClients } from "@/context/client";
 import { BasicInfoDisplay } from "./info/BasicInfoDisplay";
 import { BasicInfoEditForm } from "./form/BasicInfoEditForm";
 
