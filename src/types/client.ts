@@ -37,4 +37,8 @@ export interface ClientFormValues {
   website?: string; // Website domain field
 }
 
-export type ClientFormData = Omit<Client, "id">;
+// Update ClientFormData to match what we're actually passing from the form
+// Make street optional to match what's in ClientFormValues
+export type ClientFormData = Omit<Client, "id"> & {
+  street?: string;
+};

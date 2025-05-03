@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -125,17 +124,17 @@ export default function ClientForm({
   }, [accountManagers, defaultValues, form]);
 
   const handleSubmit = (data: ClientFormValues) => {
-    // Combine multiple street lines into a single street field for compatibility
+    // Ensure we have backward compatibility with street field
+    const streetValue = data.streetLines && data.streetLines.length > 0 
+      ? data.streetLines[0] 
+      : data.street || "";
+      
     let formattedData: ClientFormData = {
       ...data,
       startDate: data.startDate.toISOString().split("T")[0],
+      street: streetValue,  // Always set street for backward compatibility
+      streetLines: data.streetLines || [streetValue], // Ensure streetLines is always set
     };
-    
-    // Ensure backward compatibility by setting street from streetLines
-    if (data.streetLines && data.streetLines.length > 0) {
-      formattedData.street = data.streetLines[0];
-      formattedData.streetLines = data.streetLines;
-    }
     
     onSubmit(formattedData);
   };
