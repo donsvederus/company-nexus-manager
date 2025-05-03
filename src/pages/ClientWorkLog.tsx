@@ -80,6 +80,8 @@ export default function ClientWorkLog() {
       clientId: client?.id || "",
       description: "",
       notes: "",
+      completed: false,
+      recurring: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -102,6 +104,7 @@ export default function ClientWorkLog() {
         startTime: undefined,
         endTime: undefined,
         duration: logToDuplicate.duration,
+        completed: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -113,6 +116,26 @@ export default function ClientWorkLog() {
   const handleUpdateWorkLog = (updatedLog: WorkLog) => {
     const updatedLogs = workLogs.map(log => 
       log.id === updatedLog.id ? updatedLog : log
+    );
+    setWorkLogs(updatedLogs);
+    setIsDirty(true);
+  };
+
+  const handleToggleComplete = (logId: string, completed: boolean) => {
+    const updatedLogs = workLogs.map(log => 
+      log.id === logId 
+        ? { ...log, completed, updatedAt: new Date().toISOString() } 
+        : log
+    );
+    setWorkLogs(updatedLogs);
+    setIsDirty(true);
+  };
+
+  const handleToggleRecurring = (logId: string, recurring: boolean) => {
+    const updatedLogs = workLogs.map(log => 
+      log.id === logId 
+        ? { ...log, recurring, updatedAt: new Date().toISOString() } 
+        : log
     );
     setWorkLogs(updatedLogs);
     setIsDirty(true);
@@ -151,7 +174,9 @@ export default function ClientWorkLog() {
               logs={workLogs} 
               onUpdate={handleUpdateWorkLog} 
               onDelete={handleDeleteWorkLog} 
-              onDuplicate={handleDuplicateWorkLog} 
+              onDuplicate={handleDuplicateWorkLog}
+              onToggleComplete={handleToggleComplete}
+              onToggleRecurring={handleToggleRecurring}
             />
           )}
         </CardContent>

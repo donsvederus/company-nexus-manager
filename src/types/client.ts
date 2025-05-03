@@ -30,6 +30,8 @@ export interface WorkLog {
   startTime?: string; // ISO string when started
   endTime?: string; // ISO string when ended
   duration?: number; // Duration in minutes if manually entered
+  completed?: boolean; // Indicates if work is complete
+  recurring?: boolean; // Indicates if this is a recurring task
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
 }

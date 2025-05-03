@@ -8,17 +8,31 @@ interface WorkLogListProps {
   onUpdate: (log: WorkLog) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
+  onToggleComplete: (id: string, completed: boolean) => void;
+  onToggleRecurring: (id: string, recurring: boolean) => void;
 }
 
-export function WorkLogList({ logs, onUpdate, onDelete, onDuplicate }: WorkLogListProps) {
-  // Sort logs by date, most recent first
-  const sortedLogs = [...logs].sort((a, b) => 
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
+export function WorkLogList({ 
+  logs, 
+  onUpdate, 
+  onDelete, 
+  onDuplicate,
+  onToggleComplete,
+  onToggleRecurring
+}: WorkLogListProps) {
+  // Sort logs: non-completed and most recent first, then completed logs
+  const sortedLogs = [...logs].sort((a, b) => {
+    // First sort by completed status
+    if (a.completed && !b.completed) return 1;
+    if (!a.completed && b.completed) return -1;
+    
+    // Then sort by date (most recent first)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
 
   return (
     <ScrollArea className="h-[500px] pr-4">
-      <div className="space-y-3">
+      <div className="space-y-2">
         {sortedLogs.map(log => (
           <WorkLogItem 
             key={log.id}
@@ -26,6 +40,8 @@ export function WorkLogList({ logs, onUpdate, onDelete, onDuplicate }: WorkLogLi
             onUpdate={onUpdate}
             onDelete={onDelete}
             onDuplicate={onDuplicate}
+            onToggleComplete={onToggleComplete}
+            onToggleRecurring={onToggleRecurring}
           />
         ))}
       </div>

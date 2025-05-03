@@ -6,17 +6,26 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatDistanceToNow, formatDuration, intervalToDuration } from "date-fns";
-import { Play, Square, Trash2, Copy } from "lucide-react";
+import { format, formatDistanceToNow, formatDuration, intervalToDuration } from "date-fns";
+import { Play, Square, Trash2, Copy, Check, Repeat } from "lucide-react";
 
 interface WorkLogItemProps {
   log: WorkLog;
   onUpdate: (log: WorkLog) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
+  onToggleComplete: (id: string, completed: boolean) => void;
+  onToggleRecurring: (id: string, recurring: boolean) => void;
 }
 
-export function WorkLogItem({ log, onUpdate, onDelete, onDuplicate }: WorkLogItemProps) {
+export function WorkLogItem({ 
+  log, 
+  onUpdate, 
+  onDelete, 
+  onDuplicate,
+  onToggleComplete,
+  onToggleRecurring
+}: WorkLogItemProps) {
   const [isTracking, setIsTracking] = useState<boolean>(false);
   const [elapsed, setElapsed] = useState<string>("");
   const [description, setDescription] = useState<string>(log.description || "");
@@ -94,8 +103,12 @@ export function WorkLogItem({ log, onUpdate, onDelete, onDuplicate }: WorkLogIte
     });
   };
 
+  const cardClassName = log.completed 
+    ? "border-l-2 border-l-gray-400 opacity-75" 
+    : "border-l-2 border-l-brand-600";
+
   return (
-    <Card className="border-l-2 border-l-brand-600">
+    <Card className={cardClassName}>
       <CardContent className="pt-4 pb-2">
         <div className="grid gap-3 md:grid-cols-3">
           <div className="col-span-2 space-y-3">
@@ -107,6 +120,7 @@ export function WorkLogItem({ log, onUpdate, onDelete, onDuplicate }: WorkLogIte
                 onChange={handleDescriptionChange}
                 placeholder="Enter work description"
                 className="h-8"
+                disabled={log.completed}
               />
             </div>
             <div>
@@ -116,16 +130,20 @@ export function WorkLogItem({ log, onUpdate, onDelete, onDuplicate }: WorkLogIte
                 value={notes}
                 onChange={handleNotesChange}
                 placeholder="Enter notes"
-                className="min-h-[80px] text-sm"
+                className="min-h-[70px] text-sm"
+                disabled={log.completed}
               />
             </div>
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div>
               <p className="text-xs font-medium">Created</p>
               <p className="text-xs text-muted-foreground">
-                {formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}
+                {format(new Date(log.createdAt), "MMM d, yyyy h:mm a")}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                ({formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })})
               </p>
             </div>
             
@@ -137,7 +155,7 @@ export function WorkLogItem({ log, onUpdate, onDelete, onDuplicate }: WorkLogIte
             )}
             
             <div className="flex flex-col gap-2">
-              {isTracking ? (
+              {!log.completed && isTracking ? (
                 <Button 
                   variant="destructive" 
                   size="sm"
@@ -146,17 +164,36 @@ export function WorkLogItem({ log, onUpdate, onDelete, onDuplicate }: WorkLogIte
                 >
                   <Square className="h-3 w-3" /> Stop
                 </Button>
-              ) : (
+              ) : !log.completed && (
                 <Button 
                   variant="outline" 
                   size="sm"
                   className="w-full flex items-center gap-1"
                   onClick={handleStartTracking}
-                  disabled={!!log.endTime}
+                  disabled={!!log.endTime || log.completed}
                 >
                   <Play className="h-3 w-3" /> Start
                 </Button>
               )}
+
+              <Button
+                variant={log.recurring ? "default" : "outline"}
+                size="sm"
+                className="w-full flex items-center gap-1 h-7"
+                onClick={() => onToggleRecurring(log.id, !log.recurring)}
+                disabled={log.completed}
+              >
+                <Repeat className="h-3 w-3" /> {log.recurring ? "Recurring" : "Set Recurring"}
+              </Button>
+
+              <Button
+                variant={log.completed ? "secondary" : "outline"}
+                size="sm"
+                className="w-full flex items-center gap-1 h-7"
+                onClick={() => onToggleComplete(log.id, !log.completed)}
+              >
+                <Check className="h-3 w-3" /> {log.completed ? "Completed" : "Complete"}
+              </Button>
             </div>
           </div>
         </div>
@@ -168,6 +205,7 @@ export function WorkLogItem({ log, onUpdate, onDelete, onDuplicate }: WorkLogIte
           size="sm" 
           onClick={() => onDuplicate(log.id)}
           className="h-7 text-xs"
+          disabled={log.completed}
         >
           <Copy className="h-3 w-3 mr-1" /> Duplicate
         </Button>
