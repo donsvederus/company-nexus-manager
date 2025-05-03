@@ -20,6 +20,7 @@ export function useWorkLogItem(log: WorkLog, onUpdate: (log: WorkLog) => void) {
   
   const handleStartTracking = () => {
     const startTime = new Date().toISOString();
+    console.log("Starting tracking at:", startTime, "with accumulated duration:", log.duration || 0);
     onUpdate({
       ...log,
       startTime,

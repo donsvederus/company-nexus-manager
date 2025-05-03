@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Play, Square, Check } from "lucide-react";
+import { Play, Square, Check, Timer } from "lucide-react";
 
 interface WorkLogItemControlsProps {
   isTracking: boolean;
@@ -38,7 +38,8 @@ export function WorkLogItemControls({
           onClick={onStartTracking}
           disabled={completed}
         >
-          <Play className="h-3 w-3" /> Start
+          {isTracking ? <Timer className="h-3 w-3 animate-pulse" /> : <Play className="h-3 w-3" />} 
+          {isTracking ? 'Tracking...' : 'Start'}
         </Button>
       )}
 
