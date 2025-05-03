@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Edit, Save, Globe } from "lucide-react";
@@ -18,11 +17,35 @@ interface InfoItemProps {
   value: string;
 }
 
+// Regular info item component
 function InfoItem({ label, value }: InfoItemProps) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-sm font-medium">{label}:</span>
       <span className="text-sm">{value}</span>
+    </div>
+  );
+}
+
+// Formatted address component that displays in the structured format
+function FormattedAddress({ address }: { address: string }) {
+  // Split address into parts (assuming format like "123 Main St, City, State ZIP")
+  const parts = address.split(",").map(part => part.trim());
+  
+  // Extract street (first part)
+  const street = parts[0] || '';
+  
+  // Extract city (second part, if exists)
+  const city = parts.length > 1 ? parts[1] : '';
+  
+  // Extract state and zip (third part, if exists)
+  const stateZip = parts.length > 2 ? parts[2] : '';
+  
+  return (
+    <div className="text-sm text-right">
+      <div>{street}</div>
+      <div>{city}</div>
+      <div>{stateZip}</div>
     </div>
   );
 }
@@ -123,6 +146,7 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
                   value={editedInfo.address || ''} 
                   onChange={(e) => handleInputChange('address', e.target.value)}
                   className="h-8 text-sm w-full"
+                  placeholder="Street, City, State ZIP"
                 />
               </div>
             </div>
@@ -159,7 +183,10 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
                 <span className="text-sm text-muted-foreground">Not specified</span>
               )}
             </div>
-            <InfoItem label="Address" value={client?.address || ''} />
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Address:</span>
+              <FormattedAddress address={client?.address || ''} />
+            </div>
             <InfoItem 
               label="Start Date" 
               value={new Date(client.startDate).toLocaleDateString()}
