@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { WorkLog } from "@/types/client";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -172,6 +171,8 @@ export function WorkLogItem({
         <WorkLogItemActions 
           isRecurring={!!log.recurring}
           completed={!!log.completed}
+          recurrenceType={log.recurrenceType}
+          nextRecurrenceDate={log.nextRecurrenceDate}
           onOpenRecurrenceDialog={handleRecurrenceDialogOpen}
           onDuplicate={handleDuplicate}
           onDelete={handleDelete}
