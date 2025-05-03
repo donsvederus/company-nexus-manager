@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -37,10 +36,13 @@ import { useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { useFormProtection } from "@/hooks/useFormProtection";
 
-// Update the form schema to include website
+// Update the form schema to include website and separate address fields
 const formSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
-  address: z.string().min(1, "Address is required"),
+  street: z.string().min(1, "Street is required"),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required").max(2, "Use state abbreviation (2 letters)"),
+  zipCode: z.string().min(5, "ZIP code is required"),
   accountManager: z.string().min(1, "Account manager is required"),
   mainContact: z.string().min(1, "Main contact is required"),
   email: z.string().email("Invalid email address"),
@@ -75,11 +77,41 @@ export default function ClientForm({
   console.log("Users data:", users);
   console.log("Account managers:", accountManagers);
   
+  // Split the address into components for editing if we have defaultValues
+  const getDefaultAddressValues = () => {
+    if (!defaultValues) return { street: "", city: "", state: "", zipCode: "" };
+
+    // If we have legacy data with a single address field, try to parse it
+    if (defaultValues.street === undefined && defaultValues.address) {
+      const addressParts = defaultValues.address.split(',').map(part => part.trim());
+      return {
+        street: addressParts[0] || "",
+        city: addressParts.length > 1 ? addressParts[1] : "",
+        state: addressParts.length > 2 ? addressParts[2].split(' ')[0] : "",
+        zipCode: addressParts.length > 2 ? addressParts[2].split(' ')[1] || "" : ""
+      };
+    }
+
+    // Otherwise use the defined fields
+    return {
+      street: defaultValues.street || "",
+      city: defaultValues.city || "",
+      state: defaultValues.state || "",
+      zipCode: defaultValues.zipCode || ""
+    };
+  };
+
+  const addressValues = getDefaultAddressValues();
+  
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues
       ? {
           ...defaultValues,
+          street: addressValues.street,
+          city: addressValues.city,
+          state: addressValues.state,
+          zipCode: addressValues.zipCode,
           startDate: new Date(defaultValues.startDate),
           // Force the account manager to be valid if it's not in the list
           accountManager: accountManagers.some(manager => manager.name === defaultValues.accountManager) 
@@ -88,7 +120,10 @@ export default function ClientForm({
         }
       : {
           companyName: "",
-          address: "",
+          street: "",
+          city: "",
+          state: "",
+          zipCode: "",
           accountManager: accountManagers.length > 0 ? accountManagers[0].name : "",
           mainContact: "",
           email: "",
@@ -165,19 +200,69 @@ export default function ClientForm({
               )}
             />
             
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter address" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Address fields (replaced single address field with separate fields) */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium">Address</h3>
+              <FormField
+                control={form.control}
+                name="street"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Street</FormLabel>
+                    <FormControl>
+                      <Input placeholder="123 Main St" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Anytown" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <FormField
+                    control={form.control}
+                    name="state"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>State</FormLabel>
+                        <FormControl>
+                          <Input placeholder="CA" maxLength={2} className="uppercase" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="zipCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>ZIP Code</FormLabel>
+                        <FormControl>
+                          <Input placeholder="12345" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField

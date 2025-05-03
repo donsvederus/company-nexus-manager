@@ -28,26 +28,42 @@ function InfoItem({ label, value }: InfoItemProps) {
 }
 
 // Formatted address component that displays in the structured format
-function FormattedAddress({ address }: { address: string }) {
-  // Split address into parts (assuming format like "123 Main St, City, State ZIP")
-  const parts = address.split(",").map(part => part.trim());
+function FormattedAddress({ client }: { client: Client }) {
+  // Check if we have the new address fields
+  if (client.street !== undefined) {
+    return (
+      <div className="text-sm text-right">
+        <div>{client.street}</div>
+        <div>{client.city}</div>
+        <div>{client.state}, {client.zipCode}</div>
+      </div>
+    );
+  } 
   
-  // Extract street (first part)
-  const street = parts[0] || '';
+  // Fallback to legacy address format
+  if (client.address) {
+    // Split address into parts (assuming format like "123 Main St, City, State ZIP")
+    const parts = client.address.split(",").map(part => part.trim());
+    
+    // Extract street (first part)
+    const street = parts[0] || '';
+    
+    // Extract city (second part, if exists)
+    const city = parts.length > 1 ? parts[1] : '';
+    
+    // Extract state and zip (third part, if exists)
+    const stateZip = parts.length > 2 ? parts[2] : '';
+    
+    return (
+      <div className="text-sm text-right">
+        <div>{street}</div>
+        <div>{city}</div>
+        <div>{stateZip}</div>
+      </div>
+    );
+  }
   
-  // Extract city (second part, if exists)
-  const city = parts.length > 1 ? parts[1] : '';
-  
-  // Extract state and zip (third part, if exists)
-  const stateZip = parts.length > 2 ? parts[2] : '';
-  
-  return (
-    <div className="text-sm text-right">
-      <div>{street}</div>
-      <div>{city}</div>
-      <div>{stateZip}</div>
-    </div>
-  );
+  return <span className="text-sm text-muted-foreground">Not specified</span>;
 }
 
 export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardProps) {
@@ -55,7 +71,11 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
   const [isEditing, setIsEditing] = useState(false);
   const [editedInfo, setEditedInfo] = useState({
     companyName: client.companyName,
-    address: client.address,
+    street: client.street || '',
+    city: client.city || '',
+    state: client.state || '',
+    zipCode: client.zipCode || '',
+    address: client.address || '', // Keep for backwards compatibility
     startDate: client.startDate,
     website: client.website || ''
   });
@@ -64,7 +84,11 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
   useEffect(() => {
     setEditedInfo({
       companyName: client.companyName,
-      address: client.address,
+      street: client.street || '',
+      city: client.city || '',
+      state: client.state || '',
+      zipCode: client.zipCode || '',
+      address: client.address || '', // Keep for backwards compatibility
       startDate: client.startDate,
       website: client.website || ''
     });
@@ -76,15 +100,19 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
   };
 
   const saveBasicInfo = () => {
+    // Determine if we're using the new address fields or legacy address
     const updatedClient = {
       ...client,
       companyName: editedInfo.companyName || client.companyName,
-      address: editedInfo.address || client.address,
+      street: editedInfo.street,
+      city: editedInfo.city,
+      state: editedInfo.state,
+      zipCode: editedInfo.zipCode,
       startDate: editedInfo.startDate || client.startDate,
       website: editedInfo.website !== undefined ? editedInfo.website : client.website
     };
     
-    console.log("Saving basic info with website:", updatedClient.website);
+    console.log("Saving basic info:", updatedClient);
     updateClient(updatedClient);
     onClientUpdate(updatedClient);
     setIsEditing(false);
@@ -94,7 +122,11 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
   const startEditing = () => {
     setEditedInfo({
       companyName: client.companyName,
-      address: client.address,
+      street: client.street || '',
+      city: client.city || '',
+      state: client.state || '',
+      zipCode: client.zipCode || '',
+      address: client.address || '', // Keep for backwards compatibility
       startDate: client.startDate,
       website: client.website || '' // Initialize website properly
     });
@@ -139,17 +171,56 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
                 />
               </div>
             </div>
+            
+            {/* Address fields */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Address:</span>
+              <span className="text-sm font-medium">Street:</span>
               <div className="w-2/3">
                 <Input 
-                  value={editedInfo.address || ''} 
-                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  value={editedInfo.street || ''} 
+                  onChange={(e) => handleInputChange('street', e.target.value)}
                   className="h-8 text-sm w-full"
-                  placeholder="Street, City, State ZIP"
+                  placeholder="123 Main St"
                 />
               </div>
             </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">City:</span>
+              <div className="w-2/3">
+                <Input 
+                  value={editedInfo.city || ''} 
+                  onChange={(e) => handleInputChange('city', e.target.value)}
+                  className="h-8 text-sm w-full"
+                  placeholder="Anytown"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">State:</span>
+                <div className="w-2/3">
+                  <Input 
+                    value={editedInfo.state || ''} 
+                    onChange={(e) => handleInputChange('state', e.target.value)}
+                    className="h-8 text-sm w-full uppercase"
+                    placeholder="CA"
+                    maxLength={2}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">ZIP:</span>
+                <div className="w-2/3">
+                  <Input 
+                    value={editedInfo.zipCode || ''} 
+                    onChange={(e) => handleInputChange('zipCode', e.target.value)}
+                    className="h-8 text-sm w-full"
+                    placeholder="12345"
+                  />
+                </div>
+              </div>
+            </div>
+            
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Start Date:</span>
               <div className="w-2/3">
@@ -185,7 +256,7 @@ export default function BasicInfoCard({ client, onClientUpdate }: BasicInfoCardP
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Address:</span>
-              <FormattedAddress address={client?.address || ''} />
+              <FormattedAddress client={client} />
             </div>
             <InfoItem 
               label="Start Date" 

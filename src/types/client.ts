@@ -4,7 +4,10 @@ export type ClientStatus = "active" | "inactive";
 export interface Client {
   id: string;
   companyName: string;
-  address: string;
+  street: string;       // Changed from address to street
+  city: string;         // Added city field
+  state: string;        // Added state field
+  zipCode: string;      // Added zip code field
   accountManager: string;
   mainContact: string;
   email: string;
@@ -19,7 +22,10 @@ export interface Client {
 // Add a form-specific type that uses Date object for the form
 export interface ClientFormValues {
   companyName: string;
-  address: string;
+  street: string;       // Changed from address to street
+  city: string;         // Added city field
+  state: string;        // Added state field
+  zipCode: string;      // Added zip code field
   accountManager: string;
   mainContact: string;
   email: string;

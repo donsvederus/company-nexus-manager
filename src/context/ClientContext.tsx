@@ -1,14 +1,16 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Client, ClientStatus } from "@/types/client";
 import { toast } from "sonner";
 
-// Sample initial data with more active clients
+// Sample initial clients with updated address format
 const initialClients: Client[] = [
   {
     id: "1",
     companyName: "Acme Corporation",
-    address: "123 Main St, Anytown, USA",
+    street: "123 Main St",
+    city: "Anytown",
+    state: "CA",
+    zipCode: "12345",
     accountManager: "Jane Smith",
     mainContact: "John Doe",
     email: "john.doe@acme.com",
@@ -20,7 +22,10 @@ const initialClients: Client[] = [
   {
     id: "2",
     companyName: "Globex Industries",
-    address: "456 Tech Blvd, Innovation City, USA",
+    street: "456 Tech Blvd",
+    city: "Innovation City",
+    state: "NY",
+    zipCode: "67890",
     accountManager: "Michael Johnson",
     mainContact: "Sarah Williams",
     email: "sarah@globex.com",
@@ -32,7 +37,10 @@ const initialClients: Client[] = [
   {
     id: "3",
     companyName: "Wayne Enterprises",
-    address: "1007 Mountain Drive, Gotham City, USA",
+    street: "1007 Mountain Drive",
+    city: "Gotham City",
+    state: "NJ",
+    zipCode: "10101",
     accountManager: "Bruce Wayne",
     mainContact: "Lucius Fox",
     email: "lucius.fox@wayne.com",
@@ -43,7 +51,10 @@ const initialClients: Client[] = [
   {
     id: "4",
     companyName: "Stark Industries",
-    address: "200 Park Avenue, New York, USA",
+    street: "200 Park Avenue",
+    city: "New York",
+    state: "NY",
+    zipCode: "10166",
     accountManager: "Pepper Potts",
     mainContact: "Tony Stark",
     email: "tony@stark.com",
@@ -54,7 +65,10 @@ const initialClients: Client[] = [
   {
     id: "5",
     companyName: "Oscorp",
-    address: "888 Broadway, New York, USA",
+    street: "888 Broadway",
+    city: "New York",
+    state: "NY",
+    zipCode: "10003",
     accountManager: "Harry Osborn",
     mainContact: "Norman Osborn",
     email: "norman@oscorp.com",
@@ -65,7 +79,10 @@ const initialClients: Client[] = [
   {
     id: "6",
     companyName: "Umbrella Corporation",
-    address: "765 Research Pkwy, Raccoon City, USA",
+    street: "765 Research Pkwy",
+    city: "Raccoon City",
+    state: "CO",
+    zipCode: "80202",
     accountManager: "Albert Wesker",
     mainContact: "William Birkin",
     email: "birkin@umbrella.com",
@@ -76,7 +93,10 @@ const initialClients: Client[] = [
   {
     id: "7",
     companyName: "Cyberdyne Systems",
-    address: "18144 El Camino Real, Sunnyvale, USA",
+    street: "18144 El Camino Real",
+    city: "Sunnyvale",
+    state: "CA",
+    zipCode: "94087",
     accountManager: "Miles Dyson",
     mainContact: "Miles Bennett Dyson",
     email: "dyson@cyberdyne.com",
@@ -84,11 +104,13 @@ const initialClients: Client[] = [
     startDate: "2020-08-29",
     status: "active",
   },
-  // Adding 5 more active clients
   {
     id: "8",
     companyName: "Initech",
-    address: "4120 Freidrich Lane, Austin, USA",
+    street: "4120 Freidrich Lane",
+    city: "Austin",
+    state: "TX",
+    zipCode: "73301",
     accountManager: "Bill Lumbergh",
     mainContact: "Peter Gibbons",
     email: "peter@initech.com",
@@ -100,7 +122,10 @@ const initialClients: Client[] = [
   {
     id: "9",
     companyName: "Massive Dynamic",
-    address: "555 Broadway, New York, USA",
+    street: "555 Broadway",
+    city: "New York",
+    state: "NY",
+    zipCode: "10012",
     accountManager: "Nina Sharp",
     mainContact: "Walter Bishop",
     email: "walter@massivedynamic.com",
@@ -112,7 +137,10 @@ const initialClients: Client[] = [
   {
     id: "10",
     companyName: "Hooli",
-    address: "1401 N Shoreline Blvd, Mountain View, USA",
+    street: "1401 N Shoreline Blvd",
+    city: "Mountain View",
+    state: "CA",
+    zipCode: "94043",
     accountManager: "Gavin Belson",
     mainContact: "Jared Dunn",
     email: "jared@hooli.com",
@@ -124,7 +152,10 @@ const initialClients: Client[] = [
   {
     id: "11",
     companyName: "Pied Piper",
-    address: "5230 Newell Road, Palo Alto, USA",
+    street: "5230 Newell Road",
+    city: "Palo Alto",
+    state: "CA",
+    zipCode: "94303",
     accountManager: "Monica Hall",
     mainContact: "Richard Hendricks",
     email: "richard@piedpiper.com",
@@ -136,7 +167,10 @@ const initialClients: Client[] = [
   {
     id: "12",
     companyName: "Soylent Corp",
-    address: "101 Future Avenue, New York, USA",
+    street: "101 Future Avenue",
+    city: "New York",
+    state: "NY",
+    zipCode: "10001",
     accountManager: "Henry Santoro",
     mainContact: "William Simonson",
     email: "william@soylent.com",
@@ -154,7 +188,7 @@ interface ClientContextType {
   deleteClient: (id: string) => void;
   getClientById: (id: string) => Client | undefined;
   updateClientStatus: (id: string, status: ClientStatus) => void;
-  updateLastContactDate: (id: string, date?: Date) => void; // Updated to accept a date parameter
+  updateLastContactDate: (id: string, date?: Date) => void;
 }
 
 const ClientContext = createContext<ClientContextType | undefined>(undefined);
