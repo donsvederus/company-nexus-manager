@@ -25,13 +25,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import ClientServiceList from "@/components/ClientServiceList";
 
@@ -130,7 +123,6 @@ export default function ClientDetails() {
     if (client && editedClient) {
       const updatedClient = {
         ...client,
-        accountManager: editedClient.accountManager || client.accountManager,
         mainContact: editedClient.mainContact || client.mainContact,
         email: editedClient.email || client.email,
         phone: editedClient.phone || client.phone
@@ -148,7 +140,6 @@ export default function ClientDetails() {
       // Ensure the editedClient has the current client values before entering edit mode
       setEditedClient(current => ({
         ...current,
-        accountManager: client.accountManager,
         mainContact: client.mainContact,
         email: client.email,
         phone: client.phone
@@ -319,33 +310,12 @@ export default function ClientDetails() {
                 <div className="space-y-2">
                   {isContactEditing ? (
                     <>
+                      {/* Display account manager as read-only text */}
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Account Manager:</span>
-                        {accountManagers && accountManagers.length > 0 ? (
-                          <Select 
-                            defaultValue={editedClient.accountManager || client?.accountManager}
-                            onValueChange={(value) => handleInputChange('accountManager', value)}
-                          >
-                            <SelectTrigger className="w-2/3 h-8 text-sm">
-                              <SelectValue placeholder="Select account manager">
-                                {editedClient.accountManager || client?.accountManager}
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              {accountManagers.map((manager) => (
-                                <SelectItem key={manager.id} value={manager.name}>
-                                  {manager.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <Input 
-                            value={editedClient.accountManager || ''} 
-                            onChange={(e) => handleInputChange('accountManager', e.target.value)}
-                            className="w-2/3 h-8 text-sm"
-                          />
-                        )}
+                        <span className="text-sm text-muted-foreground w-2/3 text-right">
+                          {client.accountManager}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Main Contact:</span>
