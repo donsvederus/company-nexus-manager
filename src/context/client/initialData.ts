@@ -1,4 +1,3 @@
-
 import { Client } from "@/types/client";
 
 // Sample initial clients with updated address format
@@ -16,7 +15,49 @@ export const initialClients: Client[] = [
     phone: "(555) 123-4567",
     startDate: "2022-01-15",
     status: "active",
-    lastContactDate: "2023-08-15"
+    lastContactDate: "2023-08-15",
+    workLogs: [
+      {
+        id: "wl1",
+        clientId: "1",
+        description: "Website maintenance",
+        notes: "Updated plugins and performed security checks",
+        startTime: "2023-09-15T10:00:00Z",
+        endTime: "2023-09-15T12:30:00Z",
+        duration: 150,
+        completed: true,
+        recurring: true,
+        recurrenceType: "monthly",
+        dueDate: "2023-09-20T00:00:00Z",
+        createdAt: "2023-09-10T08:00:00Z",
+        updatedAt: "2023-09-15T12:30:00Z"
+      },
+      {
+        id: "wl2",
+        clientId: "1",
+        description: "SEO optimization",
+        notes: "Keyword research and meta tag updates",
+        startTime: "2023-10-05T14:00:00Z",
+        endTime: "2023-10-05T17:00:00Z",
+        duration: 180,
+        completed: true,
+        recurring: false,
+        dueDate: "2023-10-10T00:00:00Z",
+        createdAt: "2023-10-01T09:30:00Z",
+        updatedAt: "2023-10-05T17:00:00Z"
+      },
+      {
+        id: "wl3",
+        clientId: "1",
+        description: "Content creation for Q4",
+        notes: "Create blog posts for upcoming promotions",
+        completed: false,
+        recurring: false,
+        dueDate: "2025-05-25T00:00:00Z",
+        createdAt: "2023-11-15T11:00:00Z",
+        updatedAt: "2023-11-15T11:00:00Z"
+      }
+    ]
   },
   {
     id: "2",
@@ -31,7 +72,34 @@ export const initialClients: Client[] = [
     phone: "(555) 987-6543",
     startDate: "2021-06-22",
     status: "inactive",
-    lastContactDate: "2023-05-22"
+    lastContactDate: "2023-05-22",
+    workLogs: [
+      {
+        id: "wl4",
+        clientId: "2",
+        description: "Server migration",
+        notes: "Moving from on-premise to cloud infrastructure",
+        startTime: "2023-08-20T09:00:00Z",
+        endTime: "2023-08-20T18:00:00Z",
+        duration: 540,
+        completed: true,
+        recurring: false,
+        dueDate: "2023-08-25T00:00:00Z",
+        createdAt: "2023-08-15T10:00:00Z",
+        updatedAt: "2023-08-20T18:00:00Z"
+      },
+      {
+        id: "wl5",
+        clientId: "2",
+        description: "Security audit",
+        notes: "Comprehensive security review",
+        completed: false,
+        recurring: false,
+        dueDate: "2025-06-01T00:00:00Z",
+        createdAt: "2023-12-01T14:00:00Z",
+        updatedAt: "2023-12-01T14:00:00Z"
+      }
+    ]
   },
   {
     id: "3",
@@ -46,6 +114,48 @@ export const initialClients: Client[] = [
     phone: "(555) 228-6283",
     startDate: "2020-03-30",
     status: "active",
+    workLogs: [
+      {
+        id: "wl6",
+        clientId: "3",
+        description: "Advanced security system implementation",
+        notes: "Installing custom security solutions",
+        startTime: "2023-11-10T08:00:00Z",
+        endTime: "2023-11-10T17:00:00Z",
+        duration: 540,
+        completed: true,
+        recurring: false,
+        dueDate: "2023-11-15T00:00:00Z",
+        createdAt: "2023-11-05T09:00:00Z",
+        updatedAt: "2023-11-10T17:00:00Z"
+      },
+      {
+        id: "wl7",
+        clientId: "3",
+        description: "R&D consulting session",
+        notes: "Discussion of upcoming technology trends",
+        startTime: "2024-01-05T10:00:00Z",
+        endTime: "2024-01-05T12:00:00Z",
+        duration: 120,
+        completed: true,
+        recurring: true,
+        recurrenceType: "quarterly",
+        dueDate: "2024-01-05T00:00:00Z",
+        createdAt: "2023-12-20T11:00:00Z",
+        updatedAt: "2024-01-05T12:00:00Z"
+      },
+      {
+        id: "wl8",
+        clientId: "3",
+        description: "Strategic planning for fiscal year",
+        notes: "Budget allocation and project prioritization",
+        completed: false,
+        recurring: false,
+        dueDate: "2025-05-10T00:00:00Z",
+        createdAt: "2024-04-01T14:00:00Z",
+        updatedAt: "2024-04-01T14:00:00Z"
+      }
+    ]
   },
   {
     id: "4",
@@ -60,6 +170,34 @@ export const initialClients: Client[] = [
     phone: "(555) 462-7865",
     startDate: "2019-11-12",
     status: "active",
+    workLogs: [
+      {
+        id: "wl9",
+        clientId: "4",
+        description: "Energy solution implementation",
+        notes: "Installing arc reactor technology",
+        startTime: "2024-02-15T09:00:00Z",
+        endTime: "2024-02-16T18:00:00Z",
+        duration: 1980,
+        completed: true,
+        recurring: false,
+        dueDate: "2024-02-20T00:00:00Z",
+        createdAt: "2024-02-10T08:30:00Z",
+        updatedAt: "2024-02-16T18:00:00Z"
+      },
+      {
+        id: "wl10",
+        clientId: "4",
+        description: "AI integration for manufacturing",
+        notes: "Implementing JARVIS-like systems for production lines",
+        startTime: "2024-03-01T10:00:00Z",
+        completed: false,
+        recurring: false,
+        dueDate: "2025-05-15T00:00:00Z",
+        createdAt: "2024-03-01T10:00:00Z",
+        updatedAt: "2024-03-01T10:00:00Z"
+      }
+    ]
   },
   {
     id: "5",
