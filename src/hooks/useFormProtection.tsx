@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useBeforeUnload, useNavigate } from 'react-router-dom';
 import {
   AlertDialog,
@@ -24,7 +24,7 @@ export function useFormProtection(isDirty: boolean, navigateToPath?: string) {
 
   // Add browser warning when closing tab/window
   useBeforeUnload(
-    React.useCallback(
+    useCallback(
       (event) => {
         if (isDirty) {
           event.preventDefault();
