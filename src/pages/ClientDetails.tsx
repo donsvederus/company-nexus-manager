@@ -8,6 +8,7 @@ import ContactInfoCard from '@/components/client/ContactInfoCard';
 import StatusManagementCard from '@/components/client/StatusManagementCard';
 import ClientServiceList from '@/components/ClientServiceList';
 import WorkLogPreview from '@/components/worklog/WorkLogPreview';
+import { Client } from '@/types/client';
 
 export default function ClientDetails() {
   const { id } = useParams<{ id: string }>();
@@ -62,24 +63,25 @@ export default function ClientDetails() {
       <ClientDetailsHeader 
         client={client}
         onDelete={handleDelete}
-        onEdit={() => navigate(`/clients/${id}/edit`)}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-        <div className="md:col-span-2 space-y-6">
+      <div className="grid grid-cols-12 gap-6 mt-6">
+        {/* Left column - increased width to 9 columns */}
+        <div className="col-span-12 md:col-span-9 space-y-6">
           <BasicInfoCard client={client} onClientUpdate={handleClientUpdate} />
           <ContactInfoCard client={client} onClientUpdate={handleClientUpdate} />
           
-          {/* Display client services */}
+          {/* Full width client services */}
           <ClientServiceList client={client} />
           
-          {/* Display work log preview if client has work logs */}
+          {/* Full width work log preview */}
           {client.workLogs && client.workLogs.length > 0 && (
             <WorkLogPreview clientId={client.id} workLogs={client.workLogs} />
           )}
         </div>
         
-        <div className="space-y-6">
+        {/* Right column - decreased width to 3 columns */}
+        <div className="col-span-12 md:col-span-3 space-y-6">
           <StatusManagementCard 
             client={client}
             onStatusChange={handleStatusChange}
