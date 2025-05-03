@@ -110,7 +110,7 @@ export default function ClientDetails() {
         companyName: editedClient.companyName || client.companyName,
         address: editedClient.address || client.address,
         startDate: editedClient.startDate || client.startDate,
-        website: editedClient.website // Ensure website is included in the update
+        website: editedClient.website !== undefined ? editedClient.website : client.website
       };
       updateClient(updatedClient);
       setClient(updatedClient);
@@ -233,7 +233,7 @@ export default function ClientDetails() {
                         <span className="text-sm font-medium">Website:</span>
                         <div className="w-2/3">
                           <Input 
-                            value={editedClient.website || ''} 
+                            value={editedClient.website || ''}
                             onChange={(e) => handleInputChange('website', e.target.value)}
                             className="h-8 text-sm w-full"
                             placeholder="example.com"
