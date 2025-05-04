@@ -9,6 +9,7 @@ import {
   Package,
   LayoutDashboard,
   LogOut,
+  Receipt
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -96,6 +97,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       title: "Services",
       href: "/services",
       icon: <Package className="h-4 w-4" />,
+    },
+    {
+      title: "Invoices",
+      href: "/invoices",
+      icon: <Receipt className="h-4 w-4" />,
     },
     {
       title: "Reports",

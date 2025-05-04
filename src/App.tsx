@@ -21,6 +21,7 @@ import ClientNotes from "@/pages/ClientNotes";
 import ServiceList from "@/pages/ServiceList";
 import AddService from "@/pages/AddService";
 import ServiceEditor from "@/pages/ServiceEditor";
+import Invoices from "@/pages/Invoices";
 import Reports from "@/pages/Reports";
 import SettingsPage from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="/services" element={<Layout><ServiceList /></Layout>} />
                 <Route path="/services/new" element={<Layout><AddService /></Layout>} />
                 <Route path="/services/:id/edit" element={<Layout><ServiceEditor /></Layout>} />
+                <Route path="/invoices" element={<Layout><Invoices /></Layout>} />
                 <Route 
                   path="/reports" 
                   element={
