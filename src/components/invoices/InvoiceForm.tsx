@@ -23,7 +23,7 @@ export interface InvoiceItem {
 }
 
 export default function InvoiceForm() {
-  const { services, clientServices } = useServices();
+  const { services, clientServices, getServiceDetails } = useServices();
   const { getClientById, clients } = useClients();
   const [selectedClientId, setSelectedClientId] = useState<string>("");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -45,26 +45,32 @@ export default function InvoiceForm() {
       
       // If we have a client, initialize invoice with their services
       if (client) {
-        // Get ALL client services, not just active ones
+        // Get client services for this specific client
         const clientServiceData = clientServices.filter(cs => cs.clientId === client.id);
         
-        // Map client services to invoice items
-        const items = clientServiceData.map(cs => {
-          const serviceDetails = services.find(s => s.id === cs.serviceId);
-          return {
-            id: cs.id,
-            serviceId: cs.serviceId,
-            description: serviceDetails?.name || "Unknown Service",
-            quantity: 1,
-            unitPrice: cs.customCost || serviceDetails?.defaultCost || 0
-          };
-        });
+        if (clientServiceData.length > 0) {
+          // Map client services to invoice items
+          const items = clientServiceData.map(cs => {
+            const serviceDetails = getServiceDetails(cs.serviceId);
+            return {
+              id: cs.id,
+              serviceId: cs.serviceId,
+              description: serviceDetails?.name || "Unknown Service",
+              quantity: 1,
+              unitPrice: cs.customCost || (serviceDetails?.defaultCost || 0)
+            };
+          });
+          
+          setInvoiceItems(items);
+        } else {
+          // If no services found for this client, set empty array
+          setInvoiceItems([]);
+        }
         
-        setInvoiceItems(items);
         setHasLoadedServices(true);
       }
     }
-  }, [selectedClientId, getClientById, clientServices, services]);
+  }, [selectedClientId, getClientById, clientServices, getServiceDetails]);
 
   // Check if Acme Corporation is available and preselect it
   useEffect(() => {
@@ -105,11 +111,20 @@ export default function InvoiceForm() {
   };
 
   const handleServiceSelect = (id: string, serviceId: string) => {
+    // Find the service from all available services
     const selectedService = services.find(s => s.id === serviceId);
+    
+    // Find if there's a client service with a custom cost for this service
+    const clientService = clientServices.find(
+      cs => cs.serviceId === serviceId && cs.clientId === selectedClientId
+    );
+    
     if (selectedService) {
       updateItem(id, 'serviceId', serviceId);
       updateItem(id, 'description', selectedService.name);
-      updateItem(id, 'unitPrice', selectedService.defaultCost);
+      // Use custom cost if available, otherwise use default cost
+      const price = clientService?.customCost ?? selectedService.defaultCost;
+      updateItem(id, 'unitPrice', price);
     }
   };
 
