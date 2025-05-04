@@ -18,6 +18,8 @@ import { InvoiceItem } from "./InvoiceForm";
 interface InvoiceItemsTableProps {
   invoiceItems: InvoiceItem[];
   services: Service[];
+  clientServices?: { clientId: string; serviceId: string }[];
+  selectedClientId?: string;
   addEmptyItem: () => void;
   removeItem: (id: string) => void;
   updateItem: (id: string, field: string, value: string | number) => void;
@@ -30,6 +32,8 @@ interface InvoiceItemsTableProps {
 export function InvoiceItemsTable({
   invoiceItems,
   services,
+  clientServices = [],
+  selectedClientId = "",
   addEmptyItem,
   removeItem,
   updateItem,
@@ -38,6 +42,15 @@ export function InvoiceItemsTable({
   calculateTax,
   calculateTotal
 }: InvoiceItemsTableProps) {
+  // Filter services to only show those assigned to this client
+  const availableServices = selectedClientId 
+    ? services.filter(service => 
+        clientServices.some(cs => 
+          cs.serviceId === service.id && cs.clientId === selectedClientId
+        )
+      )
+    : services;
+    
   return (
     <Card className="mt-6">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -77,7 +90,7 @@ export function InvoiceItemsTable({
                           <SelectValue placeholder="Select service" />
                         </SelectTrigger>
                         <SelectContent>
-                          {services.map((service) => (
+                          {availableServices.map((service) => (
                             <SelectItem key={service.id} value={service.id}>
                               {service.name}
                             </SelectItem>

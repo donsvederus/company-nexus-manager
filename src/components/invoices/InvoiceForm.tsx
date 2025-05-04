@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useServices } from "@/context/services";
 import { useClients } from "@/context/client";
@@ -197,6 +196,8 @@ export default function InvoiceForm() {
       <InvoiceItemsTable
         invoiceItems={invoiceItems}
         services={services}
+        clientServices={clientServices}
+        selectedClientId={selectedClientId}
         addEmptyItem={addEmptyItem}
         removeItem={removeItem}
         updateItem={updateItem}
