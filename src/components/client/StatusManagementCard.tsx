@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,7 +10,7 @@ import {
 import { Client, ClientStatus } from "@/types/client";
 import StatusBadge from "@/components/StatusBadge";
 import { useClients } from "@/context/ClientContext";
-import { Clock } from "lucide-react";
+import { Clock, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface StatusManagementCardProps {
@@ -28,6 +29,10 @@ export default function StatusManagementCard({ client, onStatusChange }: StatusM
 
   const handleWorkLogClick = () => {
     navigate(`/clients/${client.id}/worklog`);
+  };
+  
+  const handleNotesClick = () => {
+    navigate(`/clients/${client.id}/notes`);
   };
 
   return (
@@ -90,6 +95,24 @@ export default function StatusManagementCard({ client, onStatusChange }: StatusM
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Track time and add notes for work done with this client</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    className="w-full" 
+                    variant="outline"
+                    onClick={handleNotesClick}
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    Client Notes
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Add and manage client notes</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

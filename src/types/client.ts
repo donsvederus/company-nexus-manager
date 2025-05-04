@@ -19,6 +19,7 @@ export interface Client {
   lastContactDate?: string; // Added last contact date field
   endDate?: string; // Added end date field
   workLogs?: WorkLog[]; // Added work logs
+  notes?: string; // Added client notes field
 }
 
 // Work log type for tracking time spent on client work
