@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function ClientNotes() {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +18,7 @@ export default function ClientNotes() {
   const [notes, setNotes] = useState<string>("");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isAutoSaveEnabled, setIsAutoSaveEnabled] = useState<boolean>(true);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
   useEffect(() => {
     if (id) {
@@ -24,6 +26,7 @@ export default function ClientNotes() {
       if (foundClient) {
         setClient(foundClient);
         setNotes(foundClient.notes || "");
+        setHasUnsavedChanges(false);
       } else {
         navigate("/clients");
         toast.error("Client not found");
@@ -31,18 +34,25 @@ export default function ClientNotes() {
     }
   }, [id, getClientById, navigate]);
 
+  // Check for unsaved changes whenever notes change
+  useEffect(() => {
+    if (client) {
+      setHasUnsavedChanges(notes !== (client.notes || ""));
+    }
+  }, [notes, client]);
+
   // Auto-save every 30 seconds if there are changes and auto-save is enabled
   useEffect(() => {
     if (!isAutoSaveEnabled || !client) return;
 
     const timer = setTimeout(() => {
-      if (notes !== (client.notes || "")) {
+      if (hasUnsavedChanges) {
         handleSave();
       }
     }, 30000);
 
     return () => clearTimeout(timer);
-  }, [notes, isAutoSaveEnabled, client]);
+  }, [notes, isAutoSaveEnabled, client, hasUnsavedChanges]);
 
   const handleSave = () => {
     if (!client) return;
@@ -56,13 +66,14 @@ export default function ClientNotes() {
     updateClient(updatedClient);
     setClient(updatedClient);
     setLastSaved(new Date());
+    setHasUnsavedChanges(false);
     toast.success("Notes saved successfully");
   };
 
   // Save notes when user navigates away
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (client && notes !== (client.notes || "")) {
+      if (hasUnsavedChanges) {
         handleSave();
       }
     };
@@ -71,7 +82,7 @@ export default function ClientNotes() {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [notes, client]);
+  }, [hasUnsavedChanges]);
 
   if (!client) {
     return (
@@ -96,6 +107,14 @@ export default function ClientNotes() {
         </Button>
       </div>
 
+      {hasUnsavedChanges && (
+        <Alert className="mb-4 border-amber-500 bg-amber-50 text-amber-800">
+          <AlertDescription>
+            You have unsaved changes. Click the Save button to save your notes.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Notes</CardTitle>
@@ -114,7 +133,11 @@ export default function ClientNotes() {
                   <span>Last saved: {lastSaved.toLocaleString()}</span>
                 )}
               </div>
-              <Button onClick={handleSave}>
+              <Button 
+                onClick={handleSave}
+                disabled={!hasUnsavedChanges}
+                className={hasUnsavedChanges ? "bg-green-600 hover:bg-green-700" : ""}
+              >
                 <Save className="mr-2 h-4 w-4" />
                 Save Notes
               </Button>
