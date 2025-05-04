@@ -25,6 +25,8 @@ import { Input } from "@/components/ui/input";
 import { Receipt, FileText, Save, Printer, FilePlus } from "lucide-react";
 import { formatCurrency } from "@/utils/formatUtils";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 export default function Invoices() {
   const { services, clientServices, getClientServices } = useServices();
@@ -45,6 +47,7 @@ export default function Invoices() {
     date.setDate(date.getDate() + 30); // 30 days from now
     return date.toISOString().split('T')[0];
   });
+  const [hasLoadedServices, setHasLoadedServices] = useState(false);
 
   // Load client data when selected
   useEffect(() => {
@@ -54,7 +57,8 @@ export default function Invoices() {
       
       // If we have a client, initialize invoice with their services
       if (client) {
-        const clientServiceData = getClientServices(client.id);
+        // Get ALL client services, not just active ones
+        const clientServiceData = clientServices.filter(cs => cs.clientId === client.id);
         
         // Map client services to invoice items
         const items = clientServiceData.map(cs => {
@@ -69,9 +73,23 @@ export default function Invoices() {
         });
         
         setInvoiceItems(items);
+        setHasLoadedServices(true);
       }
     }
-  }, [selectedClientId, getClientById, getClientServices, services]);
+  }, [selectedClientId, getClientById, clientServices, services]);
+
+  // Check if Acme Corporation is available and preselect it
+  useEffect(() => {
+    if (clients.length > 0 && !selectedClientId) {
+      const acmeClient = clients.find(client => 
+        client.companyName.toLowerCase().includes("acme")
+      );
+      
+      if (acmeClient) {
+        setSelectedClientId(acmeClient.id);
+      }
+    }
+  }, [clients, selectedClientId]);
 
   const addEmptyItem = () => {
     setInvoiceItems([
@@ -240,6 +258,15 @@ export default function Invoices() {
           </CardContent>
         </Card>
       </div>
+
+      {selectedClient && hasLoadedServices && invoiceItems.length === 0 && (
+        <Alert className="mt-6" variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            No services found for {selectedClient.companyName}. Please add services for this client.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Card className="mt-6">
         <CardHeader className="flex flex-row items-center justify-between">
